@@ -12,4 +12,6 @@ Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Net
 
 > Mobile View Supported [Thanks to Bootstrap 3]
 
-__ .NET Framework 4.5 Required [Download NOW!](http://www.microsoft.com/en-eg/download/details.aspx?id=30653)
+> .NET Framework 4.5 Required [Download NOW!](http://www.microsoft.com/en-eg/download/details.aspx?id=30653)
+
+> Works On Windows Vista , 7 , 8 | Windows XP Not Supported Since The .NET 4.5 Not Supported On It.
