@@ -93,6 +93,8 @@
     <Content Include="imgPrev.png" />
     <Content Include="screenicon.ico" />
     <Content Include="ScreenTaskBackground.png" />
+    <Content Include="ScreenTaskMain.png" />
+    <Content Include="ScreenTaskWebUI.png" />
     <Content Include="WebServer\bootstrap.min.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
