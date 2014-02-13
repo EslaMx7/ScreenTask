@@ -33,8 +33,9 @@ namespace ScreenTask
         public frmMain()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false; // For Visual Studio Debuging Only !
             serv = new HttpListener();
-            serv.IgnoreWriteExceptions = true;
+            serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
             img = new MemoryStream();
             isPrivateTask = false;
             isPreview = false;
@@ -72,10 +73,11 @@ namespace ScreenTask
             catch (ObjectDisposedException disObj)
             {
                 serv = new HttpListener();
+                serv.IgnoreWriteExceptions = true;
             }
             catch (Exception ex)
             {
-
+                throw;
                 Log("Error! : " + ex.Message);
             }
         }
@@ -110,7 +112,15 @@ namespace ScreenTask
                     var errorPage = Encoding.UTF8.GetBytes("<h1 style=\"color:red\">Error 404 , File Not Found </h1><hr><a href=\".\\\">Back to Home</a>");
                     ctx.Response.ContentType = "text/html";
                     ctx.Response.StatusCode = 404;
-                    await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
+                    try
+                    {
+                        await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
+                    }
+                    catch (Exception ex)
+                    {
+
+
+                    }
                     ctx.Response.Close();
                     continue;
                 }
@@ -139,7 +149,15 @@ namespace ScreenTask
                             ctx.Response.ContentType = "text/html";
                             ctx.Response.StatusCode = 401;
                             ctx.Response.AddHeader("WWW-Authenticate", "Basic realm=Screen Task Authentication : ");
-                            await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
+                            try
+                            {
+                                await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
+                            }
+                            catch (Exception ex)
+                            {
+
+
+                            }
                             ctx.Response.Close();
                             continue;
                         }
@@ -164,7 +182,21 @@ namespace ScreenTask
 
 
                 ctx.Response.StatusCode = 200;
-                await ctx.Response.OutputStream.WriteAsync(filedata, 0, filedata.Length);
+                try
+                {
+                    await ctx.Response.OutputStream.WriteAsync(filedata, 0, filedata.Length);
+                }
+                catch (Exception ex)
+                {
+
+                    /*
+                        Do Nothing !!! this is the Only Effective Solution for this Exception : 
+                        the specified network name is no longer available
+                        
+                     */
+
+                }
+
                 ctx.Response.Close();
             }
 
