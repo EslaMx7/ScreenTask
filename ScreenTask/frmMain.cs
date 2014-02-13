@@ -77,7 +77,6 @@ namespace ScreenTask
             }
             catch (Exception ex)
             {
-                throw;
                 Log("Error! : " + ex.Message);
             }
         }
