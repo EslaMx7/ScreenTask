@@ -1,9 +1,9 @@
 ## ScreenTask
 ------------------------------
 Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Network.
-### > [Download Installer (377 KB)](https://github.com/EslaMx7/ScreenTask/raw/master/Installer/ScreenTaskInstaller.exe)
+### > [Download Installer (377 KB)](http://goo.gl/gHnPmN)
 
-### > [Download ZIP Archive (177 KB)](https://raw2.github.com/EslaMx7/ScreenTask/master/Installer/ScreenTask.zip)
+### > [Download ZIP Archive (177 KB)](http://goo.gl/fKuZYg)
 
 ------------------------------
 ### List Of Features : 
