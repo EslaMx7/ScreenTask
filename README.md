@@ -5,6 +5,9 @@ Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Net
 
 ### > [Download ZIP Archive (177 KB)](http://goo.gl/fKuZYg)
 
+
+**Cross-Platform Version for ( Linux - OSX ) Written in Java :** [**Download Page**](https://github.com/ahmadomar/ScreenTask)
+
 ------------------------------
 ### List Of Features : 
 - Share Your Screen Inside a Network Without Internet Connection (No TeamViewer Anymore)
