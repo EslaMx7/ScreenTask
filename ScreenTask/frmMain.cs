@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using NetFwTypeLib;
 
 namespace ScreenTask
 {
@@ -286,43 +287,20 @@ namespace ScreenTask
         {
             return Task.Run(() =>
             {
-
-                string cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
-                if (cmd.StartsWith("\r\nNo rules match the specified criteria."))
-                {
-                    cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    if (cmd.Contains("Ok."))
-                    {
-                        Log("Screen Task Rule added to your firewall");
-                    }
+                FirewallConf cnf = new FirewallConf();
+                
+                try 
+	            {	        
+		            cnf.AddRule("Screen Task", "Allow incoming network traffic", NET_FW_ACTION_.NET_FW_ACTION_ALLOW,
+                    NET_FW_RULE_DIRECTION_.NET_FW_RULE_DIR_IN, port+"");
+                    Log("Screen Task Rule added to your firewall");
                 }
-                else
-                {
-                    cmd = RunCMD("netsh advfirewall firewall delete rule name=\"Screen Task\"");
-                    cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    if (cmd.Contains("Ok."))
-                    {
-                        Log("Screen Task Rule updated to your firewall");
-                    }
-                }
+	                catch (Exception ex)
+	                {
+		                Log(ex.Message);
+	                }
             });
 
-        }
-        private string RunCMD(string cmd)
-        {
-            Process proc = new Process();
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.Arguments = "/C " + cmd;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.Start();
-            string res = proc.StandardOutput.ReadToEnd();
-            proc.StandardOutput.Close();
-
-            proc.Close();
-            return res;
         }
         private void Log(string text)
         {
