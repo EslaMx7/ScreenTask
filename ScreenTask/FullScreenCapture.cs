@@ -48,7 +48,7 @@ namespace ScreenTask
         public static Bitmap CapturePrimaryScreen(bool captureMouse)
         {
             Rectangle bounds = Screen.PrimaryScreen.Bounds;
-
+            
             var bitmap = CaptureScreen(bounds, captureMouse);
             return bitmap;
         }

@@ -56,6 +56,8 @@
             this.lblMe = new System.Windows.Forms.Label();
             this.lblWebsite = new System.Windows.Forms.Label();
             this.lblGithub = new System.Windows.Forms.Label();
+            this.comboScreens = new System.Windows.Forms.ComboBox();
+            this.label7 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.imgPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
@@ -379,6 +381,25 @@
             this.lblGithub.TabIndex = 34;
             this.lblGithub.Click += new System.EventHandler(this.lblGithub_Click);
             // 
+            // comboScreens
+            // 
+            this.comboScreens.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboScreens.FormattingEnabled = true;
+            this.comboScreens.Location = new System.Drawing.Point(448, 183);
+            this.comboScreens.Name = "comboScreens";
+            this.comboScreens.Size = new System.Drawing.Size(111, 21);
+            this.comboScreens.TabIndex = 35;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.BackColor = System.Drawing.Color.Transparent;
+            this.label7.Location = new System.Drawing.Point(395, 186);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(47, 13);
+            this.label7.TabIndex = 36;
+            this.label7.Text = "Screen :";
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -386,6 +407,8 @@
             this.BackgroundImage = global::ScreenTask.Properties.Resources.ScreenTaskBackground;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(617, 410);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.comboScreens);
             this.Controls.Add(this.imgPreview);
             this.Controls.Add(this.txtLog);
             this.Controls.Add(this.gbPreview);
@@ -457,6 +480,8 @@
         private System.Windows.Forms.Label lblMe;
         private System.Windows.Forms.Label lblWebsite;
         private System.Windows.Forms.Label lblGithub;
+        private System.Windows.Forms.ComboBox comboScreens;
+        private System.Windows.Forms.Label label7;
     }
 }
 

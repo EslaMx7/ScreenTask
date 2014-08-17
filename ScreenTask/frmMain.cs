@@ -40,6 +40,12 @@ namespace ScreenTask
             isPrivateTask = false;
             isPreview = false;
             isMouseCapture = false;
+
+            foreach (var screen in Screen.AllScreens)
+            {
+                comboScreens.Items.Add(screen.DeviceName.Replace("\\","").Replace(".",""));
+            }
+            comboScreens.SelectedIndex = 0;
         }
 
         private async void btnStartServer_Click(object sender, EventArgs e)
