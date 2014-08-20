@@ -224,7 +224,7 @@ namespace ScreenTask
         {
             if (captureMouse)
             {
-                var bmp = ScreenCapturePInvoke.CaptureFullScreen(true);
+                var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true,comboScreens.SelectedIndex);
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
