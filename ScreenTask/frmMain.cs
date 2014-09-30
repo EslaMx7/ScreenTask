@@ -228,12 +228,15 @@ namespace ScreenTask
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
+                
                 if (isPreview)
                 {
                     img = new MemoryStream();
                     bmp.Save(img, ImageFormat.Jpeg);
                     imgPreview.Image = new Bitmap(img);
                 }
+                bmp.Dispose();
+                bmp = null;
                 return;
             }
             Rectangle bounds = Screen.GetBounds(Point.Empty);
