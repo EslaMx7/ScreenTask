@@ -18,10 +18,10 @@ Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Net
 ------------------------------
 
 ### Desktop Application : 
-![Screen Task Main Window](https://raw2.github.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskMain.png)
+![Screen Task Main Window](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskMain.png)
 
 ### Web UI :
-![Screen Task WebUI](https://raw2.github.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskWebUI.png)
+![Screen Task WebUI](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskWebUI.png)
 
 
 > Mobile View Supported [Thanks to Bootstrap 3]
