@@ -3,7 +3,7 @@
 Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Network.
 ### > [Download Installer (377 KB)](http://goo.gl/gHnPmN)
 
-### > [Download ZIP Archive (177 KB)](https://goo.gl/oTbr4R)
+### > [Download ZIP Archive (177 KB)](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/Installer/ScreenTask.zip)
 
 
 **Cross-Platform Version for ( Linux - OSX ) Written in Java :** [**Download Page**](https://github.com/ahmadomar/ScreenTask)
