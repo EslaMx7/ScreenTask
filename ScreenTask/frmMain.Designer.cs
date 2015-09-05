@@ -272,7 +272,7 @@
             this.txtURL.ReadOnly = true;
             this.txtURL.Size = new System.Drawing.Size(338, 20);
             this.txtURL.TabIndex = 17;
-            this.txtURL.Text = "the URL will displayed here after starting the server...";
+            this.txtURL.Text = "the URL will be displayed here after starting the server...";
             // 
             // label1
             // 
@@ -304,7 +304,7 @@
             this.cbScreenshotEvery.Name = "cbScreenshotEvery";
             this.cbScreenshotEvery.Size = new System.Drawing.Size(144, 17);
             this.cbScreenshotEvery.TabIndex = 29;
-            this.cbScreenshotEvery.Text = "Take Screenshot Every :";
+            this.cbScreenshotEvery.Text = "Take Screenshots Every :";
             this.cbScreenshotEvery.UseVisualStyleBackColor = false;
             this.cbScreenshotEvery.CheckedChanged += new System.EventHandler(this.cbScreenshotEvery_CheckedChanged);
             // 
@@ -316,7 +316,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(61, 13);
             this.label6.TabIndex = 31;
-            this.label6.Text = "Mellisecond";
+            this.label6.Text = "Milliseconds";
             // 
             // numShotEvery
             // 
