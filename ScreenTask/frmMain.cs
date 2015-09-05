@@ -51,7 +51,7 @@ namespace ScreenTask
                 btnStartServer.Text = "Start Server";
                 isWorking = false;
                 isTakingScreenshots = false;
-                Log("Server Stoped.");
+                Log("Server Stopped.");
                 return;
             }
 
@@ -92,7 +92,7 @@ namespace ScreenTask
             //serv.Prefixes.Add("http://*:" + numPort.Value.ToString() + "/"); // Uncomment this to Allow Public IP Over Internet. [Commented for Security Reasons.]
             serv.Prefixes.Add(url + "/");
             serv.Start();
-            Log("Server Started Successfuly!");
+            Log("Server Started Successfully!");
             Log("Private Network URL : " + url);
             Log("Localhost URL : " + "http://localhost:" + numPort.Value.ToString() + "/");
             while (isWorking)
@@ -173,7 +173,7 @@ namespace ScreenTask
                 rwl.ReleaseReaderLock();
 
                 var fileinfo = new FileInfo(page);
-                if (fileinfo.Extension == ".css") // important for IE -> Content-Type must be defiend for CSS files unless will ignored !!!
+                if (fileinfo.Extension == ".css") // important for IE -> Content-Type must be defiend for CSS files unless will be ignored !!!
                     ctx.Response.ContentType = "text/css";
                 else if (fileinfo.Extension == ".html" || fileinfo.Extension == ".htm")
                     ctx.Response.ContentType = "text/html"; // Important For Chrome Otherwise will display the HTML as plain text.
@@ -336,7 +336,7 @@ namespace ScreenTask
             isTakingScreenshots = false;
             btnStartServer.Enabled = true;
             btnStopServer.Enabled = false;
-            Log("Server Stoped.");
+            Log("Server Stopped.");
         }
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e)
