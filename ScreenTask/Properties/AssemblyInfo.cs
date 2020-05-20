@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("Share your screen inside the private network")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("EslaMxSoft 2014")]
-[assembly: AssemblyProduct("ScreenTask v1")]
+[assembly: AssemblyProduct("ScreenTask v1.1")]
 [assembly: AssemblyCopyright("Copyright ©  EslaMxSoft 2014")]
 [assembly: AssemblyTrademark("Eslam Hamouda")]
 [assembly: AssemblyCulture("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]

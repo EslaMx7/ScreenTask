@@ -10,7 +10,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -394,6 +396,29 @@ namespace ScreenTask
                 comboIPs.Items.Add(ip.Item2 + " - " + ip.Item1);
             }
             comboIPs.SelectedIndex = comboIPs.Items.Count - 1;
+
+            Task.Factory.StartNew(() =>
+            {
+                var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var wc = new WebClient();
+                wc.Headers.Add(HttpRequestHeader.UserAgent, "ScreenTask");
+                var latestGithubReleaseText = wc.DownloadString("https://api.github.com/repos/EslaMx7/ScreenTask/releases/latest");
+                var regex = Regex.Match(latestGithubReleaseText, @"\""tag_name\"":\""(.{2,5})\"",", RegexOptions.Multiline);
+                if (regex.Success && !string.IsNullOrEmpty(regex.Value) && regex.Groups.Count > 1)
+                {
+                    var groupMatch = regex.Groups[1];
+                    var newVersion = new Version(groupMatch.Value.Replace("v", ""));
+                   
+                   if(newVersion > currentVersion)
+                    {
+                        var msgResult = MessageBox.Show($"There is a new update available for download.\nCurrent Version: {currentVersion}\nLatest Version: {newVersion}\nDo you want to download it now ?", "New Version Released!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        if(msgResult == DialogResult.Yes)
+                        {
+                            Process.Start("https://github.com/EslaMx7/ScreenTask");
+                        }
+                    }
+                }
+            });
         }
 
         private void imgPreview_Click(object sender, EventArgs e)

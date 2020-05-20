@@ -53,9 +53,9 @@
             this.cbScreenshotEvery = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.numShotEvery = new System.Windows.Forms.NumericUpDown();
+            this.lblGithub = new System.Windows.Forms.Label();
             this.lblMe = new System.Windows.Forms.Label();
             this.lblWebsite = new System.Windows.Forms.Label();
-            this.lblGithub = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.imgPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
@@ -134,7 +134,7 @@
             this.cbCaptureMouse.BackColor = System.Drawing.Color.Transparent;
             this.cbCaptureMouse.Location = new System.Drawing.Point(400, 155);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
-            this.cbCaptureMouse.Size = new System.Drawing.Size(136, 17);
+            this.cbCaptureMouse.Size = new System.Drawing.Size(134, 17);
             this.cbCaptureMouse.TabIndex = 26;
             this.cbCaptureMouse.Text = "Capture Mouse Pointer";
             this.cbCaptureMouse.UseVisualStyleBackColor = false;
@@ -207,7 +207,7 @@
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.Location = new System.Drawing.Point(255, 159);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(63, 13);
+            this.label4.Size = new System.Drawing.Size(62, 13);
             this.label4.TabIndex = 20;
             this.label4.Text = "Password : ";
             // 
@@ -217,7 +217,7 @@
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.Location = new System.Drawing.Point(147, 159);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 13);
+            this.label3.Size = new System.Drawing.Size(38, 13);
             this.label3.TabIndex = 19;
             this.label3.Text = "User : ";
             // 
@@ -227,7 +227,7 @@
             this.cbPrivate.BackColor = System.Drawing.Color.Transparent;
             this.cbPrivate.Location = new System.Drawing.Point(47, 158);
             this.cbPrivate.Name = "cbPrivate";
-            this.cbPrivate.Size = new System.Drawing.Size(88, 17);
+            this.cbPrivate.Size = new System.Drawing.Size(89, 17);
             this.cbPrivate.TabIndex = 18;
             this.cbPrivate.Text = "Private Task ";
             this.cbPrivate.UseVisualStyleBackColor = false;
@@ -261,7 +261,7 @@
             this.label2.BackColor = System.Drawing.Color.Transparent;
             this.label2.Location = new System.Drawing.Point(268, 90);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(34, 13);
+            this.label2.Size = new System.Drawing.Size(32, 13);
             this.label2.TabIndex = 16;
             this.label2.Text = "Port :";
             // 
@@ -280,7 +280,7 @@
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.Location = new System.Drawing.Point(8, 118);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(33, 13);
+            this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 14;
             this.label1.Text = "URL :";
             // 
@@ -290,7 +290,7 @@
             this.label5.BackColor = System.Drawing.Color.Transparent;
             this.label5.Location = new System.Drawing.Point(11, 88);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(24, 13);
+            this.label5.Size = new System.Drawing.Size(23, 13);
             this.label5.TabIndex = 28;
             this.label5.Text = "IP :";
             // 
@@ -314,7 +314,7 @@
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.Location = new System.Drawing.Point(501, 118);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(61, 13);
+            this.label6.Size = new System.Drawing.Size(63, 13);
             this.label6.TabIndex = 31;
             this.label6.Text = "Mellisecond";
             // 
@@ -346,6 +346,15 @@
             0,
             0});
             // 
+            // lblGithub
+            // 
+            this.lblGithub.BackColor = System.Drawing.Color.Transparent;
+            this.lblGithub.Location = new System.Drawing.Point(538, 9);
+            this.lblGithub.Name = "lblGithub";
+            this.lblGithub.Size = new System.Drawing.Size(79, 56);
+            this.lblGithub.TabIndex = 34;
+            this.lblGithub.Click += new System.EventHandler(this.lblGithub_Click);
+            // 
             // lblMe
             // 
             this.lblMe.AutoSize = true;
@@ -369,15 +378,6 @@
             this.lblWebsite.Text = "2014 | eslamx.com";
             this.lblWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.lblWebsite.Click += new System.EventHandler(this.lblWebsite_Click);
-            // 
-            // lblGithub
-            // 
-            this.lblGithub.BackColor = System.Drawing.Color.Transparent;
-            this.lblGithub.Location = new System.Drawing.Point(538, 9);
-            this.lblGithub.Name = "lblGithub";
-            this.lblGithub.Size = new System.Drawing.Size(79, 56);
-            this.lblGithub.TabIndex = 34;
-            this.lblGithub.Click += new System.EventHandler(this.lblGithub_Click);
             // 
             // frmMain
             // 
@@ -454,9 +454,9 @@
         private System.Windows.Forms.CheckBox cbScreenshotEvery;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.NumericUpDown numShotEvery;
+        private System.Windows.Forms.Label lblGithub;
         private System.Windows.Forms.Label lblMe;
         private System.Windows.Forms.Label lblWebsite;
-        private System.Windows.Forms.Label lblGithub;
     }
 }
 
