@@ -10,7 +10,9 @@ using System.Linq;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -30,9 +32,11 @@ namespace ScreenTask
         private MemoryStream img;
         private List<Tuple<string, string>> _ips;
         HttpListener serv;
+        private Version currentVersion;
         public frmMain()
         {
             InitializeComponent();
+            currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             CheckForIllegalCrossThreadCalls = false; // For Visual Studio Debuging Only !
             serv = new HttpListener();
             serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
@@ -43,9 +47,10 @@ namespace ScreenTask
 
             foreach (var screen in Screen.AllScreens)
             {
-                comboScreens.Items.Add(screen.DeviceName.Replace("\\","").Replace(".",""));
+                comboScreens.Items.Add(screen.DeviceName.Replace("\\", "").Replace(".", ""));
             }
             comboScreens.SelectedIndex = 0;
+            this.Text = $"Screen Task v{currentVersion.Major}.{currentVersion.Minor}";
         }
 
         private async void btnStartServer_Click(object sender, EventArgs e)
@@ -64,7 +69,7 @@ namespace ScreenTask
             try
             {
 
-
+                serv = new HttpListener();
                 serv.IgnoreWriteExceptions = true;
                 isTakingScreenshots = true;
                 isWorking = true;
@@ -80,6 +85,30 @@ namespace ScreenTask
             {
                 serv = new HttpListener();
                 serv.IgnoreWriteExceptions = true;
+            }
+            catch (HttpListenerException httpEx)
+            {
+                if (httpEx.ErrorCode == 32) // Port Already Used
+                {
+                    btnStartServer.Tag = "start";
+                    btnStartServer.Text = "Start Server";
+                    isWorking = false;
+                    isTakingScreenshots = false;
+                    Log($"This port {numPort.Value} is already used");
+                    var msgResult = MessageBox.Show($"This port {numPort.Value} is already used, Do you want to use another random one ?", "Port Already Used !", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (msgResult == DialogResult.Yes)
+                    {
+                        numPort.Value += DateTime.Now.Second;
+                        Log($"New port is {numPort.Value}");
+                        btnStartServer_Click(sender, e);
+                    }
+                    else
+                    {
+
+                        Log("Port Change Request Declined");
+                    }
+
+                }
             }
             catch (Exception ex)
             {
@@ -224,11 +253,11 @@ namespace ScreenTask
         {
             if (captureMouse)
             {
-                var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true,comboScreens.SelectedIndex);
+                var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex);
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
-                
+
                 if (isPreview)
                 {
                     img = new MemoryStream();
@@ -403,6 +432,28 @@ namespace ScreenTask
                 comboIPs.Items.Add(ip.Item2 + " - " + ip.Item1);
             }
             comboIPs.SelectedIndex = comboIPs.Items.Count - 1;
+
+            Task.Factory.StartNew(() =>
+            {
+                var wc = new WebClient();
+                wc.Headers.Add(HttpRequestHeader.UserAgent, "ScreenTask");
+                var latestGithubReleaseText = wc.DownloadString("https://api.github.com/repos/EslaMx7/ScreenTask/releases/latest");
+                var regex = Regex.Match(latestGithubReleaseText, @"\""tag_name\"":\""(.{2,5})\"",", RegexOptions.Multiline);
+                if (regex.Success && !string.IsNullOrEmpty(regex.Value) && regex.Groups.Count > 1)
+                {
+                    var groupMatch = regex.Groups[1];
+                    var newVersion = new Version(groupMatch.Value.Replace("v", ""));
+
+                    if (newVersion > currentVersion)
+                    {
+                        var msgResult = MessageBox.Show($"There is a new update available for download.\nCurrent Version: {currentVersion}\nLatest Version: {newVersion}\nDo you want to download it now ?", "New Version Released!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                        if (msgResult == DialogResult.Yes)
+                        {
+                            Process.Start("https://screentask.me");
+                        }
+                    }
+                }
+            });
         }
 
         private void imgPreview_Click(object sender, EventArgs e)
