@@ -31,12 +31,12 @@ namespace ScreenTask
         private static extern bool GetCursorInfo(out CURSORINFO pci);
 
         [DllImport("user32.dll", SetLastError = true)]
-        static extern bool DrawIconEx(IntPtr hdc, int xLeft, int yTop, IntPtr hIcon, int cxWidth, int cyHeight, int istepIfAniCur, IntPtr hbrFlickerFreeDraw, int diFlags);
+        private static extern bool DrawIconEx(IntPtr hdc, int xLeft, int yTop, IntPtr hIcon, int cxWidth, int cyHeight, int istepIfAniCur, IntPtr hbrFlickerFreeDraw, int diFlags);
 
         private const Int32 CURSOR_SHOWING = 0x0001;
         private const Int32 DI_NORMAL = 0x0003;
 
-        public static Bitmap CaptureFullScreen(bool captureMouse)
+        public Bitmap CaptureFullScreen(bool captureMouse)
         {
             var allBounds = Screen.AllScreens.Select(s => s.Bounds).ToArray();
             Rectangle bounds = Rectangle.FromLTRB(allBounds.Min(b => b.Left), allBounds.Min(b => b.Top), allBounds.Max(b => b.Right), allBounds.Max(b => b.Bottom));
@@ -45,7 +45,7 @@ namespace ScreenTask
             return bitmap;
         }
 
-        public static Bitmap CapturePrimaryScreen(bool captureMouse)
+        public Bitmap CapturePrimaryScreen(bool captureMouse)
         {
             Rectangle bounds = Screen.PrimaryScreen.Bounds;
 
@@ -53,7 +53,7 @@ namespace ScreenTask
             return bitmap;
         }
 
-        public static Bitmap CaptureScreen(Rectangle bounds, bool captureMouse)
+        public Bitmap CaptureScreen(Rectangle bounds, bool captureMouse)
         {
             Bitmap result = new Bitmap(bounds.Width, bounds.Height);
 

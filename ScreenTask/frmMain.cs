@@ -1,4 +1,16 @@
-﻿using System;
+﻿/*************************************************************************************************
+ * ScreenTask 局域网屏幕共享软件
+ * 
+ * 软件特色：
+ * 在没有Internet连接的网络中共享屏幕(不再使用TeamViewer)
+ * 这样客户端就不需要任何额外的软件(只有Web浏览器)
+ * 使用基本身份验证使会话私有(user：：Password)
+ * 无限制的连接客户
+ * 2020-11-28：修复内存泄露的问题
+ * 将ScreenCapturePInvoke类由静态改为非静态并实例化
+ * 2020-11-27：增加最小化至托盘功能
+*************************************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,6 +31,8 @@ namespace ScreenTask
 {
     public partial class frmMain : Form
     {
+        private ScreenCapturePInvoke screenCapture = new ScreenCapturePInvoke();
+
         private bool isWorking;
         private bool isTakingScreenshots;
         private bool isPrivateTask;
@@ -27,7 +41,7 @@ namespace ScreenTask
 
         private object locker = new object();
         private ReaderWriterLock rwl = new ReaderWriterLock();
-        private MemoryStream img;
+        //private MemoryStream img;
         private List<Tuple<string, string>> _ips;
         HttpListener serv;
         public frmMain()
@@ -36,7 +50,7 @@ namespace ScreenTask
             CheckForIllegalCrossThreadCalls = false; // For Visual Studio Debuging Only !
             serv = new HttpListener();
             serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
-            img = new MemoryStream();
+            //img = new MemoryStream();
             isPrivateTask = false;
             isPreview = false;
             isMouseCapture = false;
@@ -218,13 +232,13 @@ namespace ScreenTask
         {
             if (captureMouse)
             {
-                var bmp = ScreenCapturePInvoke.CaptureFullScreen(true);
+                var bmp = screenCapture.CaptureFullScreen(true);
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
                 if (isPreview)
                 {
-                    img = new MemoryStream();
+                    MemoryStream img = new MemoryStream();
                     bmp.Save(img, ImageFormat.Jpeg);
                     imgPreview.Image = new Bitmap(img);
                 }
@@ -243,7 +257,7 @@ namespace ScreenTask
 
                 if (isPreview)
                 {
-                    img = new MemoryStream();
+                    MemoryStream img = new MemoryStream();
                     bitmap.Save(img, ImageFormat.Jpeg);
                     imgPreview.Image = new Bitmap(img);
                 }
@@ -434,6 +448,37 @@ namespace ScreenTask
         private void lblGithub_Click(object sender, EventArgs e)
         {
             Process.Start("https://github.com/EslaMx7/ScreenTask");
+        }
+
+        private void frmMain_SizeChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                //this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;//隐藏任务栏标签
+                //this.notifyIcon1.Visible = true;//显示托盘图标
+                this.Hide();
+                this.notifyIcon1.ShowBalloonTip(4, "ScreenTask", "我在这里", ToolTipIcon.Info);
+            }
+        }
+
+        private void notifyIcon1_Click(object sender, EventArgs e)
+        {
+            if (this.ShowInTaskbar)
+            {
+                this.WindowState = FormWindowState.Minimized;
+                this.ShowInTaskbar = false;//隐藏任务栏标签
+                //this.notifyIcon1.Visible = true;//显示托盘图标
+                this.Hide();
+                this.notifyIcon1.ShowBalloonTip(4, "ScreenTask", "我在这里", ToolTipIcon.Info);
+            }
+            else
+            {
+                this.ShowInTaskbar = true;//显示任务栏标签
+                //this.notifyIcon1.Visible = false;//隐藏托盘图标
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+            }
         }
 
 
