@@ -6,6 +6,9 @@
  * 这样客户端就不需要任何额外的软件(只有Web浏览器)
  * 使用基本身份验证使会话私有(user：：Password)
  * 无限制的连接客户
+ * 
+ * 李锦上(lijinshang@126.com)修改
+ * 2020-11-29：解决捕获鼠标内存泄露的问题
  * 2020-11-28：修复内存泄露的问题
  * 将ScreenCapturePInvoke类由静态改为非静态并实例化
  * 2020-11-27：增加最小化至托盘功能
@@ -232,36 +235,40 @@ namespace ScreenTask
         {
             if (captureMouse)
             {
-                var bmp = screenCapture.CaptureFullScreen(true);
-                rwl.AcquireWriterLock(Timeout.Infinite);
-                bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
-                rwl.ReleaseWriterLock();
-                if (isPreview)
+                Rectangle bounds = Screen.GetBounds(Point.Empty);
+                using (Bitmap bitmap = screenCapture.CaptureFullScreen(true))
                 {
-                    MemoryStream img = new MemoryStream();
-                    bmp.Save(img, ImageFormat.Jpeg);
-                    imgPreview.Image = new Bitmap(img);
+                    rwl.AcquireWriterLock(Timeout.Infinite);
+                    bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
+                    rwl.ReleaseWriterLock();
+                    if (isPreview)
+                    {
+                        MemoryStream img = new MemoryStream();
+                        bitmap.Save(img, ImageFormat.Jpeg);
+                        imgPreview.Image = new Bitmap(img);
+                    }
                 }
-                return;
             }
-            Rectangle bounds = Screen.GetBounds(Point.Empty);
-            using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+            else
             {
-                using (Graphics g = Graphics.FromImage(bitmap))
+                Rectangle bounds = Screen.GetBounds(Point.Empty);
+                using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
                 {
-                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-                }
-                rwl.AcquireWriterLock(Timeout.Infinite);
-                bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
-                rwl.ReleaseWriterLock();
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                    }
+                    rwl.AcquireWriterLock(Timeout.Infinite);
+                    bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
+                    rwl.ReleaseWriterLock();
 
-                if (isPreview)
-                {
-                    MemoryStream img = new MemoryStream();
-                    bitmap.Save(img, ImageFormat.Jpeg);
-                    imgPreview.Image = new Bitmap(img);
+                    if (isPreview)
+                    {
+                        MemoryStream img = new MemoryStream();
+                        bitmap.Save(img, ImageFormat.Jpeg);
+                        imgPreview.Image = new Bitmap(bitmap);
+                    }
                 }
-
 
             }
         }
