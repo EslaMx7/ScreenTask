@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmMain));
             this.gbOptions = new System.Windows.Forms.GroupBox();
             this.gbLog = new System.Windows.Forms.GroupBox();
@@ -56,6 +57,7 @@
             this.lblMe = new System.Windows.Forms.Label();
             this.lblWebsite = new System.Windows.Forms.Label();
             this.lblGithub = new System.Windows.Forms.Label();
+            this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.imgPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
@@ -63,39 +65,46 @@
             // 
             // gbOptions
             // 
-            this.gbOptions.Location = new System.Drawing.Point(723, 14);
+            this.gbOptions.Location = new System.Drawing.Point(964, 16);
+            this.gbOptions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbOptions.Name = "gbOptions";
-            this.gbOptions.Size = new System.Drawing.Size(114, 112);
+            this.gbOptions.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbOptions.Size = new System.Drawing.Size(152, 129);
             this.gbOptions.TabIndex = 0;
             this.gbOptions.TabStop = false;
             this.gbOptions.Text = "Server Options";
             // 
             // gbLog
             // 
-            this.gbLog.Location = new System.Drawing.Point(723, 337);
+            this.gbLog.Location = new System.Drawing.Point(964, 389);
+            this.gbLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbLog.Name = "gbLog";
-            this.gbLog.Size = new System.Drawing.Size(409, 120);
+            this.gbLog.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbLog.Size = new System.Drawing.Size(545, 139);
             this.gbLog.TabIndex = 1;
             this.gbLog.TabStop = false;
             this.gbLog.Text = "Log";
             // 
             // gbPreview
             // 
-            this.gbPreview.Location = new System.Drawing.Point(723, 142);
+            this.gbPreview.Location = new System.Drawing.Point(964, 164);
+            this.gbPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gbPreview.Name = "gbPreview";
-            this.gbPreview.Size = new System.Drawing.Size(409, 189);
+            this.gbPreview.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gbPreview.Size = new System.Drawing.Size(545, 218);
             this.gbPreview.TabIndex = 2;
             this.gbPreview.TabStop = false;
             this.gbPreview.Text = "Preview";
             // 
             // txtLog
             // 
-            this.txtLog.Location = new System.Drawing.Point(6, 236);
+            this.txtLog.Location = new System.Drawing.Point(8, 272);
+            this.txtLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
             this.txtLog.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtLog.Size = new System.Drawing.Size(379, 139);
+            this.txtLog.Size = new System.Drawing.Size(504, 160);
             this.txtLog.TabIndex = 3;
             this.txtLog.TextChanged += new System.EventHandler(this.txtLog_TextChanged);
             // 
@@ -103,9 +112,10 @@
             // 
             this.imgPreview.Image = global::ScreenTask.Properties.Resources.imgPrev;
             this.imgPreview.InitialImage = global::ScreenTask.Properties.Resources.imgPrev;
-            this.imgPreview.Location = new System.Drawing.Point(398, 235);
+            this.imgPreview.Location = new System.Drawing.Point(531, 271);
+            this.imgPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.imgPreview.Name = "imgPreview";
-            this.imgPreview.Size = new System.Drawing.Size(210, 140);
+            this.imgPreview.Size = new System.Drawing.Size(280, 161);
             this.imgPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.imgPreview.TabIndex = 4;
             this.imgPreview.TabStop = false;
@@ -114,27 +124,30 @@
             // pnlOptions
             // 
             this.pnlOptions.BackColor = System.Drawing.Color.SteelBlue;
-            this.pnlOptions.Location = new System.Drawing.Point(878, 28);
+            this.pnlOptions.Location = new System.Drawing.Point(1171, 32);
+            this.pnlOptions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlOptions.Name = "pnlOptions";
-            this.pnlOptions.Size = new System.Drawing.Size(92, 56);
+            this.pnlOptions.Size = new System.Drawing.Size(123, 65);
             this.pnlOptions.TabIndex = 5;
             // 
             // comboIPs
             // 
             this.comboIPs.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboIPs.FormattingEnabled = true;
-            this.comboIPs.Location = new System.Drawing.Point(47, 87);
+            this.comboIPs.Location = new System.Drawing.Point(63, 100);
+            this.comboIPs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.comboIPs.Name = "comboIPs";
-            this.comboIPs.Size = new System.Drawing.Size(215, 21);
+            this.comboIPs.Size = new System.Drawing.Size(285, 23);
             this.comboIPs.TabIndex = 27;
             // 
             // cbCaptureMouse
             // 
             this.cbCaptureMouse.AutoSize = true;
             this.cbCaptureMouse.BackColor = System.Drawing.Color.Transparent;
-            this.cbCaptureMouse.Location = new System.Drawing.Point(400, 155);
+            this.cbCaptureMouse.Location = new System.Drawing.Point(533, 179);
+            this.cbCaptureMouse.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
-            this.cbCaptureMouse.Size = new System.Drawing.Size(136, 17);
+            this.cbCaptureMouse.Size = new System.Drawing.Size(197, 19);
             this.cbCaptureMouse.TabIndex = 26;
             this.cbCaptureMouse.Text = "Capture Mouse Pointer";
             this.cbCaptureMouse.UseVisualStyleBackColor = false;
@@ -144,9 +157,10 @@
             // 
             this.cbPreview.AutoSize = true;
             this.cbPreview.BackColor = System.Drawing.Color.Transparent;
-            this.cbPreview.Location = new System.Drawing.Point(400, 216);
+            this.cbPreview.Location = new System.Drawing.Point(533, 249);
+            this.cbPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbPreview.Name = "cbPreview";
-            this.cbPreview.Size = new System.Drawing.Size(64, 17);
+            this.cbPreview.Size = new System.Drawing.Size(85, 19);
             this.cbPreview.TabIndex = 25;
             this.cbPreview.Text = "Preview";
             this.cbPreview.UseVisualStyleBackColor = false;
@@ -158,9 +172,10 @@
             this.btnStopServer.Enabled = false;
             this.btnStopServer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStopServer.ForeColor = System.Drawing.Color.White;
-            this.btnStopServer.Location = new System.Drawing.Point(152, 196);
+            this.btnStopServer.Location = new System.Drawing.Point(203, 226);
+            this.btnStopServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnStopServer.Name = "btnStopServer";
-            this.btnStopServer.Size = new System.Drawing.Size(130, 23);
+            this.btnStopServer.Size = new System.Drawing.Size(173, 26);
             this.btnStopServer.TabIndex = 24;
             this.btnStopServer.Text = "Stop Server";
             this.btnStopServer.UseVisualStyleBackColor = false;
@@ -173,9 +188,10 @@
             this.btnStartServer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStartServer.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
             this.btnStartServer.ForeColor = System.Drawing.Color.White;
-            this.btnStartServer.Location = new System.Drawing.Point(114, 192);
+            this.btnStartServer.Location = new System.Drawing.Point(152, 221);
+            this.btnStartServer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnStartServer.Name = "btnStartServer";
-            this.btnStartServer.Size = new System.Drawing.Size(202, 30);
+            this.btnStartServer.Size = new System.Drawing.Size(269, 35);
             this.btnStartServer.TabIndex = 23;
             this.btnStartServer.Tag = "start";
             this.btnStartServer.Text = "Start Server";
@@ -185,19 +201,21 @@
             // txtPassword
             // 
             this.txtPassword.Enabled = false;
-            this.txtPassword.Location = new System.Drawing.Point(319, 156);
+            this.txtPassword.Location = new System.Drawing.Point(425, 180);
+            this.txtPassword.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(66, 20);
+            this.txtPassword.Size = new System.Drawing.Size(87, 25);
             this.txtPassword.TabIndex = 22;
             this.txtPassword.Text = "task";
             // 
             // txtUser
             // 
             this.txtUser.Enabled = false;
-            this.txtUser.Location = new System.Drawing.Point(183, 156);
+            this.txtUser.Location = new System.Drawing.Point(244, 180);
+            this.txtUser.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtUser.Name = "txtUser";
-            this.txtUser.Size = new System.Drawing.Size(66, 20);
+            this.txtUser.Size = new System.Drawing.Size(87, 25);
             this.txtUser.TabIndex = 21;
             this.txtUser.Text = "screen";
             // 
@@ -205,9 +223,10 @@
             // 
             this.label4.AutoSize = true;
             this.label4.BackColor = System.Drawing.Color.Transparent;
-            this.label4.Location = new System.Drawing.Point(255, 159);
+            this.label4.Location = new System.Drawing.Point(340, 184);
+            this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(63, 13);
+            this.label4.Size = new System.Drawing.Size(95, 15);
             this.label4.TabIndex = 20;
             this.label4.Text = "Password : ";
             // 
@@ -215,9 +234,10 @@
             // 
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.Transparent;
-            this.label3.Location = new System.Drawing.Point(147, 159);
+            this.label3.Location = new System.Drawing.Point(196, 184);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(39, 13);
+            this.label3.Size = new System.Drawing.Size(63, 15);
             this.label3.TabIndex = 19;
             this.label3.Text = "User : ";
             // 
@@ -225,9 +245,10 @@
             // 
             this.cbPrivate.AutoSize = true;
             this.cbPrivate.BackColor = System.Drawing.Color.Transparent;
-            this.cbPrivate.Location = new System.Drawing.Point(47, 158);
+            this.cbPrivate.Location = new System.Drawing.Point(63, 182);
+            this.cbPrivate.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbPrivate.Name = "cbPrivate";
-            this.cbPrivate.Size = new System.Drawing.Size(88, 17);
+            this.cbPrivate.Size = new System.Drawing.Size(133, 19);
             this.cbPrivate.TabIndex = 18;
             this.cbPrivate.Text = "Private Task ";
             this.cbPrivate.UseVisualStyleBackColor = false;
@@ -235,7 +256,8 @@
             // 
             // numPort
             // 
-            this.numPort.Location = new System.Drawing.Point(307, 88);
+            this.numPort.Location = new System.Drawing.Point(409, 101);
+            this.numPort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numPort.Maximum = new decimal(new int[] {
             65535,
             0,
@@ -247,7 +269,7 @@
             0,
             0});
             this.numPort.Name = "numPort";
-            this.numPort.Size = new System.Drawing.Size(78, 20);
+            this.numPort.Size = new System.Drawing.Size(104, 25);
             this.numPort.TabIndex = 1;
             this.numPort.Value = new decimal(new int[] {
             7070,
@@ -259,18 +281,20 @@
             // 
             this.label2.AutoSize = true;
             this.label2.BackColor = System.Drawing.Color.Transparent;
-            this.label2.Location = new System.Drawing.Point(268, 90);
+            this.label2.Location = new System.Drawing.Point(357, 104);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(34, 13);
+            this.label2.Size = new System.Drawing.Size(55, 15);
             this.label2.TabIndex = 16;
             this.label2.Text = "Port :";
             // 
             // txtURL
             // 
-            this.txtURL.Location = new System.Drawing.Point(47, 117);
+            this.txtURL.Location = new System.Drawing.Point(63, 135);
+            this.txtURL.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtURL.Name = "txtURL";
             this.txtURL.ReadOnly = true;
-            this.txtURL.Size = new System.Drawing.Size(338, 20);
+            this.txtURL.Size = new System.Drawing.Size(449, 25);
             this.txtURL.TabIndex = 17;
             this.txtURL.Text = "the URL will displayed here after starting the server...";
             // 
@@ -278,9 +302,10 @@
             // 
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Location = new System.Drawing.Point(8, 118);
+            this.label1.Location = new System.Drawing.Point(11, 136);
+            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(33, 13);
+            this.label1.Size = new System.Drawing.Size(47, 15);
             this.label1.TabIndex = 14;
             this.label1.Text = "URL :";
             // 
@@ -288,9 +313,10 @@
             // 
             this.label5.AutoSize = true;
             this.label5.BackColor = System.Drawing.Color.Transparent;
-            this.label5.Location = new System.Drawing.Point(11, 88);
+            this.label5.Location = new System.Drawing.Point(15, 101);
+            this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(24, 13);
+            this.label5.Size = new System.Drawing.Size(39, 15);
             this.label5.TabIndex = 28;
             this.label5.Text = "IP :";
             // 
@@ -300,9 +326,10 @@
             this.cbScreenshotEvery.BackColor = System.Drawing.Color.Transparent;
             this.cbScreenshotEvery.Checked = true;
             this.cbScreenshotEvery.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cbScreenshotEvery.Location = new System.Drawing.Point(400, 86);
+            this.cbScreenshotEvery.Location = new System.Drawing.Point(533, 99);
+            this.cbScreenshotEvery.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.cbScreenshotEvery.Name = "cbScreenshotEvery";
-            this.cbScreenshotEvery.Size = new System.Drawing.Size(144, 17);
+            this.cbScreenshotEvery.Size = new System.Drawing.Size(213, 19);
             this.cbScreenshotEvery.TabIndex = 29;
             this.cbScreenshotEvery.Text = "Take Screenshot Every :";
             this.cbScreenshotEvery.UseVisualStyleBackColor = false;
@@ -312,9 +339,10 @@
             // 
             this.label6.AutoSize = true;
             this.label6.BackColor = System.Drawing.Color.Transparent;
-            this.label6.Location = new System.Drawing.Point(501, 118);
+            this.label6.Location = new System.Drawing.Point(668, 136);
+            this.label6.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(61, 13);
+            this.label6.Size = new System.Drawing.Size(95, 15);
             this.label6.TabIndex = 31;
             this.label6.Text = "Mellisecond";
             // 
@@ -325,7 +353,8 @@
             0,
             0,
             0});
-            this.numShotEvery.Location = new System.Drawing.Point(421, 116);
+            this.numShotEvery.Location = new System.Drawing.Point(561, 134);
+            this.numShotEvery.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numShotEvery.Maximum = new decimal(new int[] {
             999999,
             0,
@@ -337,7 +366,7 @@
             0,
             0});
             this.numShotEvery.Name = "numShotEvery";
-            this.numShotEvery.Size = new System.Drawing.Size(74, 20);
+            this.numShotEvery.Size = new System.Drawing.Size(99, 25);
             this.numShotEvery.TabIndex = 30;
             this.numShotEvery.ThousandsSeparator = true;
             this.numShotEvery.Value = new decimal(new int[] {
@@ -351,9 +380,10 @@
             this.lblMe.AutoSize = true;
             this.lblMe.BackColor = System.Drawing.Color.Transparent;
             this.lblMe.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.lblMe.Location = new System.Drawing.Point(468, 391);
+            this.lblMe.Location = new System.Drawing.Point(624, 451);
+            this.lblMe.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblMe.Name = "lblMe";
-            this.lblMe.Size = new System.Drawing.Size(138, 13);
+            this.lblMe.Size = new System.Drawing.Size(199, 15);
             this.lblMe.TabIndex = 32;
             this.lblMe.Text = "Coded by : Eslam Hamouda";
             this.lblMe.Click += new System.EventHandler(this.lblMe_Click);
@@ -362,9 +392,10 @@
             // 
             this.lblWebsite.BackColor = System.Drawing.Color.Transparent;
             this.lblWebsite.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.lblWebsite.Location = new System.Drawing.Point(33, 384);
+            this.lblWebsite.Location = new System.Drawing.Point(44, 442);
+            this.lblWebsite.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblWebsite.Name = "lblWebsite";
-            this.lblWebsite.Size = new System.Drawing.Size(180, 24);
+            this.lblWebsite.Size = new System.Drawing.Size(240, 28);
             this.lblWebsite.TabIndex = 33;
             this.lblWebsite.Text = "2014 | eslamx.com";
             this.lblWebsite.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -373,19 +404,28 @@
             // lblGithub
             // 
             this.lblGithub.BackColor = System.Drawing.Color.Transparent;
-            this.lblGithub.Location = new System.Drawing.Point(538, 9);
+            this.lblGithub.Location = new System.Drawing.Point(717, 10);
+            this.lblGithub.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblGithub.Name = "lblGithub";
-            this.lblGithub.Size = new System.Drawing.Size(79, 56);
+            this.lblGithub.Size = new System.Drawing.Size(105, 65);
             this.lblGithub.TabIndex = 34;
             this.lblGithub.Click += new System.EventHandler(this.lblGithub_Click);
             // 
+            // notifyIcon1
+            // 
+            this.notifyIcon1.BalloonTipIcon = System.Windows.Forms.ToolTipIcon.Info;
+            this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
+            this.notifyIcon1.Text = "ScreenTask";
+            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.Click += new System.EventHandler(this.notifyIcon1_Click);
+            // 
             // frmMain
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::ScreenTask.Properties.Resources.ScreenTaskBackground;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(617, 410);
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.ClientSize = new System.Drawing.Size(823, 472);
             this.Controls.Add(this.imgPreview);
             this.Controls.Add(this.txtLog);
             this.Controls.Add(this.gbPreview);
@@ -415,11 +455,13 @@
             this.Controls.Add(this.lblMe);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Screen Task";
             this.Load += new System.EventHandler(this.frmMain_Load);
+            this.SizeChanged += new System.EventHandler(this.frmMain_SizeChanged);
             ((System.ComponentModel.ISupportInitialize)(this.imgPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).EndInit();
@@ -457,6 +499,7 @@
         private System.Windows.Forms.Label lblMe;
         private System.Windows.Forms.Label lblWebsite;
         private System.Windows.Forms.Label lblGithub;
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
     }
 }
 
