@@ -1,24 +1,30 @@
-## ScreenTask
+# ScreenTask
 ------------------------------
-Desktop App in C# to Share Your Screen With Your Friends Inside The Internal Network.
-### > [Download Installer (377 KB)](http://goo.gl/gHnPmN)
+## 📢 New Version Released: [Info & Download](https://github.com/EslaMx7/ScreenTask/releases) 🔥
+Screen sharing made easy!
+Share your screen across local devices without internet.
 
-### > [Download ZIP Archive (177 KB)](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/Installer/ScreenTask.zip)
+## Windows Releases :
+### > [Download Installer (750 KB)](https://github.com/EslaMx7/ScreenTask/releases/download/v1.1/ScreenTask.v1.1.exe)
+
+### > [Download ZIP Archive (292 KB)](https://github.com/EslaMx7/ScreenTask/releases/download/v1.1/ScreenTask.v1.1.zip)
 
 
 **Cross-Platform Version for ( Linux - OSX ) Written in Java :** [**Download Page**](https://github.com/ahmadomar/ScreenTask)
 
 ------------------------------
 ### List Of Features : 
-- Share Your Screen Inside a Network Without Internet Connection (No TeamViewer Anymore)
+- Share Your Screen Inside a Network Without Internet Connection
 - WebUI So Clients Doesn't Need Any Additional Software (Only Web Browser)
 - Make Your Session Private Using Basic Authentication (User::Password)
 - Unlimited Number Of Connected Clients
+- Multiple screens support
+- Automatic server starting
 
 ------------------------------
 
-### Desktop Application : 
-![Screen Task Main Window](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskMain.png)
+### Application Interface : 
+![Screen Task Main Window](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskMain.v1.1.png)
 
 ### Web UI :
 ![Screen Task WebUI](https://raw.githubusercontent.com/EslaMx7/ScreenTask/master/ScreenTask/ScreenTaskWebUI.png)
