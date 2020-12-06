@@ -63,9 +63,9 @@ namespace ScreenTask.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap imgPrev {
+        internal static System.Drawing.Bitmap logo_icon {
             get {
-                object obj = ResourceManager.GetObject("imgPrev", resourceCulture);
+                object obj = ResourceManager.GetObject("logo_icon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,9 +73,19 @@ namespace ScreenTask.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap ScreenTaskBackground {
+        internal static System.Drawing.Bitmap logo_text {
             get {
-                object obj = ResourceManager.GetObject("ScreenTaskBackground", resourceCulture);
+                object obj = ResourceManager.GetObject("logo_text", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap screentask_logo {
+            get {
+                object obj = ResourceManager.GetObject("screentask_logo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

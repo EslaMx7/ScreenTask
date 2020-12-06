@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("ScreenTask")]
-[assembly: AssemblyDescription("Share your screen inside the private network")]
+[assembly: AssemblyDescription("Screen sharing made easy")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("EslaMxSoft 2014")]
+[assembly: AssemblyCompany("Eslam Hamouda")]
 [assembly: AssemblyProduct("ScreenTask v1.1")]
-[assembly: AssemblyCopyright("Copyright ©  EslaMxSoft 2014")]
+[assembly: AssemblyCopyright("Copyright ©  Eslam Hamouda 2014-2020")]
 [assembly: AssemblyTrademark("Eslam Hamouda")]
 [assembly: AssemblyCulture("")]
 

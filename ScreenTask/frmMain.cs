@@ -16,16 +16,13 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace ScreenTask
 {
     public partial class frmMain : Form
     {
         private bool isWorking;
-        private bool isTakingScreenshots;
-        private bool isPrivateTask;
-        private bool isPreview;
-        private bool isMouseCapture;
 
         private object locker = new object();
         private ReaderWriterLock rwl = new ReaderWriterLock();
@@ -33,6 +30,7 @@ namespace ScreenTask
         private List<Tuple<string, string>> _ips;
         HttpListener serv;
         private Version currentVersion;
+        private AppSettings _currentSettings = new AppSettings();
         public frmMain()
         {
             InitializeComponent();
@@ -41,9 +39,6 @@ namespace ScreenTask
             serv = new HttpListener();
             serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
             img = new MemoryStream();
-            isPrivateTask = false;
-            isPreview = false;
-            isMouseCapture = false;
 
             foreach (var screen in Screen.AllScreens)
             {
@@ -61,8 +56,14 @@ namespace ScreenTask
                 btnStartServer.Tag = "start";
                 btnStartServer.Text = "Start Server";
                 isWorking = false;
-                isTakingScreenshots = false;
+                if (serv.IsListening)
+                {
+                    serv.Stop();
+                    serv.Close();
+                }
                 Log("Server Stoped.");
+                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Server Stoped.", ToolTipIcon.Info);
+
                 return;
             }
 
@@ -71,11 +72,10 @@ namespace ScreenTask
 
                 serv = new HttpListener();
                 serv.IgnoreWriteExceptions = true;
-                isTakingScreenshots = true;
                 isWorking = true;
                 Log("Starting Server, Please Wait...");
                 await AddFirewallRule((int)numPort.Value);
-                Task.Factory.StartNew(() => CaptureScreenEvery((int)numShotEvery.Value)).Wait();
+                _ = Task.Factory.StartNew(() => CaptureScreenEvery((int)numShotEvery.Value), TaskCreationOptions.LongRunning);
                 btnStartServer.Tag = "stop";
                 btnStartServer.Text = "Stop Server";
                 await StartServer();
@@ -93,7 +93,6 @@ namespace ScreenTask
                     btnStartServer.Tag = "start";
                     btnStartServer.Text = "Start Server";
                     isWorking = false;
-                    isTakingScreenshots = false;
                     Log($"This port {numPort.Value} is already used");
                     var msgResult = MessageBox.Show($"This port {numPort.Value} is already used, Do you want to use another random one ?", "Port Already Used !", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (msgResult == DialogResult.Yes)
@@ -109,6 +108,11 @@ namespace ScreenTask
                     }
 
                 }
+                else if (httpEx.ErrorCode == 183)
+                {
+                    MessageBox.Show(httpEx.Message);
+                }
+
             }
             catch (Exception ex)
             {
@@ -128,7 +132,9 @@ namespace ScreenTask
             serv.Prefixes.Add(url + "/");
             serv.Start();
             Log("Server Started Successfuly!");
-            Log("Private Network URL : " + url);
+            appNotify.ShowBalloonTip(1_000, "ScreenTask", $"Server Started Successfuly!\r\n{url}", ToolTipIcon.Info);
+
+            Log("Network URL : " + url);
             Log("Localhost URL : " + "http://localhost:" + numPort.Value.ToString() + "/");
             while (isWorking)
             {
@@ -160,7 +166,7 @@ namespace ScreenTask
                 }
 
 
-                if (isPrivateTask)
+                if (_currentSettings.IsPrivateSession)
                 {
                     if (!ctx.Request.Headers.AllKeys.Contains("Authorization"))
                     {
@@ -239,14 +245,9 @@ namespace ScreenTask
         {
             while (isWorking)
             {
-                if (isTakingScreenshots)
-                {
-                    TakeScreenshot(isMouseCapture);
-                    msec = (int)numShotEvery.Value;
-                    await Task.Delay(msec);
-                }
-
-
+                TakeScreenshot(_currentSettings.IsShowMouseEnabled);
+                msec = (int)numShotEvery.Value;
+                await Task.Delay(msec);
             }
         }
         private void TakeScreenshot(bool captureMouse)
@@ -258,12 +259,6 @@ namespace ScreenTask
                 bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
 
-                if (isPreview)
-                {
-                    img = new MemoryStream();
-                    bmp.Save(img, ImageFormat.Jpeg);
-                    imgPreview.Image = new Bitmap(img);
-                }
                 bmp.Dispose();
                 bmp = null;
                 return;
@@ -278,13 +273,6 @@ namespace ScreenTask
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
                 rwl.ReleaseWriterLock();
-
-                if (isPreview)
-                {
-                    img = new MemoryStream();
-                    bitmap.Save(img, ImageFormat.Jpeg);
-                    imgPreview.Image = new Bitmap(img);
-                }
 
 
             }
@@ -320,9 +308,9 @@ namespace ScreenTask
             }
             return ipList;
         }
-        private Task AddFirewallRule(int port)
+        private async Task AddFirewallRule(int port)
         {
-            return Task.Run(() =>
+            await Task.Run(() =>
             {
 
                 string cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
@@ -368,41 +356,19 @@ namespace ScreenTask
 
         }
 
-        private void btnStopServer_Click(object sender, EventArgs e)
-        {
-            isWorking = false;
-            isTakingScreenshots = false;
-            btnStartServer.Enabled = true;
-            btnStopServer.Enabled = false;
-            Log("Server Stoped.");
-        }
-
         private void cbPrivate_CheckedChanged(object sender, EventArgs e)
         {
             if (cbPrivate.Checked == true)
             {
                 txtUser.Enabled = true;
                 txtPassword.Enabled = true;
-                isPrivateTask = true;
+                _currentSettings.IsPrivateSession = true;
             }
             else
             {
                 txtUser.Enabled = false;
                 txtPassword.Enabled = false;
-                isPrivateTask = false;
-            }
-        }
-
-        private void cbPreview_CheckedChanged(object sender, EventArgs e)
-        {
-            if (cbPreview.Checked == true)
-            {
-                isPreview = true;
-            }
-            else
-            {
-                isPreview = false;
-                imgPreview.Image = imgPreview.InitialImage;
+                _currentSettings.IsPrivateSession = false;
             }
         }
 
@@ -410,11 +376,11 @@ namespace ScreenTask
         {
             if (cbCaptureMouse.Checked)
             {
-                isMouseCapture = true;
+                _currentSettings.IsShowMouseEnabled = true;
             }
             else
             {
-                isMouseCapture = false;
+                _currentSettings.IsShowMouseEnabled = false;
             }
         }
 
@@ -432,8 +398,52 @@ namespace ScreenTask
                 comboIPs.Items.Add(ip.Item2 + " - " + ip.Item1);
             }
             comboIPs.SelectedIndex = comboIPs.Items.Count - 1;
+            var recommendedIP = _ips.FirstOrDefault(ip => ip.Item2.StartsWith("192.") || ip.Item2.StartsWith("10."));
+            if (recommendedIP != null)
+            {
+                this.comboIPs.SelectedIndex = _ips.IndexOf(recommendedIP);
+            }
 
-            Task.Factory.StartNew(() =>
+            try
+            {
+                if (File.Exists("appsettings.xml"))
+                {
+                    var serializer = new XmlSerializer(typeof(AppSettings));
+                    using (var appSettingsFile = File.OpenRead("appsettings.xml"))
+                    {
+                        _currentSettings = (AppSettings)serializer.Deserialize(appSettingsFile);
+                    }
+
+                    this.cbPrivate.Checked = _currentSettings.IsPrivateSession;
+                    this.cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
+                    this.cbAutoStart.Checked = _currentSettings.IsAutoStartServerEnabled;
+                    this.cbMiniStart.Checked = _currentSettings.IsStartMinimizedEnabled;
+                    this.txtUser.Text = _currentSettings.Username;
+                    this.txtPassword.Text = _currentSettings.Password;
+                    this.numPort.Value = _currentSettings.Port;
+                    this.numShotEvery.Value = _currentSettings.ScreenshotsSpeed;
+                    this.comboIPs.SelectedIndex = _ips.IndexOf(_ips.FirstOrDefault(ip => ip.Item2.Contains(_currentSettings.IP)));
+                    if (_currentSettings.SelectedScreenIndex > -1 && comboScreens.Items.Count > 0 && _currentSettings.SelectedScreenIndex <= comboScreens.Items.Count - 1)
+                        this.comboScreens.SelectedIndex = _currentSettings.SelectedScreenIndex;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to load local appsettings.xml file.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            if (_currentSettings.IsStartMinimizedEnabled)
+            {
+                this.WindowState = FormWindowState.Minimized;
+            }
+            if (_currentSettings.IsAutoStartServerEnabled)
+            {
+                btnStartServer_Click(null, null);
+            }
+
+            try
+            {
+                Task.Factory.StartNew(() =>
             {
                 var wc = new WebClient();
                 wc.Headers.Add(HttpRequestHeader.UserAgent, "ScreenTask");
@@ -454,48 +464,77 @@ namespace ScreenTask
                     }
                 }
             });
-        }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to check for updates.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-        private void imgPreview_Click(object sender, EventArgs e)
-        {
-            if (imgPreview.Dock == DockStyle.None)
-            {
-                imgPreview.Dock = DockStyle.Fill;
             }
-            else
-            {
-                imgPreview.Dock = DockStyle.None;
-            }
-        }
-
-        private void cbScreenshotEvery_CheckedChanged(object sender, EventArgs e)
-        {
-            if (cbScreenshotEvery.Checked)
-            {
-                isTakingScreenshots = true;
-            }
-            else
-            {
-                isTakingScreenshots = false;
-            }
-        }
-
-        private void lblWebsite_Click(object sender, EventArgs e)
-        {
-            Process.Start("http://eslamx.com");
         }
 
         private void lblMe_Click(object sender, EventArgs e)
         {
-            Process.Start("http://facebook.com/EslaMx7");
+            Process.Start("https://screentask.me");
             Process.Start("http://twitter.com/EslaMx7");
         }
 
-        private void lblGithub_Click(object sender, EventArgs e)
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Process.Start("https://github.com/EslaMx7/ScreenTask");
+            try
+            {
+                _currentSettings.Port = (int)numPort.Value;
+                _currentSettings.Username = txtUser.Text;
+                _currentSettings.Password = txtPassword.Text;
+                _currentSettings.IsShowMouseEnabled = cbCaptureMouse.Checked;
+                _currentSettings.IsPrivateSession = cbPrivate.Checked;
+                _currentSettings.IsAutoStartServerEnabled = cbAutoStart.Checked;
+                _currentSettings.IsStartMinimizedEnabled = cbMiniStart.Checked;
+                _currentSettings.ScreenshotsSpeed = (int)numShotEvery.Value;
+                _currentSettings.IP = _ips.ElementAt(comboIPs.SelectedIndex).Item2;
+                _currentSettings.SelectedScreenIndex = comboScreens.SelectedIndex;
+
+                using (var appSettingsFile = new FileStream("appsettings.xml", FileMode.Create, FileAccess.Write))
+                {
+                    var serializer = new XmlSerializer(typeof(AppSettings));
+                    serializer.Serialize(appSettingsFile, _currentSettings);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Cannot save the settings file next to the executable file.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
+        private void btnLaunch_Click(object sender, EventArgs e)
+        {
+            if (txtURL.Text.StartsWith("http"))
+                Process.Start(txtURL.Text);
+
+        }
+
+        private void appNotify_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+            this.Focus();
+            this.ShowInTaskbar = true;
+        }
+
+        private void frmMain_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                this.ShowInTaskbar = false;
+                appNotify.Visible = true;
+                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Running in the background", ToolTipIcon.Info);
+            }
+        }
+
+        private void appNotify_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Focus();
+        }
 
     }
 }
