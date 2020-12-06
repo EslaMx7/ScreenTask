@@ -314,10 +314,11 @@ namespace ScreenTask
             {
 
                 string cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
-                if (cmd.StartsWith("\r\nNo rules match the specified criteria."))
+                if (!cmd.Contains("Screen Task"))
                 {
                     cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    if (cmd.Contains("Ok."))
+                    cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
+                    if (cmd.Contains("Screen Task"))
                     {
                         Log("Screen Task Rule added to your firewall");
                     }
@@ -326,7 +327,8 @@ namespace ScreenTask
                 {
                     cmd = RunCMD("netsh advfirewall firewall delete rule name=\"Screen Task\"");
                     cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    if (cmd.Contains("Ok."))
+                    cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
+                    if (cmd.Contains("Screen Task"))
                     {
                         Log("Screen Task Rule updated to your firewall");
                     }
