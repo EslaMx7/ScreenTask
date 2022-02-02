@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <link href="./styles.css" rel="stylesheet" />
+    <title>ScreenTask V3!</title>
+  </head>
+  <body>
+    <h1>ScreenTask V3!</h1>
+    <video id="gum-local" autoplay playsinline muted></video>
+
+    <div id="errorMsg"></div>
+
+    <pre id="outgoing"></pre>
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./js/adapter-latest.js"></script>
+    <script src="./js/simplepeer.min.js"></script>
+    <script src="./js/socket.io.min.js"></script>
+    <script src="./js/speaker.js"></script>
+    <script src="./renderer.js"></script>
+  </body>
+</html>

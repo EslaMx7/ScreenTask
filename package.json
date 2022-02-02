@@ -1,0 +1,26 @@
+{
+  "name": "screentask-v3",
+  "version": "3.0.0",
+  "description": "A minimal desktop sharing application using webrtc",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/EslaMx7/ScreenTask",
+  "keywords": [
+    "ScreenTask",
+    "WebRTC",
+    "ScreenSharing",
+    "DesktopSharing",
+    "Electron"
+  ],
+  "author": "EslaMx7",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^16.0.8"
+  },
+  "dependencies": {
+    "express": "^4.17.2",
+    "socket.io": "^4.4.1"
+  }
+}
