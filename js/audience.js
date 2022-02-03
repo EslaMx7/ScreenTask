@@ -52,7 +52,69 @@ function createNewPeer() {
   return peer;
 }
 
+/* Menu click Handlers */
+/* Menu Button */
 document.getElementById("start").addEventListener("click", () => {
   var video = document.querySelector("video");
   video.play();
+
+  document.getElementsByClassName("loading")[0].style.display = "none";
+  document.getElementsByClassName("shared-screen")[0].style.display = "block";
 });
+
+[
+  ...document
+    .getElementsByClassName("btn-group-fab")[0]
+    .getElementsByClassName("btn"),
+].forEach((element) => {
+  element.addEventListener("click", (e) => {
+    e.stopPropagation();
+    document
+      .getElementsByClassName("btn-group-fab")[0]
+      .classList.toggle("active");
+  });
+});
+
+document.body.addEventListener("click", () => {
+  document
+    .getElementsByClassName("btn-group-fab")[0]
+    .classList.remove("active");
+});
+
+/* Full Screen Button */
+document
+  .getElementById("full-screen")
+  .addEventListener("click", toggleFullscreen);
+
+function toggleFullscreen() {
+  var elem = document.documentElement;
+  document.fullscreenElement
+    ? closeFullscreen.call(this)
+    : openFullscreen.call(this);
+}
+
+function openFullscreen() {
+  var elem = document.documentElement;
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  } else if (elem.webkitRequestFullscreen) {
+    /* Safari */
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) {
+    /* IE11 */
+    elem.msRequestFullscreen();
+  }
+}
+
+function closeFullscreen() {
+  var elem = document.documentElement;
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) {
+    /* IE11 */
+    document.msExitFullscreen();
+  }
+}

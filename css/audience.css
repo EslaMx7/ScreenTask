@@ -1,0 +1,141 @@
+.shared-screen {
+  display: none;
+}
+
+.btn-group-fab {
+  position: fixed;
+  width: 50px;
+  height: auto;
+  right: 20px;
+  bottom: 20px;
+  opacity: 0.3;
+}
+
+.btn-group-fab:hover,
+.btn-group-fab.active {
+  opacity: 1;
+}
+
+.btn-group-fab div {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+.btn-group-fab .btn {
+  position: absolute;
+  bottom: 0;
+  border-radius: 50%;
+  display: block;
+  margin-bottom: 4px;
+  width: 40px;
+  height: 40px;
+  margin: 4px auto;
+}
+.btn-group-fab .btn-main {
+  width: 50px;
+  height: 50px;
+  right: 50%;
+  margin-right: -25px;
+  z-index: 9;
+}
+.btn-group-fab .btn-sub {
+  bottom: 0;
+  z-index: 8;
+  right: 50%;
+  margin-right: -20px;
+  -webkit-transition: all 2s;
+  transition: all 0.5s;
+}
+.btn-group-fab.active .btn-sub:nth-child(2) {
+  bottom: 60px;
+}
+.btn-group-fab.active .btn-sub:nth-child(3) {
+  bottom: 110px;
+}
+.btn-group-fab.active .btn-sub:nth-child(4) {
+  bottom: 160px;
+}
+.btn-group-fab .btn-sub:nth-child(5) {
+  bottom: 210px;
+}
+
+/* Loading animation */
+.loading {
+    display: flex;
+}
+
+.letter {
+  fill: none;
+  stroke: #23c0f1;
+  stroke-width: 3px;
+  -webkit-animation: draw 6s infinite ease-in-out;
+  animation: draw 6s infinite ease-in-out;
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+}
+
+
+}
+@-webkit-keyframes draw {
+  20%,
+  90% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    stroke: #111;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes draw {
+  20%,
+  90% {
+    opacity: 1;
+    stroke-dashoffset: 0;
+    stroke: #111;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.letter:nth-child(2) {
+    -webkit-animation-delay: 0.4s;
+    animation-delay: 0.4s;
+  }
+.letter:nth-child(3) {
+  -webkit-animation-delay: 0.6s;
+  animation-delay: 0.6s;
+}
+.letter:nth-child(4) {
+  -webkit-animation-delay: 0.8s;
+  animation-delay: 0.8s;
+}
+.letter:nth-child(5) {
+  -webkit-animation-delay: 1s;
+  animation-delay: 1s;
+}
+.letter:nth-child(6) {
+  -webkit-animation-delay: 1.2s;
+  animation-delay: 1.2s;
+}
+.letter:nth-child(7) {
+  -webkit-animation-delay: 1.4s;
+  animation-delay: 1.4s;
+}
+.letter:nth-child(8) {
+  -webkit-animation-delay: 1.6s;
+  animation-delay: 1.6s;
+}
+.letter:nth-child(9) {
+  -webkit-animation-delay: 1.8s;
+  animation-delay: 1.8s;
+}
+.letter:nth-child(10) {
+  -webkit-animation-delay: 2s;
+  animation-delay: 2s;
+}
+.letter:nth-child(11) {
+  -webkit-animation-delay: 2.2s;
+  animation-delay: 2.2s;
+}
+
