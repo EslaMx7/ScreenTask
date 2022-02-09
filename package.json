@@ -14,7 +14,19 @@
     "DesktopSharing",
     "Electron"
   ],
-  "author": "EslaMx7",
+  "author": "cz <eslamx7@gmail.com> (https://eslamx.com/)",
+  "contributors": [
+    {
+      "name": "Eslam Hamouda",
+      "email": "eslamx7@gmail.com",
+      "url": "https://eslamx.com/"
+    },
+    {
+      "name": "Wagih Elbedeawi",
+      "email": "wagih.elbedeawi@gmail.com",
+      "url": "https://elbedeawi.com/"
+    }
+  ],
   "license": "MIT",
   "devDependencies": {
     "electron": "^16.0.8"
