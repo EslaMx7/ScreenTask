@@ -51,7 +51,11 @@ app.on("window-all-closed", function () {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 server = http.createServer(expressApp);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 expressApp.use(express.static("."));
 expressApp.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");

@@ -1,21 +1,32 @@
-var peer2;
-var socket = io("http://192.168.1.3:7071");
-socket.on("connect", () => {
-  console.log(socket.id);
-  if (peer2) {
-    peer2.destroy();
-  }
-  peer2 = createNewPeer();
+var peers = [];
+
+window.addEventListener("load", (event) => {
+  addNewAudience();
 });
 
-socket.on("broadcast-signal", function (msg) {
-  if (peer2.destroyed) {
-    peer2 = createNewPeer();
-  }
-  peer2.signal(msg.data);
-});
+function addNewAudience(url) {
+  if (!url) url = window.location.host;
+  var socket = io(url);
+  var peer;
+  socket.on("connect", () => {
+    console.log(socket.id);
+    if (peer) {
+      peer.destroy();
+    }
+    peer = createNewPeer(socket);
+  });
 
-function createNewPeer() {
+  socket.on("broadcast-signal", function (msg) {
+    if (peer.destroyed) {
+      peer = createNewPeer();
+    }
+    peer.signal(msg.data);
+  });
+
+  peers.push({ id: socket.id, peer: peer, socket: socket, url: url });
+}
+
+function createNewPeer(socket) {
   var peer = new SimplePeer({ initiator: false });
   peer.on("signal", (data) => {
     socket.emit("answer-to-caller", data);
@@ -36,7 +47,7 @@ function createNewPeer() {
   peer.on("stream", (stream) => {
     console.log("got a stream from speaker: ");
     // got remote video stream, now let's show it in a video tag
-    var video = AddVideo();
+    var video = AddVideo(socket.io.uri);
 
     if ("srcObject" in video) {
       video.srcObject = stream;
@@ -65,7 +76,14 @@ function startScreenSharePreview(video) {
   document.getElementsByClassName("shared-screen")[0].style.display = "flex";
 }
 
-function StartStream(screenId) {}
+function StartStream(event, screenId) {
+  console.log(screenId);
+  addNewAudience(
+    event.target.parentNode.parentNode.querySelector("input").value
+  );
+  var child = document.querySelector(`#screen-share-${screenId}`);
+  child.parentNode.removeChild(child);
+}
 
 function AddScreen() {
   let div = document.createElement("div");
@@ -90,14 +108,14 @@ function AddScreen() {
         >
       </div>
       <div class="input-group-append">
-        <button class="btn btn-outline-primary" click="StartStream(${screenShareCount})" type="button">Start</button>
+        <button class="btn btn-outline-primary" onclick="StartStream(event, ${screenShareCount})" type="button">Start</button>
       </div>
     </div>`
   );
   document.querySelector("#screens").appendChild(div);
 }
 
-function AddVideo() {
+function AddVideo(url) {
   let div = document.createElement("div");
   div.className = "shared-screen col d-flex align-items-center";
   screenShareCount = document.querySelectorAll(".shared-screen").length;
@@ -111,10 +129,19 @@ function AddVideo() {
   video.muted = true;
   div.appendChild(video);
 
+  div.insertAdjacentHTML(
+    "beforeend",
+    `<div class='info-overlay'>
+      <span>URL: ${url}</span>
+      <button class="btn btn-outline-light" onclick='removeVideo(${screenShareCount})'>X</button>
+    </div>`
+  );
+
   document.querySelector("#screens").appendChild(div);
 
   return video;
 }
+
 document
   .getElementById("start")
   .addEventListener("click", startScreenSharePreview);
