@@ -30,6 +30,7 @@ async function useSources(sources, cb) {
 }
 
 function getSources() {
+  console.log("Gathering sources...");
   return desktopCapturer.getSources({ types: ["window", "screen"] });
 }
 

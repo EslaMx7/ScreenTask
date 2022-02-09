@@ -102,8 +102,14 @@ ipcMain.handle("stop-server", (event, res) => {
 });
 
 ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", function (ev, _) {
-  helpers.getSources().then((opts) => {
-    io.emit("start-broadcast-stream", opts);
-    //ev.sender.send("DESKTOP_CAPTURER_GET_SOURCES_RESULT", opts);
-  });
+  console.log("DESKTOP_CAPTURER_GET_SOURCES");
+  helpers.getSources().then(
+    (opts) => {
+      io.emit("start-broadcast-stream", opts);
+      //ev.sender.send("DESKTOP_CAPTURER_GET_SOURCES_RESULT", opts);
+    },
+    (err) => {
+      console.log("Error: ", err);
+    }
+  );
 });

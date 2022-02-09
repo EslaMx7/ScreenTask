@@ -63,9 +63,10 @@
             />
           </svg>
         </div>
-        <div class="shared-screen vh-100">
-          <video class="w-100 vh-100" src=""></video>
-        </div>
+        <div
+          id="screens"
+          class="vh-100 px-0 d-flex flex-column align-items-center justify-content-center"
+        ></div>
       </div>
       <div>
         <div class="btn-group-fab" role="group" aria-label="FAB Menu">
@@ -100,7 +101,8 @@
               type="button"
               class="btn btn-sub btn-warning has-tooltip p-0"
               data-placement="left"
-              title="Download"
+              title="Add Screen"
+              id="add-screen"
             >
               <i data-feather="plus"></i>
             </button>
