@@ -1,25 +1,79 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="./css/bootstrap.min.css">
-    <link href="./css/styles.css" rel="stylesheet" />
-    <title>ScreenTask V3!</title>
-  </head>
-  <body>
-    <h1>ScreenTask V3!</h1>
-    <video id="gum-local" autoplay playsinline muted></video>
 
-    <div id="errorMsg"></div>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="./css/bootstrap.min.css">
+  <link href="./css/styles.css" rel="stylesheet" />
+  <title>ScreenTask V3!</title>
+</head>
 
-    <pre id="outgoing"></pre>
+<body class="row">
+  <aside class="col-3 bg-dark">
+    <ul class="nav nav-pills flex-column mb-auto">
+      <li class="nav-item">
+        <a href="#" class="nav-link active" aria-current="page">
+          <i data-feather="home"></i>
+          Home
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link">
+          <i></i>
+          Settings
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link">
+          <i></i>
+          About
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link">
+          <i></i>
+          Donate!
+        </a>
+      </li>
+    </ul>
+  </aside>
+  <main class="col-9">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1>ScreenTask V3!</h1>
+          <hr>
+          <select id="ipSelect">
+            <option value="" selected disabled hidden>Select IP</option>
+          </select>
+          <input type="number" id="portNumber" value="7070">
+          <select id="screenSelect">
+            <option value="" selected disabled hidden>Select Screen</option>
+          </select>
+          <button id="startServerButton">Start Server</button>
+          <iframe id="speakerIframe"></iframe>
+          <video id="main_speaker_video" autoplay playsinline muted></video>
 
-    <!-- You can also require other files to run in this process -->
-    <script src="./js/bootstrap.bundle.min.js"></script>
-    <script src="./js/adapter-latest.js"></script>
-    <script src="./js/simplepeer.min.js"></script>
-    <script src="./js/socket.io.min.js"></script>
-    <script src="./js/speaker.js"></script>
-    <script src="./renderer.js"></script>
-  </body>
+        </div>
+      </div>
+    </div>
+
+
+  </main>
+
+
+
+  <!-- You can also require other files to run in this process -->
+  <script src="./js/bootstrap.bundle.min.js"></script>
+  <script src="./js/feather.min.js"></script>
+  <script src="./js/adapter-latest.js"></script>
+  <script src="./js/simplepeer.min.js"></script>
+  <script src="./js/socket.io.min.js"></script>
+
+  <script src="./renderer.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+
 </html>

@@ -2,32 +2,7 @@ const { desktopCapturer, screen, shell } = require("electron");
 
 var screens = [];
 
-async function useSources(sources, cb) {
-  for (const source of sources) {
-    if (source.name === "Entire Screen") {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: false,
-          video: {
-            mandatory: {
-              chromeMediaSource: "desktop",
-              chromeMediaSourceId: source.id,
-              minWidth: 1280,
-              maxWidth: 1280,
-              minHeight: 720,
-              maxHeight: 720,
-            },
-          },
-        });
-        cb(stream);
-        //window.streamX = stream;
-      } catch (e) {
-        handleError(e);
-      }
-      return;
-    }
-  }
-}
+
 
 function getSources() {
   console.log("Gathering sources...");
@@ -71,6 +46,6 @@ module.exports = {
   takeScreenshot: takeScreenshot,
   getScreens: getScreens,
 
-  useSources: useSources,
+ // useSources: useSources,
   getSources: getSources,
 };

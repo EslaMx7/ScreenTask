@@ -1,13 +1,23 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
+const os = require('os');
 const path = require("path");
 const express = require("express");
 const expressApp = express();
-
 const http = require("http");
 const helpers = require("./js/helpers");
 var fs = require("fs");
 const { Server } = require("socket.io");
+const e = require("express");
+
+var GLOBAL_STATE = {
+  ips: [],
+  ip: null,
+  port: 7171,
+  state: "stopped",
+  sources: [],
+  sourceId: null,
+};
 
 function createWindow() {
   // Create the browser window.
@@ -19,6 +29,7 @@ function createWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
+    //autoHideMenuBar: true,
   });
 
   // and load the index.html of the app.
@@ -39,6 +50,12 @@ app.whenReady().then(() => {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+
+  GLOBAL_STATE.ips = getIPs();
+  GLOBAL_STATE.sources = getSources();
+  if (GLOBAL_STATE.sources.length > 0)
+    GLOBAL_STATE.sourceId = GLOBAL_STATE.sources[0].id;
+
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -50,6 +67,32 @@ app.on("window-all-closed", function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+function getIPs() {
+  var ips = [];
+  var interfaces = os.networkInterfaces();
+  var keys = Object.keys(interfaces);
+  keys.forEach(key => {
+    var interface = interfaces[key].filter(x => x.family === 'IPv4');
+    if (interface.length > 0) {
+
+      ips.push({ address: interface[0].address, name: key })
+    }
+  });
+  return ips;
+}
+
+function getSources() {
+  var sources = [];
+  desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sourcesList) => {
+    sourcesList.forEach(async (source) => {
+      sources.push(source);
+    });
+  });
+  return sources;
+}
+
 server = http.createServer(expressApp);
 const io = new Server(server, {
   cors: {
@@ -61,26 +104,37 @@ expressApp.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-state = {
-  config: {
-    ips: [{ address: "192.168.1.3", selected: true }],
-    port: 7071,
-  },
-};
 
-ipcMain.handle("start-server", (event, arg) => {
+ipcMain.handle("start-server", (ev, arg) => {
   // state = arg;
+  GLOBAL_STATE.ip = arg.selectedIP;
+  GLOBAL_STATE.port = arg.selectedPort;
+  GLOBAL_STATE.sourceId = arg.selectedSourceId;
+  if (GLOBAL_STATE.state === "stopped") {
+    server.listen(GLOBAL_STATE.port, GLOBAL_STATE.ip, () => {
+      console.log(`Server running at http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/`);
+      GLOBAL_STATE.state = "started";
 
-  console.log(state.config.ips.filter((x) => x.selected));
-  var selectedIp = state.config.ips.filter((x) => x.selected)[0].address;
-  server.listen(state.config.port, selectedIp, () => {
-    console.log(`Server running at http://${selectedIp}:${state.config.port}/`);
-  });
+      ev.sender.send("navigate-speaker-iframe", {
+        url: `http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/speaker.html`,
+      });
+      // Send for speaker to start
+      ev.sender.send("start-speaker-video", { selectedSource: GLOBAL_STATE.sources.find(x => x.id === GLOBAL_STATE.sourceId) });
+    });
+  } else {
+    console.log("Server already started");
+    server.close();
+    console.log(`Server stopped...`);
+    GLOBAL_STATE.state = "stopped";
+  }
 
   io.on("connection", (socket) => {
     console.log("a user connected");
 
+    // send for audience
     socket.broadcast.emit("start-broadcast-signal", { id: socket.id });
+
+
 
     socket.on("signaling", (data) => {
       // console.log("signaling: ", data);
@@ -98,6 +152,7 @@ ipcMain.handle("start-server", (event, arg) => {
       });
     });
   });
+
 });
 
 ipcMain.handle("stop-server", (event, res) => {
@@ -116,4 +171,31 @@ ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", function (ev, _) {
       console.log("Error: ", err);
     }
   );
+});
+
+ipcMain.handle("change-ip", (event, res) => {
+  console.log(`change-ip: ${res}`);
+  GLOBAL_STATE.ip = res.address;
+});
+
+ipcMain.handle("change-source", (ev, res) => {
+  console.log(`change-source: ${res}`);
+  GLOBAL_STATE.sourceId = res.id;
+  ev.sender.send("start-speaker-video", { selectedSource: GLOBAL_STATE.sources.find(x => x.id === GLOBAL_STATE.sourceId) });
+
+});
+
+ipcMain.handle("get-ips-list", (ev, res) => {
+  ev.sender.send("ips-list", { ips: GLOBAL_STATE.ips });
+});
+
+ipcMain.handle("get-port-number", (ev, res) => {
+  ev.sender.send("port-number", { port: GLOBAL_STATE.port });
+});
+
+ipcMain.handle("get-sources-list", (ev, res) => {
+  console.log(GLOBAL_STATE.sources);
+  if (GLOBAL_STATE.sources.length == 0) return;
+  var sources = GLOBAL_STATE.sources.map(s => ({ name: s.name, id: s.id }));
+  ev.sender.send("sources-list", { sources: sources });
 });
