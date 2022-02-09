@@ -1,5 +1,5 @@
 var peer2;
-var socket = io("http://192.168.1.3:7071");
+var socket = io();
 socket.on("connect", () => {
   console.log(socket.id);
   if (peer2) {

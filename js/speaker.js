@@ -1,5 +1,5 @@
 var peers = [];
-var socket = io("http://192.168.1.3:7071");
+var socket = io();
 var stream;
 
 socket.on("answer-to-caller", function (msg) {
@@ -13,7 +13,8 @@ socket.on("start-broadcast-signal", function (data) {
 });
 
 socket.on("start-broadcast-stream", function (sources) {
-  helpers.useSources(sources, getVideoStream);
+  console.log("start-broadcast-stream", sources);
+  useSources(sources, getVideoStream);
 });
 
 function createNewPeer(audienceId) {
@@ -67,4 +68,33 @@ function getVideoStream(vStream) {
     peer.addStream(vStream);
   });
   console.log("addedStreamEnd");
+}
+
+
+async function useSources(sources, cb) {
+  for (const source of sources) {
+    console.log("source: ", source);
+    if (source.name === "Screen 1") {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            mandatory: {
+              chromeMediaSource: "desktop",
+              chromeMediaSourceId: source.id,
+              minWidth: 1280,
+              maxWidth: 1280,
+              minHeight: 720,
+              maxHeight: 720,
+            },
+          },
+        });
+        cb(stream);
+        //window.streamX = stream;
+      } catch (e) {
+        console.log(e);
+      }
+      return;
+    }
+  }
 }
