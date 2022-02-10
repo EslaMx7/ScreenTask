@@ -8,23 +8,16 @@
 const { ipcRenderer } = require("electron");
 const helpers = require("./js/helpers");
 
+var peers = [];
+var socket;
+var stream;
+
 const el = (selector) => document.querySelector(selector);
 var startServerButton = el("#startServerButton");
 var ipSelect = el("#ipSelect");
 var screenSelect = el("#screenSelect");
 var iframe = el("#speakerIframe");
 var portNumber = el("#portNumber");
-
-
-
-const desktopCapturer = {
-  getSources: (opts) =>
-    ipcRenderer.invoke("DESKTOP_CAPTURER_GET_SOURCES", opts),
-};
-
-//ipcRenderer.invoke("start-server", {});
-
-desktopCapturer.getSources();
 
 startServerButton.addEventListener("click", () => {
   if(startServerButton.innerHTML === "Start Server") {
@@ -51,9 +44,9 @@ screenSelect.addEventListener("change", (e) => {
   });
 });
 
-ipcRenderer.on("navigate-speaker-iframe", (event, arg) => {
-  console.log("renderer navigate-speaker-iframe: ", arg);
-  iframe.src = arg.url;
+ipcRenderer.on("start-socket-io", (event, arg) => {
+  console.log("start-socket-io ", arg);
+  startSocketIO(arg.url);
 });
 
 ipcRenderer.on("ips-list", (event, arg) => {
@@ -93,6 +86,7 @@ ipcRenderer.on("start-speaker-video", (event, arg) => {
 });
 
 function getVideoStream(vStream) {
+  stream = vStream;
   console.log("got stream");
   const video = document.querySelector("video");
   video.srcObject = vStream;
@@ -125,6 +119,59 @@ async function useselectedSource(source, cb) {
       }
 }
 
+function startSocketIO(url){
+  console.log("startSocketIO: ", url);
+  socket = io(url);
+  
+  socket.on("answer-to-caller", function (msg) {
+    peers.find((x) => x.id === msg.id).peer.signal(msg.data);
+  });
+  
+  socket.on("start-broadcast-signal", function (data) {
+    if (socket.id !== data.id) {
+      peers.push({ id: data.id, peer: createNewPeer(data.id) });
+    }
+  });
+  
+}
+
+function createNewPeer(audienceId) {
+  var peer = new SimplePeer({ initiator: true });
+  peer.on("connect", () => {
+    // wait for 'connect' event before using the data channel
+    console.log("speaker: connected");
+    peer.send(`hey I'm the speaker, ${audienceId} how is it going?`);
+  });
+
+  peer.on("signal", (data) => {
+    // when peer1 has signaling data, give it to peer2 somehow
+    console.log("speaker signaling", data);
+    socket.emit("signaling", { audienceId, data });
+  });
+
+  peer.on("data", (data) => {
+    // got a data channel message
+    console.log("data");
+    console.log("got a message from peer2: " + data);
+    if (stream !== undefined) {
+      peer.addStream(stream);
+    }
+  });
+
+  peer.on("close", () => {
+    console.log("disconnected");
+    peers.splice(
+      peers.findIndex((x) => x.peer === peer),
+      1
+    );
+  });
+
+  peer.on("error", (err) => {
+    console.log("error", err);
+  });
+
+  return peer;
+}
 
 ipcRenderer.invoke("get-ips-list");
 ipcRenderer.invoke("get-port-number");
