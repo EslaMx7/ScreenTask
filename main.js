@@ -1,6 +1,6 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, ipcMain, desktopCapturer } = require("electron");
-const os = require('os');
+const os = require("os");
 const path = require("path");
 const express = require("express");
 const expressApp = express();
@@ -55,7 +55,6 @@ app.whenReady().then(() => {
   GLOBAL_STATE.sources = getSources();
   if (GLOBAL_STATE.sources.length > 0)
     GLOBAL_STATE.sourceId = GLOBAL_STATE.sources[0].id;
-
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -68,16 +67,14 @@ app.on("window-all-closed", function () {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
-
 function getIPs() {
   var ips = [];
   var interfaces = os.networkInterfaces();
   var keys = Object.keys(interfaces);
-  keys.forEach(key => {
-    var interface = interfaces[key].filter(x => x.family === 'IPv4');
+  keys.forEach((key) => {
+    var interface = interfaces[key].filter((x) => x.family === "IPv4");
     if (interface.length > 0) {
-
-      ips.push({ address: interface[0].address, name: key })
+      ips.push({ address: interface[0].address, name: key });
     }
   });
   return ips;
@@ -85,11 +82,13 @@ function getIPs() {
 
 function getSources() {
   var sources = [];
-  desktopCapturer.getSources({ types: ["window", "screen"] }).then(async (sourcesList) => {
-    sourcesList.forEach(async (source) => {
-      sources.push(source);
+  desktopCapturer
+    .getSources({ types: ["window", "screen"] })
+    .then(async (sourcesList) => {
+      sourcesList.forEach(async (source) => {
+        sources.push(source);
+      });
     });
-  });
   return sources;
 }
 
@@ -104,7 +103,6 @@ expressApp.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-
 ipcMain.handle("start-server", (ev, arg) => {
   // state = arg;
   GLOBAL_STATE.ip = arg.selectedIP;
@@ -112,14 +110,20 @@ ipcMain.handle("start-server", (ev, arg) => {
   GLOBAL_STATE.sourceId = arg.selectedSourceId;
   if (GLOBAL_STATE.state === "stopped") {
     server.listen(GLOBAL_STATE.port, GLOBAL_STATE.ip, () => {
-      console.log(`Server running at http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/`);
+      console.log(
+        `Server running at http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/`
+      );
       GLOBAL_STATE.state = "started";
 
       ev.sender.send("navigate-speaker-iframe", {
         url: `http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/speaker.html`,
       });
       // Send for speaker to start
-      ev.sender.send("start-speaker-video", { selectedSource: GLOBAL_STATE.sources.find(x => x.id === GLOBAL_STATE.sourceId) });
+      ev.sender.send("start-speaker-video", {
+        selectedSource: GLOBAL_STATE.sources.find(
+          (x) => x.id === GLOBAL_STATE.sourceId
+        ),
+      });
     });
   } else {
     console.log("Server already started");
@@ -133,8 +137,6 @@ ipcMain.handle("start-server", (ev, arg) => {
 
     // send for audience
     socket.broadcast.emit("start-broadcast-signal", { id: socket.id });
-
-
 
     socket.on("signaling", (data) => {
       // console.log("signaling: ", data);
@@ -152,7 +154,6 @@ ipcMain.handle("start-server", (ev, arg) => {
       });
     });
   });
-
 });
 
 ipcMain.handle("stop-server", (event, res) => {
@@ -179,10 +180,13 @@ ipcMain.handle("change-ip", (event, res) => {
 });
 
 ipcMain.handle("change-source", (ev, res) => {
-  console.log(`change-source: ${res}`);
+  //console.log(`change-source: ${res}`);
   GLOBAL_STATE.sourceId = res.id;
-  ev.sender.send("start-speaker-video", { selectedSource: GLOBAL_STATE.sources.find(x => x.id === GLOBAL_STATE.sourceId) });
-
+  ev.sender.send("start-speaker-video", {
+    selectedSource: GLOBAL_STATE.sources.find(
+      (x) => x.id === GLOBAL_STATE.sourceId
+    ),
+  });
 });
 
 ipcMain.handle("get-ips-list", (ev, res) => {
@@ -194,8 +198,8 @@ ipcMain.handle("get-port-number", (ev, res) => {
 });
 
 ipcMain.handle("get-sources-list", (ev, res) => {
-  console.log(GLOBAL_STATE.sources);
+  // console.log(GLOBAL_STATE.sources);
   if (GLOBAL_STATE.sources.length == 0) return;
-  var sources = GLOBAL_STATE.sources.map(s => ({ name: s.name, id: s.id }));
+  var sources = GLOBAL_STATE.sources.map((s) => ({ name: s.name, id: s.id }));
   ev.sender.send("sources-list", { sources: sources });
 });
