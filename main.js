@@ -115,8 +115,8 @@ ipcMain.handle("start-server", (ev, arg) => {
       console.log(`Server running at http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/`);
       GLOBAL_STATE.state = "started";
 
-      ev.sender.send("navigate-speaker-iframe", {
-        url: `http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}/speaker.html`,
+      ev.sender.send("start-socket-io", {
+        url: `http://${GLOBAL_STATE.ip}:${GLOBAL_STATE.port}`,
       });
       // Send for speaker to start
       ev.sender.send("start-speaker-video", { selectedSource: GLOBAL_STATE.sources.find(x => x.id === GLOBAL_STATE.sourceId) });
