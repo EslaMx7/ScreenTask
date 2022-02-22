@@ -61,8 +61,8 @@ namespace ScreenTask
                     serv.Stop();
                     serv.Close();
                 }
-                Log("Server Stoped.");
-                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Server Stoped.", ToolTipIcon.Info);
+                Log("Server Stopped.");
+                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Server Stopped.", ToolTipIcon.Info);
 
                 return;
             }
@@ -131,8 +131,8 @@ namespace ScreenTask
             //serv.Prefixes.Add("http://*:" + numPort.Value.ToString() + "/"); // Uncomment this to Allow Public IP Over Internet. [Commented for Security Reasons.]
             serv.Prefixes.Add(url + "/");
             serv.Start();
-            Log("Server Started Successfuly!");
-            appNotify.ShowBalloonTip(1_000, "ScreenTask", $"Server Started Successfuly!\r\n{url}", ToolTipIcon.Info);
+            Log("Server Started Successfully!");
+            appNotify.ShowBalloonTip(1_000, "ScreenTask", $"Server Started Successfully!\r\n{url}", ToolTipIcon.Info);
 
             Log("Network URL : " + url);
             Log("Localhost URL : " + "http://localhost:" + numPort.Value.ToString() + "/");

@@ -275,9 +275,9 @@
             this.label6.ForeColor = System.Drawing.Color.White;
             this.label6.Location = new System.Drawing.Point(291, 195);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(63, 13);
+            this.label6.Size = new System.Drawing.Size(59, 13);
             this.label6.TabIndex = 31;
-            this.label6.Text = "Mellisecond";
+            this.label6.Text = "Millisecond";
             // 
             // numShotEvery
             // 
