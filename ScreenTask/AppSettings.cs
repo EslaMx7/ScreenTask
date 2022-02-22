@@ -19,5 +19,6 @@ namespace ScreenTask
         public bool IsShowMouseEnabled { get; set; }
         public bool IsAutoStartServerEnabled { get; set; }
         public bool IsStartMinimizedEnabled { get; set; }
+        public int ImageQuality { get; set; }
     }
 }

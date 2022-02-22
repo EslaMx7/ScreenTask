@@ -216,7 +216,7 @@ namespace ScreenTask
                 var fileinfo = new FileInfo(page);
                 if (fileinfo.Extension == ".css") // important for IE -> Content-Type must be defiend for CSS files unless will ignored !!!
                     ctx.Response.ContentType = "text/css";
-                else if (fileinfo.Extension == ".svg") 
+                else if (fileinfo.Extension == ".svg")
                     ctx.Response.ContentType = "image/svg+xml";
                 else if (fileinfo.Extension == ".html" || fileinfo.Extension == ".htm")
                     ctx.Response.ContentType = "text/html"; // Important For Chrome Otherwise will display the HTML as plain text.
@@ -254,31 +254,51 @@ namespace ScreenTask
         }
         private void TakeScreenshot(bool captureMouse)
         {
+            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+
+            var encoderQuality = System.Drawing.Imaging.Encoder.Quality;
+            var encoderParam = new EncoderParameter(encoderQuality, _currentSettings.ImageQuality);
+            var encoderParams = new EncoderParameters(1);
+            encoderParams.Param[0] = encoderParam;
             if (captureMouse)
             {
                 var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex);
                 rwl.AcquireWriterLock(Timeout.Infinite);
-                bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
+                bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
                 rwl.ReleaseWriterLock();
 
                 bmp.Dispose();
                 bmp = null;
                 return;
             }
-            
+
             Rectangle bounds = Screen.AllScreens[comboScreens.SelectedIndex].Bounds;
             using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
             {
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {
-                    g.CopyFromScreen(new Point(bounds.X,bounds.Y), Point.Empty, bounds.Size);
+                    g.CopyFromScreen(new Point(bounds.X, bounds.Y), Point.Empty, bounds.Size);
                 }
                 rwl.AcquireWriterLock(Timeout.Infinite);
-                bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
+
+                bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
                 rwl.ReleaseWriterLock();
 
 
             }
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
         private string GetIPv4Address()
         {
@@ -427,6 +447,7 @@ namespace ScreenTask
                     this.txtPassword.Text = _currentSettings.Password;
                     this.numPort.Value = _currentSettings.Port;
                     this.numShotEvery.Value = _currentSettings.ScreenshotsSpeed;
+                    this.qualitySlider.Value = _currentSettings.ImageQuality != default ? _currentSettings.ImageQuality : 75;
                     this.comboIPs.SelectedIndex = _ips.IndexOf(_ips.FirstOrDefault(ip => ip.Item2.Contains(_currentSettings.IP)));
                     if (_currentSettings.SelectedScreenIndex > -1 && comboScreens.Items.Count > 0 && _currentSettings.SelectedScreenIndex <= comboScreens.Items.Count - 1)
                         this.comboScreens.SelectedIndex = _currentSettings.SelectedScreenIndex;
@@ -497,6 +518,7 @@ namespace ScreenTask
                 _currentSettings.ScreenshotsSpeed = (int)numShotEvery.Value;
                 _currentSettings.IP = _ips.ElementAt(comboIPs.SelectedIndex).Item2;
                 _currentSettings.SelectedScreenIndex = comboScreens.SelectedIndex;
+                _currentSettings.ImageQuality = qualitySlider.Value;
 
                 using (var appSettingsFile = new FileStream("appsettings.xml", FileMode.Create, FileAccess.Write))
                 {
@@ -541,5 +563,10 @@ namespace ScreenTask
             this.Focus();
         }
 
+        private void qualitySlider_Scroll(object sender, EventArgs e)
+        {
+            _currentSettings.ImageQuality = qualitySlider.Value;
+
+        }
     }
 }

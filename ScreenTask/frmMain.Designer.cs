@@ -59,9 +59,12 @@
             this.appNotify = new System.Windows.Forms.NotifyIcon(this.components);
             this.cbAutoStart = new System.Windows.Forms.CheckBox();
             this.cbMiniStart = new System.Windows.Forms.CheckBox();
+            this.qualitySlider = new System.Windows.Forms.TrackBar();
+            this.lblQuality = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.qualitySlider)).BeginInit();
             this.SuspendLayout();
             // 
             // gbOptions
@@ -93,7 +96,7 @@
             // 
             // txtLog
             // 
-            this.txtLog.Location = new System.Drawing.Point(5, 329);
+            this.txtLog.Location = new System.Drawing.Point(5, 335);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
@@ -124,7 +127,7 @@
             this.cbCaptureMouse.AutoSize = true;
             this.cbCaptureMouse.BackColor = System.Drawing.Color.Transparent;
             this.cbCaptureMouse.ForeColor = System.Drawing.Color.White;
-            this.cbCaptureMouse.Location = new System.Drawing.Point(12, 188);
+            this.cbCaptureMouse.Location = new System.Drawing.Point(12, 194);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
             this.cbCaptureMouse.Size = new System.Drawing.Size(124, 17);
             this.cbCaptureMouse.TabIndex = 26;
@@ -138,7 +141,7 @@
             this.btnStartServer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnStartServer.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Bold);
             this.btnStartServer.ForeColor = System.Drawing.Color.White;
-            this.btnStartServer.Location = new System.Drawing.Point(47, 267);
+            this.btnStartServer.Location = new System.Drawing.Point(47, 273);
             this.btnStartServer.Name = "btnStartServer";
             this.btnStartServer.Size = new System.Drawing.Size(253, 30);
             this.btnStartServer.TabIndex = 23;
@@ -150,7 +153,7 @@
             // txtPassword
             // 
             this.txtPassword.Enabled = false;
-            this.txtPassword.Location = new System.Drawing.Point(288, 152);
+            this.txtPassword.Location = new System.Drawing.Point(288, 158);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
             this.txtPassword.Size = new System.Drawing.Size(66, 20);
@@ -160,7 +163,7 @@
             // txtUser
             // 
             this.txtUser.Enabled = false;
-            this.txtUser.Location = new System.Drawing.Point(150, 152);
+            this.txtUser.Location = new System.Drawing.Point(150, 158);
             this.txtUser.Name = "txtUser";
             this.txtUser.Size = new System.Drawing.Size(66, 20);
             this.txtUser.TabIndex = 21;
@@ -171,7 +174,7 @@
             this.label4.AutoSize = true;
             this.label4.BackColor = System.Drawing.Color.Transparent;
             this.label4.ForeColor = System.Drawing.Color.White;
-            this.label4.Location = new System.Drawing.Point(222, 155);
+            this.label4.Location = new System.Drawing.Point(222, 161);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(62, 13);
             this.label4.TabIndex = 20;
@@ -182,7 +185,7 @@
             this.label3.AutoSize = true;
             this.label3.BackColor = System.Drawing.Color.Transparent;
             this.label3.ForeColor = System.Drawing.Color.White;
-            this.label3.Location = new System.Drawing.Point(106, 155);
+            this.label3.Location = new System.Drawing.Point(106, 161);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(38, 13);
             this.label3.TabIndex = 19;
@@ -193,7 +196,7 @@
             this.cbPrivate.AutoSize = true;
             this.cbPrivate.BackColor = System.Drawing.Color.Transparent;
             this.cbPrivate.ForeColor = System.Drawing.Color.White;
-            this.cbPrivate.Location = new System.Drawing.Point(11, 154);
+            this.cbPrivate.Location = new System.Drawing.Point(11, 160);
             this.cbPrivate.Name = "cbPrivate";
             this.cbPrivate.Size = new System.Drawing.Size(89, 17);
             this.cbPrivate.TabIndex = 18;
@@ -236,7 +239,7 @@
             // 
             // txtURL
             // 
-            this.txtURL.Location = new System.Drawing.Point(47, 227);
+            this.txtURL.Location = new System.Drawing.Point(47, 233);
             this.txtURL.Name = "txtURL";
             this.txtURL.ReadOnly = true;
             this.txtURL.Size = new System.Drawing.Size(253, 20);
@@ -248,7 +251,7 @@
             this.label1.AutoSize = true;
             this.label1.BackColor = System.Drawing.Color.Transparent;
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(8, 230);
+            this.label1.Location = new System.Drawing.Point(8, 236);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(35, 13);
             this.label1.TabIndex = 14;
@@ -270,7 +273,7 @@
             this.label6.AutoSize = true;
             this.label6.BackColor = System.Drawing.Color.Transparent;
             this.label6.ForeColor = System.Drawing.Color.White;
-            this.label6.Location = new System.Drawing.Point(291, 189);
+            this.label6.Location = new System.Drawing.Point(291, 195);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(63, 13);
             this.label6.TabIndex = 31;
@@ -283,7 +286,7 @@
             0,
             0,
             0});
-            this.numShotEvery.Location = new System.Drawing.Point(208, 187);
+            this.numShotEvery.Location = new System.Drawing.Point(208, 193);
             this.numShotEvery.Maximum = new decimal(new int[] {
             999999,
             0,
@@ -308,7 +311,7 @@
             // 
             this.lblMe.BackColor = System.Drawing.Color.Transparent;
             this.lblMe.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.lblMe.Location = new System.Drawing.Point(5, 425);
+            this.lblMe.Location = new System.Drawing.Point(5, 431);
             this.lblMe.Name = "lblMe";
             this.lblMe.Size = new System.Drawing.Size(379, 23);
             this.lblMe.TabIndex = 32;
@@ -322,7 +325,7 @@
             this.comboScreens.FormattingEnabled = true;
             this.comboScreens.Location = new System.Drawing.Point(61, 120);
             this.comboScreens.Name = "comboScreens";
-            this.comboScreens.Size = new System.Drawing.Size(171, 21);
+            this.comboScreens.Size = new System.Drawing.Size(116, 21);
             this.comboScreens.TabIndex = 35;
             // 
             // label7
@@ -350,7 +353,7 @@
             // 
             this.btnLaunch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnLaunch.ForeColor = System.Drawing.Color.White;
-            this.btnLaunch.Location = new System.Drawing.Point(308, 224);
+            this.btnLaunch.Location = new System.Drawing.Point(308, 230);
             this.btnLaunch.Name = "btnLaunch";
             this.btnLaunch.Size = new System.Drawing.Size(65, 25);
             this.btnLaunch.TabIndex = 38;
@@ -363,7 +366,7 @@
             this.label8.AutoSize = true;
             this.label8.BackColor = System.Drawing.Color.Transparent;
             this.label8.ForeColor = System.Drawing.Color.White;
-            this.label8.Location = new System.Drawing.Point(154, 189);
+            this.label8.Location = new System.Drawing.Point(154, 195);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(44, 13);
             this.label8.TabIndex = 39;
@@ -382,7 +385,7 @@
             this.cbAutoStart.AutoSize = true;
             this.cbAutoStart.BackColor = System.Drawing.Color.Transparent;
             this.cbAutoStart.ForeColor = System.Drawing.Color.White;
-            this.cbAutoStart.Location = new System.Drawing.Point(47, 303);
+            this.cbAutoStart.Location = new System.Drawing.Point(47, 309);
             this.cbAutoStart.Name = "cbAutoStart";
             this.cbAutoStart.Size = new System.Drawing.Size(107, 17);
             this.cbAutoStart.TabIndex = 40;
@@ -394,12 +397,36 @@
             this.cbMiniStart.AutoSize = true;
             this.cbMiniStart.BackColor = System.Drawing.Color.Transparent;
             this.cbMiniStart.ForeColor = System.Drawing.Color.White;
-            this.cbMiniStart.Location = new System.Drawing.Point(203, 303);
+            this.cbMiniStart.Location = new System.Drawing.Point(203, 309);
             this.cbMiniStart.Name = "cbMiniStart";
             this.cbMiniStart.Size = new System.Drawing.Size(97, 17);
             this.cbMiniStart.TabIndex = 41;
             this.cbMiniStart.Text = "Start Minimized";
             this.cbMiniStart.UseVisualStyleBackColor = false;
+            // 
+            // qualitySlider
+            // 
+            this.qualitySlider.Location = new System.Drawing.Point(257, 112);
+            this.qualitySlider.Maximum = 100;
+            this.qualitySlider.Minimum = 1;
+            this.qualitySlider.Name = "qualitySlider";
+            this.qualitySlider.Size = new System.Drawing.Size(104, 45);
+            this.qualitySlider.SmallChange = 10;
+            this.qualitySlider.TabIndex = 42;
+            this.qualitySlider.TickFrequency = 25;
+            this.qualitySlider.Value = 75;
+            this.qualitySlider.Scroll += new System.EventHandler(this.qualitySlider_Scroll);
+            // 
+            // lblQuality
+            // 
+            this.lblQuality.AutoSize = true;
+            this.lblQuality.BackColor = System.Drawing.Color.Transparent;
+            this.lblQuality.ForeColor = System.Drawing.Color.White;
+            this.lblQuality.Location = new System.Drawing.Point(206, 123);
+            this.lblQuality.Name = "lblQuality";
+            this.lblQuality.Size = new System.Drawing.Size(45, 13);
+            this.lblQuality.TabIndex = 43;
+            this.lblQuality.Text = "Quality :";
             // 
             // frmMain
             // 
@@ -407,7 +434,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(383, 445);
+            this.ClientSize = new System.Drawing.Size(383, 453);
+            this.Controls.Add(this.lblQuality);
+            this.Controls.Add(this.qualitySlider);
             this.Controls.Add(this.cbMiniStart);
             this.Controls.Add(this.cbAutoStart);
             this.Controls.Add(this.label8);
@@ -448,6 +477,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.qualitySlider)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -484,6 +514,8 @@
         private System.Windows.Forms.NotifyIcon appNotify;
         private System.Windows.Forms.CheckBox cbAutoStart;
         private System.Windows.Forms.CheckBox cbMiniStart;
+        private System.Windows.Forms.TrackBar qualitySlider;
+        private System.Windows.Forms.Label lblQuality;
     }
 }
 
