@@ -216,6 +216,8 @@ namespace ScreenTask
                 var fileinfo = new FileInfo(page);
                 if (fileinfo.Extension == ".css") // important for IE -> Content-Type must be defiend for CSS files unless will ignored !!!
                     ctx.Response.ContentType = "text/css";
+                else if (fileinfo.Extension == ".svg") 
+                    ctx.Response.ContentType = "image/svg+xml";
                 else if (fileinfo.Extension == ".html" || fileinfo.Extension == ".htm")
                     ctx.Response.ContentType = "text/html"; // Important For Chrome Otherwise will display the HTML as plain text.
 
