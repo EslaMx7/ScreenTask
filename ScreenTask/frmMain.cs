@@ -263,12 +263,13 @@ namespace ScreenTask
                 bmp = null;
                 return;
             }
-            Rectangle bounds = Screen.GetBounds(Point.Empty);
+            
+            Rectangle bounds = Screen.AllScreens[comboScreens.SelectedIndex].Bounds;
             using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
             {
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {
-                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                    g.CopyFromScreen(new Point(bounds.X,bounds.Y), Point.Empty, bounds.Size);
                 }
                 rwl.AcquireWriterLock(Timeout.Infinite);
                 bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", ImageFormat.Jpeg);
