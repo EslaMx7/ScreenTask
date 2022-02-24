@@ -568,5 +568,10 @@ namespace ScreenTask
             _currentSettings.ImageQuality = qualitySlider.Value;
 
         }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
     }
 }
