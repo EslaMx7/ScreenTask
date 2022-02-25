@@ -127,7 +127,7 @@ namespace ScreenTask
             var url = string.Format("http://{0}:{1}", selectedIP, numPort.Value.ToString());
             txtURL.Text = url;
             serv.Prefixes.Clear();
-            serv.Prefixes.Add("http://localhost:" + numPort.Value.ToString() + "/");
+            //serv.Prefixes.Add("http://localhost:" + numPort.Value.ToString() + "/");
             //serv.Prefixes.Add("http://*:" + numPort.Value.ToString() + "/"); // Uncomment this to Allow Public IP Over Internet. [Commented for Security Reasons.]
             serv.Prefixes.Add(url + "/");
             serv.Start();
@@ -335,23 +335,40 @@ namespace ScreenTask
         {
             await Task.Run(() =>
             {
-
-                string cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
-                if (!cmd.Contains("Screen Task"))
+                var rulename = $"Screen Task On Port {_currentSettings.Port}";
+                var remoteip = _currentSettings.AllowPublicAccess ? "any" : "localsubnet";
+                string cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
+                var splittedResponse = cmd.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+                if (cmd.Contains(rulename) && cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && splittedResponse[8].ToLower().Contains(remoteip))
                 {
-                    cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
-                    if (cmd.Contains("Screen Task"))
+                    // Do Nothing, to prevent ask for admin access everytime without a change in the configurations
+                }
+                else if (!cmd.Contains(rulename) && !cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && !splittedResponse[8].ToLower().Contains(remoteip))
+                {
+                    cmd = RunCMD($"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
+                                 + " & " +
+                                 $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
+                                 , true);
+
+                    cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
+                    if (cmd.Contains(rulename))
                     {
                         Log("Screen Task Rule added to your firewall");
                     }
                 }
                 else
                 {
-                    cmd = RunCMD("netsh advfirewall firewall delete rule name=\"Screen Task\"");
-                    cmd = RunCMD("netsh advfirewall firewall add rule name=\"Screen Task\" dir=in action=allow remoteip=localsubnet protocol=tcp localport=" + port);
-                    cmd = RunCMD("netsh advfirewall firewall show rule \"Screen Task\"");
-                    if (cmd.Contains("Screen Task"))
+                    cmd = RunCMD($"netsh advfirewall firewall delete rule name=\"{rulename}\""
+                                + " & " +
+                                $"netsh http delete urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/"
+                                + " & " +
+                                $"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
+                                + " & " +
+                                $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
+                                , true);
+
+                    cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
+                    if (cmd.Contains(rulename))
                     {
                         Log("Screen Task Rule updated to your firewall");
                     }
@@ -359,21 +376,32 @@ namespace ScreenTask
             });
 
         }
-        private string RunCMD(string cmd)
+        private string RunCMD(string cmd, bool requireAdmin = false)
         {
             Process proc = new Process();
             proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.Arguments = "/C " + cmd;
+            proc.StartInfo.Arguments = "/C " + cmd ;
             proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.Start();
-            string res = proc.StandardOutput.ReadToEnd();
-            proc.StandardOutput.Close();
+            if (requireAdmin)
+            {
+                proc.StartInfo.UseShellExecute = true;
+                proc.StartInfo.Verb = "runas";
+                proc.Start();
+                return null;
+            }
+            else
+            {
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.RedirectStandardOutput = true;
+                proc.StartInfo.RedirectStandardError = true;
+                proc.Start();
 
-            proc.Close();
-            return res;
+                string res = proc.StandardOutput.ReadToEnd();
+                proc.StandardOutput.Close();
+                proc.Close();
+                return res;
+            }
+
         }
         private void Log(string text)
         {
@@ -448,6 +476,7 @@ namespace ScreenTask
                     this.numPort.Value = _currentSettings.Port;
                     this.numShotEvery.Value = _currentSettings.ScreenshotsSpeed;
                     this.qualitySlider.Value = _currentSettings.ImageQuality != default ? _currentSettings.ImageQuality : 75;
+                    this.cbAllowPublicAccess.Checked = _currentSettings.AllowPublicAccess;
                     this.comboIPs.SelectedIndex = _ips.IndexOf(_ips.FirstOrDefault(ip => ip.Item2.Contains(_currentSettings.IP)));
                     if (_currentSettings.SelectedScreenIndex > -1 && comboScreens.Items.Count > 0 && _currentSettings.SelectedScreenIndex <= comboScreens.Items.Count - 1)
                         this.comboScreens.SelectedIndex = _currentSettings.SelectedScreenIndex;
@@ -519,6 +548,7 @@ namespace ScreenTask
                 _currentSettings.IP = _ips.ElementAt(comboIPs.SelectedIndex).Item2;
                 _currentSettings.SelectedScreenIndex = comboScreens.SelectedIndex;
                 _currentSettings.ImageQuality = qualitySlider.Value;
+                _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
 
                 using (var appSettingsFile = new FileStream("appsettings.xml", FileMode.Create, FileAccess.Write))
                 {
@@ -569,9 +599,9 @@ namespace ScreenTask
 
         }
 
-        private void groupBox1_Enter(object sender, EventArgs e)
+        private void cbAllowPublicAccess_CheckedChanged(object sender, EventArgs e)
         {
-
+            _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
         }
     }
 }

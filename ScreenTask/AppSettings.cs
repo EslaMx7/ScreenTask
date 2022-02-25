@@ -20,5 +20,6 @@ namespace ScreenTask
         public bool IsAutoStartServerEnabled { get; set; }
         public bool IsStartMinimizedEnabled { get; set; }
         public int ImageQuality { get; set; }
+        public bool AllowPublicAccess { get; set; }
     }
 }
