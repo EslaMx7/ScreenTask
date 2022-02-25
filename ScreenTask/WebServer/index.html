@@ -129,32 +129,55 @@
                 <button id="closeAbout" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             <p>Share Your Desktop With Your Friends Inside The Internal Network [No Internet Connection Required]</p>
-            <p> This Application Developed by : Eslam Hamouda | &copy; EslaMxSoft 2014 </p>
+            <p> This Application Developed by :</p>
+            <ul class="ms-5">
+                <li class="ms-5"><a href="https://github.com/EslaMx7" target="_blank">Eslam Hamouda</a></li>
+                <li class="ms-5"><a href="https://github.com/ElBedeawi" target="_blank">Wagih ElBedeawi</a></li>
+            </ul>
             <p class="text-center">
                 <em>Hope This Helps You On Your Work!</em>
                 <a href="https://www.buymeacoffee.com/eslamx7" target="_blank"><img src="./buymeacoffee.png"></a>
             </p>
-            <p> Send Your Feedback to <a href="https://github.com/EslaMx7/ScreenTask/issues/new/choose" style="font-weight: bold;" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
-    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
-</svg> GitHub</a></p>
+            <p>
+                Send Your Feedback to <a href="https://github.com/EslaMx7/ScreenTask/issues/new/choose" style="font-weight: bold;" target="_blank">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
+                    </svg> GitHub
+                </a>
+            </p>
         </div>
 
         <hr />
         <!-- Preview -->
         <div id="Viewer" class="imgPreview">
+            <div id="serverStoppedMessage" class="d-none" style="text-align: center;">
+                <h1>ScreenTask</h1>
+                <h3>Server Stopped</h3>
+                <h3><a href="https://screentask.me" target="_blank">screentask.me</a></h3>
+            </div>
             <img id="imgPrev" src="ScreenTask.jpg" class="img-responsive" style="max-width: 100%;" alt="LIVE! Sever Screen Now!" />
             <br />
             <div class="well text-center mt-2">
 
                 <div class="row">
-                    
+
                     <div class="col-lg-4 col-md-4 col-sm-4">
                         <button id="btnStartStop" class="btn btn-danger" data-state="stop">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle" viewBox="0 0 16 16">
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3z" />
-                            </svg>    
-                            Stop Watching!
+                            <div id="stop">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                    <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3z" />
+                                </svg>
+                                Stop Watching!
+                            </div>
+
+                            <div id="play" class="d-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                    <path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445z" />
+                                </svg>
+                                Start Watching!
+                            </div>
                         </button>
                     </div>
 
@@ -168,7 +191,7 @@
                     </div>
 
                     <div class="col-lg-4 col-md-4 col-sm-4">
-                        <button id="btnFullscreen" class="btn btn-primary">
+                        <button id="btnFullscreen" class="btn btn-secondary">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z" />
                             </svg>
@@ -177,45 +200,78 @@
                     </div>
                 </div>
                 <div class="row">
-                    
+
                 </div>
             </div>
 
         </div>
         <!-- Site footer -->
         <div class="footer">
-            <p>&copy; Screen Task 2014 | <a href="http://eslamx.com">EslaMxSoft</a>, by <a href="https://twitter.com/EslaMx7">@EslaMx7</a>.</p>
+            <p>&copy; Screen Task 2014-2022 | <a href="https://screentask.me">ScreenTask</a>.</p>
         </div>
 
     </div> <!-- /container -->
 
     <script>
         var refreshInterval = 500;
+        var isWatching = true;
+        var serverFailCount = 0;
+        var ImagePreview = document.getElementById('imgPrev');
+        var viewer = document.getElementById('serverStoppedMessage');
 
-        var timer = setInterval(function () {
-            var ImagePreview = document.getElementById('imgPrev');
-            ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
-        }, refreshInterval);
+        function LoadImage() {
+            setTimeout(function () {
+                viewer.className = 'd-none';
+                ImagePreview.className = 'img-responsive';
+                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
+            }, refreshInterval);
+        }
 
+        ImagePreview.onload = function () {
+            if (isWatching) {
+                serverFailCount = 0;
+                LoadImage();
+            }
+        };
 
+        var checkServerStatusInterval;
+
+        ImagePreview.onerror = function (err) {
+            console.log(err);
+            serverFailCount++;
+            if (serverFailCount >= 5) {
+                viewer.className = '';
+                ImagePreview.className = 'img-responsive d-none';
+                checkServerStatusInterval = setInterval(function () {
+                    fetch("/ScreenTask.jpg", {
+                        "method": "GET",
+                    }).then(function (success) {
+                        clearInterval(checkServerStatusInterval);
+                        LoadImage();
+                    });
+                }, 3000);
+            }
+            else
+                LoadImage();
+        }
 
         var btn = document.getElementById('btnStartStop');
 
         btn.onclick = function () {
             if (btn.getAttribute('data-state') == 'stop') {
                 btn.setAttribute('data-state', 'start');
-                btn.className = "btn btn-lg btn-success";
-                btn.innerHTML = "Start Watching!";
-                clearInterval(timer);
-                timer = null;
+                btn.className = 'btn btn-primary';
+                btn.querySelector('#stop').className = 'd-none';
+                btn.querySelector('#play').className = '';
+                isWatching = false;
             } else {
                 btn.setAttribute('data-state', 'stop');
-                btn.className = "btn btn-lg btn-danger";
-                btn.innerHTML = "Stop Watching!";
-                timer = setInterval(function () {
-                    var ImagePreview = document.getElementById('imgPrev');
-                    ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
-                }, refreshInterval);
+                btn.className = 'btn btn-danger';
+                btn.querySelector('#stop').className = '';
+                btn.querySelector('#play').className = 'd-none';
+                isWatching = true;
+                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
+                
             }
 
         };
@@ -228,7 +284,6 @@
             refreshInterval = txtInterval.value;
 
         };
-
 
         var lnkAbout = document.getElementById('lnkAbout');
         var msgAbout = document.getElementById('msgAbout');
