@@ -17,6 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using WebPWrapper;
 
 namespace ScreenTask
 {
@@ -254,8 +255,35 @@ namespace ScreenTask
         }
         private void TakeScreenshot(bool captureMouse)
         {
-            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+            ImageCodecInfo encoder;
+            string outputExt;
 
+            if (comboOutputType.SelectedIndex == 0)
+            {
+                //encoder = GetEncoder(ImageFormat.Jpeg);
+                outputExt = "webp";
+                var webpImagePath = $"{Application.StartupPath}/WebServer/ScreenTask.{outputExt}";
+                byte[] rawWebP;
+                using (WebP webp = new WebP())
+                {
+                    var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(captureMouse, comboScreens.SelectedIndex);
+                    rawWebP = webp.EncodeLossy(bmp, _currentSettings.ImageQuality);
+                    rwl.AcquireWriterLock(Timeout.Infinite);
+                    File.WriteAllBytes(webpImagePath, rawWebP);
+                    rwl.ReleaseWriterLock();
+                    bmp.Dispose();
+                    bmp = null;
+                }
+                return;
+
+            }
+            else
+            {
+                encoder = GetEncoder(ImageFormat.Jpeg);
+                outputExt = "jpg";
+            }
+
+            var imagePath = "{Application.StartupPath}/WebServer/ScreenTask.{outputExt}";
             var encoderQuality = System.Drawing.Imaging.Encoder.Quality;
             var encoderParam = new EncoderParameter(encoderQuality, _currentSettings.ImageQuality);
             var encoderParams = new EncoderParameters(1);
@@ -264,7 +292,7 @@ namespace ScreenTask
             {
                 var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex);
                 rwl.AcquireWriterLock(Timeout.Infinite);
-                bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
+                bmp.Save(imagePath, encoder, encoderParams);
                 rwl.ReleaseWriterLock();
 
                 bmp.Dispose();
@@ -281,7 +309,7 @@ namespace ScreenTask
                 }
                 rwl.AcquireWriterLock(Timeout.Infinite);
 
-                bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
+                bitmap.Save($"{Application.StartupPath}/WebServer/ScreenTask.{outputExt}", encoder, encoderParams);
                 rwl.ReleaseWriterLock();
 
 
@@ -335,19 +363,21 @@ namespace ScreenTask
         {
             await Task.Run(() =>
             {
-                var rulename = $"Screen Task On Port {_currentSettings.Port}";
+                var rulename = $"Screen Task On Port {port}";
+                var oldRulename = $"Screen Task On Port {_currentSettings.Port}";
+
                 var remoteip = _currentSettings.AllowPublicAccess ? "any" : "localsubnet";
                 string cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
                 var splittedResponse = cmd.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-                if (cmd.Contains(rulename) && cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && splittedResponse[8].ToLower().Contains(remoteip))
+                if (cmd.Contains(rulename) && cmd.Contains(port.ToString()) && splittedResponse.Length >= 8 && splittedResponse[8].ToLower().Contains(remoteip))
                 {
                     // Do Nothing, to prevent ask for admin access everytime without a change in the configurations
                 }
-                else if (!cmd.Contains(rulename) && !cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && !splittedResponse[8].ToLower().Contains(remoteip))
+                else if (!cmd.Contains(rulename) && !cmd.Contains(port.ToString()) && splittedResponse.Length >= 8 && !splittedResponse[8].ToLower().Contains(remoteip))
                 {
                     cmd = RunCMD($"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
                                  + " & " +
-                                 $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
+                                 $"netsh http add urlacl url=http://{_currentSettings.IP}:{port}/ user=Everyone listen=yes"
                                  , true);
 
                     cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
@@ -358,13 +388,13 @@ namespace ScreenTask
                 }
                 else
                 {
-                    cmd = RunCMD($"netsh advfirewall firewall delete rule name=\"{rulename}\""
+                    cmd = RunCMD($"netsh advfirewall firewall delete rule name=\"{oldRulename}\""
                                 + " & " +
                                 $"netsh http delete urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/"
                                 + " & " +
                                 $"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
                                 + " & " +
-                                $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
+                                $"netsh http add urlacl url=http://{_currentSettings.IP}:{port}/ user=Everyone listen=yes"
                                 , true);
 
                     cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
@@ -480,6 +510,7 @@ namespace ScreenTask
                     this.comboIPs.SelectedIndex = _ips.IndexOf(_ips.FirstOrDefault(ip => ip.Item2.Contains(_currentSettings.IP)));
                     if (_currentSettings.SelectedScreenIndex > -1 && comboScreens.Items.Count > 0 && _currentSettings.SelectedScreenIndex <= comboScreens.Items.Count - 1)
                         this.comboScreens.SelectedIndex = _currentSettings.SelectedScreenIndex;
+                    this.comboOutputType.SelectedIndex = _currentSettings.SelectedOutputTypeIndex;
                 }
             }
             catch (Exception ex)
@@ -549,6 +580,7 @@ namespace ScreenTask
                 _currentSettings.SelectedScreenIndex = comboScreens.SelectedIndex;
                 _currentSettings.ImageQuality = qualitySlider.Value;
                 _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
+                _currentSettings.SelectedOutputTypeIndex = comboOutputType.SelectedIndex;
 
                 using (var appSettingsFile = new FileStream("appsettings.xml", FileMode.Create, FileAccess.Write))
                 {
@@ -603,5 +635,11 @@ namespace ScreenTask
         {
             _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
         }
+
+        private void comboOutputType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _currentSettings.SelectedOutputTypeIndex = comboOutputType.SelectedIndex;
+        }
+
     }
 }

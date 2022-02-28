@@ -217,13 +217,14 @@
         var isWatching = true;
         var serverFailCount = 0;
         var ImagePreview = document.getElementById('imgPrev');
+        var imageName = 'ScreenTask.webp';
         var viewer = document.getElementById('serverStoppedMessage');
 
         function LoadImage() {
             setTimeout(function () {
                 viewer.className = 'd-none';
                 ImagePreview.className = 'img-responsive';
-                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
+                ImagePreview.src = imageName + '?rand=' + Math.random();
             }, refreshInterval);
         }
 
@@ -243,7 +244,7 @@
                 viewer.className = '';
                 ImagePreview.className = 'img-responsive d-none';
                 checkServerStatusInterval = setInterval(function () {
-                    fetch("/ScreenTask.jpg", {
+                    fetch("/" + imageName, {
                         "method": "GET",
                     }).then(function (success) {
                         clearInterval(checkServerStatusInterval);
@@ -270,7 +271,7 @@
                 btn.querySelector('#stop').className = '';
                 btn.querySelector('#play').className = 'd-none';
                 isWatching = true;
-                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
+                ImagePreview.src = imageName + '?rand=' + Math.random();
                 
             }
 

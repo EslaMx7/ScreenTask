@@ -21,5 +21,7 @@ namespace ScreenTask
         public bool IsStartMinimizedEnabled { get; set; }
         public int ImageQuality { get; set; }
         public bool AllowPublicAccess { get; set; }
+
+        public int SelectedOutputTypeIndex { get; set; }
     }
 }

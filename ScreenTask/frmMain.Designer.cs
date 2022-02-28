@@ -60,8 +60,14 @@
             this.qualitySlider = new System.Windows.Forms.TrackBar();
             this.lblQuality = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.comboOutputType = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.firewallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.gbOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
@@ -70,6 +76,7 @@
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // gbOptions
@@ -81,7 +88,7 @@
             this.gbOptions.Controls.Add(this.numPort);
             this.gbOptions.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gbOptions.ForeColor = System.Drawing.Color.White;
-            this.gbOptions.Location = new System.Drawing.Point(12, 71);
+            this.gbOptions.Location = new System.Drawing.Point(12, 90);
             this.gbOptions.Name = "gbOptions";
             this.gbOptions.Size = new System.Drawing.Size(347, 68);
             this.gbOptions.TabIndex = 0;
@@ -161,7 +168,7 @@
             // 
             // txtLog
             // 
-            this.txtLog.Location = new System.Drawing.Point(11, 445);
+            this.txtLog.Location = new System.Drawing.Point(11, 464);
             this.txtLog.Multiline = true;
             this.txtLog.Name = "txtLog";
             this.txtLog.ReadOnly = true;
@@ -176,7 +183,7 @@
             this.cbCaptureMouse.BackColor = System.Drawing.Color.Transparent;
             this.cbCaptureMouse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cbCaptureMouse.ForeColor = System.Drawing.Color.White;
-            this.cbCaptureMouse.Location = new System.Drawing.Point(196, 65);
+            this.cbCaptureMouse.Location = new System.Drawing.Point(217, 85);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
             this.cbCaptureMouse.Size = new System.Drawing.Size(124, 17);
             this.cbCaptureMouse.TabIndex = 26;
@@ -323,7 +330,7 @@
             // 
             this.lblMe.BackColor = System.Drawing.Color.Transparent;
             this.lblMe.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.lblMe.Location = new System.Drawing.Point(11, 501);
+            this.lblMe.Location = new System.Drawing.Point(11, 520);
             this.lblMe.Name = "lblMe";
             this.lblMe.Size = new System.Drawing.Size(350, 23);
             this.lblMe.TabIndex = 32;
@@ -356,7 +363,7 @@
             // pictureBox1
             // 
             this.pictureBox1.Image = global::ScreenTask.Properties.Resources.screentask_logo;
-            this.pictureBox1.Location = new System.Drawing.Point(11, 9);
+            this.pictureBox1.Location = new System.Drawing.Point(11, 28);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(350, 50);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -421,11 +428,11 @@
             // 
             // qualitySlider
             // 
-            this.qualitySlider.Location = new System.Drawing.Point(55, 58);
+            this.qualitySlider.Location = new System.Drawing.Point(231, 50);
             this.qualitySlider.Maximum = 100;
             this.qualitySlider.Minimum = 1;
             this.qualitySlider.Name = "qualitySlider";
-            this.qualitySlider.Size = new System.Drawing.Size(130, 45);
+            this.qualitySlider.Size = new System.Drawing.Size(110, 45);
             this.qualitySlider.SmallChange = 10;
             this.qualitySlider.TabIndex = 42;
             this.qualitySlider.TickFrequency = 25;
@@ -438,7 +445,7 @@
             this.lblQuality.BackColor = System.Drawing.Color.Transparent;
             this.lblQuality.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblQuality.ForeColor = System.Drawing.Color.White;
-            this.lblQuality.Location = new System.Drawing.Point(6, 69);
+            this.lblQuality.Location = new System.Drawing.Point(192, 55);
             this.lblQuality.Name = "lblQuality";
             this.lblQuality.Size = new System.Drawing.Size(45, 13);
             this.lblQuality.TabIndex = 43;
@@ -446,6 +453,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.comboOutputType);
+            this.groupBox1.Controls.Add(this.label9);
             this.groupBox1.Controls.Add(this.numShotEvery);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.lblQuality);
@@ -456,12 +465,37 @@
             this.groupBox1.Controls.Add(this.qualitySlider);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox1.ForeColor = System.Drawing.Color.White;
-            this.groupBox1.Location = new System.Drawing.Point(12, 145);
+            this.groupBox1.Location = new System.Drawing.Point(12, 164);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(347, 108);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Display Options";
+            // 
+            // comboOutputType
+            // 
+            this.comboOutputType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboOutputType.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboOutputType.FormattingEnabled = true;
+            this.comboOutputType.Items.AddRange(new object[] {
+            "WebP",
+            "JPG"});
+            this.comboOutputType.Location = new System.Drawing.Point(56, 55);
+            this.comboOutputType.Name = "comboOutputType";
+            this.comboOutputType.Size = new System.Drawing.Size(130, 21);
+            this.comboOutputType.TabIndex = 45;
+            this.comboOutputType.SelectedIndexChanged += new System.EventHandler(this.comboOutputType_SelectedIndexChanged);
+            // 
+            // label9
+            // 
+            this.label9.BackColor = System.Drawing.Color.Transparent;
+            this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label9.ForeColor = System.Drawing.Color.White;
+            this.label9.Location = new System.Drawing.Point(8, 50);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(45, 31);
+            this.label9.TabIndex = 44;
+            this.label9.Text = "Output Type :";
             // 
             // groupBox2
             // 
@@ -472,7 +506,7 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupBox2.ForeColor = System.Drawing.Color.White;
-            this.groupBox2.Location = new System.Drawing.Point(12, 259);
+            this.groupBox2.Location = new System.Drawing.Point(12, 278);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(347, 73);
             this.groupBox2.TabIndex = 1;
@@ -487,11 +521,41 @@
             this.groupBox3.Controls.Add(this.cbMiniStart);
             this.groupBox3.Controls.Add(this.btnStartServer);
             this.groupBox3.Controls.Add(this.cbAutoStart);
-            this.groupBox3.Location = new System.Drawing.Point(12, 338);
+            this.groupBox3.Location = new System.Drawing.Point(12, 357);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(347, 98);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.fileToolStripMenuItem,
+            this.firewallToolStripMenuItem,
+            this.aboutToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(373, 24);
+            this.menuStrip1.TabIndex = 38;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Text = "File";
+            // 
+            // firewallToolStripMenuItem
+            // 
+            this.firewallToolStripMenuItem.Name = "firewallToolStripMenuItem";
+            this.firewallToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
+            this.firewallToolStripMenuItem.Text = "Firewall";
+            // 
+            // aboutToolStripMenuItem
+            // 
+            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
+            this.aboutToolStripMenuItem.Text = "About";
             // 
             // frmMain
             // 
@@ -499,7 +563,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(373, 523);
+            this.ClientSize = new System.Drawing.Size(373, 546);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -507,8 +571,10 @@
             this.Controls.Add(this.txtLog);
             this.Controls.Add(this.gbOptions);
             this.Controls.Add(this.lblMe);
+            this.Controls.Add(this.menuStrip1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip1;
             this.MaximizeBox = false;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -528,6 +594,8 @@
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -567,6 +635,12 @@
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.CheckBox cbAllowPublicAccess;
         private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.ComboBox comboOutputType;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem firewallToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
     }
 }
 
