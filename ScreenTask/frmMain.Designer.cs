@@ -51,7 +51,6 @@
             this.lblMe = new System.Windows.Forms.Label();
             this.comboScreens = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.btnLaunch = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.appNotify = new System.Windows.Forms.NotifyIcon(this.components);
@@ -68,15 +67,16 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.firewallToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.gbOptions.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.qualitySlider)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // gbOptions
@@ -334,7 +334,7 @@
             this.lblMe.Name = "lblMe";
             this.lblMe.Size = new System.Drawing.Size(350, 23);
             this.lblMe.TabIndex = 32;
-            this.lblMe.Text = "© Eslam Hamouda 2014 - 2022 - screentask.me";
+            this.lblMe.Text = "© Atumy 2014 - 2022 - screentask.me";
             this.lblMe.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lblMe.Click += new System.EventHandler(this.lblMe_Click);
             // 
@@ -359,16 +359,6 @@
             this.label7.Size = new System.Drawing.Size(47, 13);
             this.label7.TabIndex = 36;
             this.label7.Text = "Screen :";
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::ScreenTask.Properties.Resources.screentask_logo;
-            this.pictureBox1.Location = new System.Drawing.Point(11, 28);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(350, 50);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 37;
-            this.pictureBox1.TabStop = false;
             // 
             // btnLaunch
             // 
@@ -556,6 +546,17 @@
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(52, 20);
             this.aboutToolStripMenuItem.Text = "About";
+            this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Image = global::ScreenTask.Properties.Resources.screentask_logo;
+            this.pictureBox1.Location = new System.Drawing.Point(11, 28);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(350, 50);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictureBox1.TabIndex = 37;
+            this.pictureBox1.TabStop = false;
             // 
             // frmMain
             // 
@@ -586,7 +587,6 @@
             this.gbOptions.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numShotEvery)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.qualitySlider)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -596,6 +596,7 @@
             this.groupBox3.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

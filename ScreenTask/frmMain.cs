@@ -641,5 +641,9 @@ namespace ScreenTask
             _currentSettings.SelectedOutputTypeIndex = comboOutputType.SelectedIndex;
         }
 
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new AboutBox().ShowDialog();
+        }
     }
 }
