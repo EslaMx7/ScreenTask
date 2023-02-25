@@ -645,5 +645,9 @@ namespace ScreenTask
         {
             new AboutBox().ShowDialog();
         }
+        private void minimizeToTrayToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
