@@ -26,7 +26,6 @@ namespace ScreenTask
 
         private object locker = new object();
         private ReaderWriterLock rwl = new ReaderWriterLock();
-        private MemoryStream img;
         private List<Tuple<string, string>> _ips;
         HttpListener serv;
         private Version currentVersion;
@@ -35,10 +34,8 @@ namespace ScreenTask
         {
             InitializeComponent();
             currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            CheckForIllegalCrossThreadCalls = false; // For Visual Studio Debuging Only !
             serv = new HttpListener();
             serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
-            img = new MemoryStream();
 
             foreach (var screen in Screen.AllScreens)
             {
@@ -116,7 +113,7 @@ namespace ScreenTask
             }
             catch (Exception ex)
             {
-                Log("Error! : " + ex.Message);
+                Log("Error! : " + ex.ToString());
             }
         }
         private async Task StartServer()
@@ -143,7 +140,7 @@ namespace ScreenTask
                 var resPath = ctx.Request.Url.LocalPath;
                 if (resPath == "/") // Route The Root Dir to the Index Page
                     resPath += "index.html";
-                var page = Application.StartupPath + "/WebServer" + resPath;
+                var page = Application.StartupPath + Constants.WebServerDirectory + resPath;
                 bool fileExist;
                 lock (locker)
                     fileExist = File.Exists(page);
@@ -156,10 +153,13 @@ namespace ScreenTask
                     {
                         await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
                     }
-                    catch (Exception ex)
+                    catch (IOException)
                     {
-
-
+                        // Client disconnected, do nothing.
+                    }
+                    catch (HttpListenerException)
+                    {
+                        // Client disconnected, do nothing.
                     }
                     ctx.Response.Close();
                     continue;
@@ -193,10 +193,13 @@ namespace ScreenTask
                             {
                                 await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
                             }
-                            catch (Exception ex)
+                            catch (IOException)
                             {
-
-
+                                // Client disconnected, do nothing.
+                            }
+                            catch (HttpListenerException)
+                            {
+                                // Client disconnected, do nothing.
                             }
                             ctx.Response.Close();
                             continue;
@@ -228,15 +231,13 @@ namespace ScreenTask
                 {
                     await ctx.Response.OutputStream.WriteAsync(filedata, 0, filedata.Length);
                 }
-                catch (Exception ex)
+                catch (IOException)
                 {
-
-                    /*
-                        Do Nothing !!! this is the Only Effective Solution for this Exception : 
-                        the specified network name is no longer available
-                        
-                     */
-
+                    // Client disconnected, do nothing.
+                }
+                catch (HttpListenerException)
+                {
+                    // Client disconnected, do nothing.
                 }
 
                 ctx.Response.Close();
@@ -254,37 +255,41 @@ namespace ScreenTask
         }
         private void TakeScreenshot(bool captureMouse)
         {
-            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-
-            var encoderQuality = System.Drawing.Imaging.Encoder.Quality;
-            var encoderParam = new EncoderParameter(encoderQuality, _currentSettings.ImageQuality);
-            var encoderParams = new EncoderParameters(1);
-            encoderParams.Param[0] = encoderParam;
-            if (captureMouse)
+            try
             {
-                var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex);
-                rwl.AcquireWriterLock(Timeout.Infinite);
-                bmp.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
-                rwl.ReleaseWriterLock();
+                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
 
-                bmp.Dispose();
-                bmp = null;
-                return;
-            }
-
-            Rectangle bounds = Screen.AllScreens[comboScreens.SelectedIndex].Bounds;
-            using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
-            {
-                using (Graphics g = Graphics.FromImage(bitmap))
+                var encoderQuality = System.Drawing.Imaging.Encoder.Quality;
+                var encoderParam = new EncoderParameter(encoderQuality, _currentSettings.ImageQuality);
+                var encoderParams = new EncoderParameters(1);
+                encoderParams.Param[0] = encoderParam;
+                if (captureMouse)
                 {
-                    g.CopyFromScreen(new Point(bounds.X, bounds.Y), Point.Empty, bounds.Size);
+                    using (var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex))
+                    {
+                        rwl.AcquireWriterLock(Timeout.Infinite);
+                        bmp.Save(Application.StartupPath + Constants.ScreenshotFilePath, jpgEncoder, encoderParams);
+                        rwl.ReleaseWriterLock();
+                    }
+                    return;
                 }
-                rwl.AcquireWriterLock(Timeout.Infinite);
 
-                bitmap.Save(Application.StartupPath + "/WebServer" + "/ScreenTask.jpg", jpgEncoder, encoderParams);
-                rwl.ReleaseWriterLock();
+                Rectangle bounds = Screen.AllScreens[comboScreens.SelectedIndex].Bounds;
+                using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                {
+                    using (Graphics g = Graphics.FromImage(bitmap))
+                    {
+                        g.CopyFromScreen(new Point(bounds.X, bounds.Y), Point.Empty, bounds.Size);
+                    }
+                    rwl.AcquireWriterLock(Timeout.Infinite);
 
-
+                    bitmap.Save(Application.StartupPath + Constants.ScreenshotFilePath, jpgEncoder, encoderParams);
+                    rwl.ReleaseWriterLock();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Error taking screenshot: {ex.Message}");
             }
         }
 
@@ -378,35 +383,40 @@ namespace ScreenTask
         }
         private string RunCMD(string cmd, bool requireAdmin = false)
         {
-            Process proc = new Process();
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.Arguments = "/C " + cmd ;
-            proc.StartInfo.CreateNoWindow = true;
-            if (requireAdmin)
+            using (Process proc = new Process())
             {
-                proc.StartInfo.UseShellExecute = true;
-                proc.StartInfo.Verb = "runas";
-                proc.Start();
-                return null;
-            }
-            else
-            {
-                proc.StartInfo.UseShellExecute = false;
-                proc.StartInfo.RedirectStandardOutput = true;
-                proc.StartInfo.RedirectStandardError = true;
-                proc.Start();
+                proc.StartInfo.FileName = "cmd.exe";
+                proc.StartInfo.Arguments = "/C " + cmd;
+                proc.StartInfo.CreateNoWindow = true;
+                if (requireAdmin)
+                {
+                    proc.StartInfo.UseShellExecute = true;
+                    proc.StartInfo.Verb = "runas";
+                    proc.Start();
+                    return null;
+                }
+                else
+                {
+                    proc.StartInfo.UseShellExecute = false;
+                    proc.StartInfo.RedirectStandardOutput = true;
+                    proc.StartInfo.RedirectStandardError = true;
+                    proc.Start();
 
-                string res = proc.StandardOutput.ReadToEnd();
-                proc.StandardOutput.Close();
-                proc.Close();
-                return res;
+                    string res = proc.StandardOutput.ReadToEnd();
+                    proc.StandardOutput.Close();
+                    proc.Close();
+                    return res;
+                }
             }
-
         }
         private void Log(string text)
         {
-            txtLog.Text += DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " : " + text + "\r\n";
-
+            if (txtLog.InvokeRequired)
+            {
+                txtLog.Invoke(new Action<string>(Log), text);
+                return;
+            }
+            txtLog.AppendText(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " : " + text + "\r\n");
         }
 
         private void cbPrivate_CheckedChanged(object sender, EventArgs e)
@@ -459,10 +469,10 @@ namespace ScreenTask
 
             try
             {
-                if (File.Exists("appsettings.xml"))
+                if (File.Exists(Constants.AppSettingsFileName))
                 {
                     var serializer = new XmlSerializer(typeof(AppSettings));
-                    using (var appSettingsFile = File.OpenRead("appsettings.xml"))
+                    using (var appSettingsFile = File.OpenRead(Constants.AppSettingsFileName))
                     {
                         _currentSettings = (AppSettings)serializer.Deserialize(appSettingsFile);
                     }
@@ -484,7 +494,7 @@ namespace ScreenTask
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load local appsettings.xml file.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Failed to load local appsettings.xml file.\r\n{ex.ToString()}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             if (_currentSettings.IsStartMinimizedEnabled)
@@ -501,20 +511,28 @@ namespace ScreenTask
                 Task.Factory.StartNew(() =>
             {
                 var wc = new WebClient();
-                wc.Headers.Add(HttpRequestHeader.UserAgent, "ScreenTask");
-                var latestGithubReleaseText = wc.DownloadString("https://api.github.com/repos/EslaMx7/ScreenTask/releases/latest");
-                var regex = Regex.Match(latestGithubReleaseText, @"\""tag_name\"":\""(.{2,5})\"",", RegexOptions.Multiline);
-                if (regex.Success && !string.IsNullOrEmpty(regex.Value) && regex.Groups.Count > 1)
+                wc.Headers.Add(HttpRequestHeader.UserAgent, Constants.UserAgent);
+                var latestGithubReleaseText = wc.DownloadString(Constants.GitHubApiLatestReleaseUrl);
+                var tagNameMarker = "\"tag_name\":\"";
+                var startIndex = latestGithubReleaseText.IndexOf(tagNameMarker);
+                if (startIndex > -1)
                 {
-                    var groupMatch = regex.Groups[1];
-                    var newVersion = new Version(groupMatch.Value.Replace("v", ""));
-
-                    if (newVersion > currentVersion)
+                    startIndex += tagNameMarker.Length;
+                    var endIndex = latestGithubReleaseText.IndexOf("\"", startIndex);
+                    if (endIndex > -1)
                     {
-                        var msgResult = MessageBox.Show($"There is a new update available for download.\nCurrent Version: {currentVersion}\nLatest Version: {newVersion}\nDo you want to download it now ?", "New Version Released!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                        if (msgResult == DialogResult.Yes)
+                        var tagName = latestGithubReleaseText.Substring(startIndex, endIndex - startIndex);
+                        var newVersion = new Version(tagName.Replace("v", ""));
+                        if (newVersion > currentVersion)
                         {
-                            Process.Start("https://screentask.me");
+                            this.Invoke((MethodInvoker)delegate
+                            {
+                                var msgResult = MessageBox.Show(this, $"There is a new update available for download.\nCurrent Version: {currentVersion}\nLatest Version: {newVersion}\nDo you want to download it now ?", "New Version Released!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                                if (msgResult == DialogResult.Yes)
+                                {
+                                    Process.Start(Constants.WebsiteUrl);
+                                }
+                            });
                         }
                     }
                 }
@@ -522,19 +540,23 @@ namespace ScreenTask
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to check for updates.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
+                Log($"Failed to check for updates.\r\n{ex.ToString()}");
             }
         }
 
         private void lblMe_Click(object sender, EventArgs e)
         {
-            Process.Start("https://screentask.me");
-            Process.Start("http://twitter.com/EslaMx7");
+            Process.Start(Constants.WebsiteUrl);
+            Process.Start(Constants.TwitterUrl);
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (serv.IsListening)
+            {
+                serv.Stop();
+                serv.Close();
+            }
             try
             {
                 _currentSettings.Port = (int)numPort.Value;
@@ -550,7 +572,7 @@ namespace ScreenTask
                 _currentSettings.ImageQuality = qualitySlider.Value;
                 _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
 
-                using (var appSettingsFile = new FileStream("appsettings.xml", FileMode.Create, FileAccess.Write))
+                using (var appSettingsFile = new FileStream(Constants.AppSettingsFileName, FileMode.Create, FileAccess.Write))
                 {
                     var serializer = new XmlSerializer(typeof(AppSettings));
                     serializer.Serialize(appSettingsFile, _currentSettings);
@@ -558,7 +580,7 @@ namespace ScreenTask
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Cannot save the settings file next to the executable file.\r\n{ex.Message}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Cannot save the settings file next to the executable file.\r\n{ex.ToString()}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
