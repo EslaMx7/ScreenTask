@@ -65,32 +65,31 @@ namespace ScreenTask
         {
             Bitmap result = new Bitmap(bounds.Width, bounds.Height);
 
-            try
+            using (Graphics g = Graphics.FromImage(result))
             {
-                using (Graphics g = Graphics.FromImage(result))
+                g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+
+                if (captureMouse)
                 {
-                    g.CopyFromScreen(bounds.Location, Point.Empty, bounds.Size);
+                    CURSORINFO pci;
+                    pci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
 
-                    if (captureMouse)
+                    if (GetCursorInfo(out pci))
                     {
-                        CURSORINFO pci;
-                        pci.cbSize = Marshal.SizeOf(typeof(CURSORINFO));
-
-                        if (GetCursorInfo(out pci))
+                        if (pci.flags == CURSOR_SHOWING)
                         {
-                            if (pci.flags == CURSOR_SHOWING)
+                            var hdc = g.GetHdc();
+                            try
                             {
-                                var hdc = g.GetHdc();
                                 DrawIconEx(hdc, pci.ptScreenPos.x - bounds.X, pci.ptScreenPos.y - bounds.Y, pci.hCursor, 0, 0, 0, IntPtr.Zero, DI_NORMAL);
+                            }
+                            finally
+                            {
                                 g.ReleaseHdc();
                             }
                         }
                     }
                 }
-            }
-            catch
-            {
-                result = null;
             }
 
             return result;
