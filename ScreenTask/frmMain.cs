@@ -61,8 +61,24 @@ namespace ScreenTask
             cbAudio.CheckedChanged += cbAudio_CheckedChanged;
             comboAudioDevices.SelectedIndexChanged += comboAudioDevices_SelectedIndexChanged;
             btnTestAudio.Click += btnTestAudio_Click;
+            btnAudioDiag.Click += btnAudioDiag_Click;
             qualitySlider.Scroll += qualitySlider_Scroll;
             comboFps.SelectedIndexChanged += comboFps_SelectedIndexChanged;
+
+            _captureEngine.AudioService.AudioLevelChanged += level =>
+            {
+                if (pbAudioMeter.IsHandleCreated && !pbAudioMeter.IsDisposed)
+                {
+                    try
+                    {
+                        pbAudioMeter.BeginInvoke(() =>
+                        {
+                            pbAudioMeter.Value = Math.Clamp((int)(level * 100), 0, 100);
+                        });
+                    }
+                    catch { }
+                }
+            };
 
             lblMe.Click += lblMe_Click;
             appNotify.Click += appNotify_Click;
@@ -372,7 +388,14 @@ namespace ScreenTask
             _captureEngine.SetAudioEnabled(cbAudio.Checked);
             _currentSettings.IsAudioEnabled = cbAudio.Checked;
             comboAudioDevices.Enabled = cbAudio.Checked;
+            pbAudioMeter.Enabled = cbAudio.Checked;
             btnTestAudio.Enabled = cbAudio.Checked;
+            btnAudioDiag.Enabled = cbAudio.Checked;
+
+            if (!cbAudio.Checked)
+            {
+                pbAudioMeter.Value = 0;
+            }
 
             if (_webServer.IsRunning)
             {
@@ -385,7 +408,7 @@ namespace ScreenTask
             if (comboAudioDevices.SelectedIndex >= 0 && comboAudioDevices.SelectedIndex < _audioDevices.Count)
             {
                 var selected = _audioDevices[comboAudioDevices.SelectedIndex];
-                _captureEngine.SetAudioDevice(selected.Device);
+                _captureEngine.SetAudioDevice(selected);
                 if (_captureEngine.IsRunning && _captureEngine.AudioEnabled)
                 {
                     Log($"Audio device: {selected.Name}");
@@ -398,7 +421,7 @@ namespace ScreenTask
             try
             {
                 System.Media.SystemSounds.Asterisk.Play();
-                Log("Playing test sound chime (WASAPI loopback test).");
+                Log("Playing test sound chime.");
             }
             catch (Exception ex)
             {
@@ -406,12 +429,27 @@ namespace ScreenTask
             }
         }
 
+        private void btnAudioDiag_Click(object? sender, EventArgs e)
+        {
+            using var diag = new ScreenTask.UI.AudioDiagnosticsForm(_captureEngine.AudioService, selected =>
+            {
+                if (selected != null)
+                {
+                    _captureEngine.SetAudioDevice(selected);
+                    var idx = _audioDevices.FindIndex(d => d.Id == selected.Id && d.IsInput == selected.IsInput);
+                    if (idx >= 0) comboAudioDevices.SelectedIndex = idx;
+                    Log($"Audio device changed to: {selected.Name}");
+                }
+            });
+            diag.ShowDialog(this);
+        }
+
         private List<ScreenTask.Core.Audio.AudioDeviceDescriptor> _audioDevices = new();
 
         private void PopulateAudioDevices()
         {
             comboAudioDevices.Items.Clear();
-            _audioDevices = ScreenTask.Core.Audio.WasapiAudioCaptureService.GetRenderDevices();
+            _audioDevices = ScreenTask.Core.Audio.WasapiAudioCaptureService.GetAudioDevices();
             foreach (var dev in _audioDevices)
             {
                 comboAudioDevices.Items.Add(dev.Name);
@@ -421,7 +459,9 @@ namespace ScreenTask
                 comboAudioDevices.SelectedIndex = 0;
             }
             comboAudioDevices.Enabled = cbAudio.Checked;
+            pbAudioMeter.Enabled = cbAudio.Checked;
             btnTestAudio.Enabled = cbAudio.Checked;
+            btnAudioDiag.Enabled = cbAudio.Checked;
         }
 
         private void qualitySlider_Scroll(object? sender, EventArgs e)
@@ -531,7 +571,9 @@ namespace ScreenTask
                     cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
                     cbAudio.Checked = _currentSettings.IsAudioEnabled;
                     comboAudioDevices.Enabled = cbAudio.Checked;
+                    pbAudioMeter.Enabled = cbAudio.Checked;
                     btnTestAudio.Enabled = cbAudio.Checked;
+                    btnAudioDiag.Enabled = cbAudio.Checked;
                     cbAutoStart.Checked = _currentSettings.IsAutoStartServerEnabled;
                     cbMiniStart.Checked = _currentSettings.IsStartMinimizedEnabled;
                     txtPassword.Text = _currentSettings.PinCode;

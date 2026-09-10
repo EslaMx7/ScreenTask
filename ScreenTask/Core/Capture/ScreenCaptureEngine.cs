@@ -20,10 +20,11 @@ namespace ScreenTask.Core.Capture
         public bool CaptureMouse { get; set; } = true;
         public int TargetFps { get; set; } = 30;
         public bool AudioEnabled { get; set; } = false;
-        public MMDevice? SelectedAudioDevice { get; set; }
+        public AudioDeviceDescriptor? SelectedAudioDevice { get; set; }
         public bool IsRunning { get; private set; }
 
         public StreamBroadcaster Broadcaster => _broadcaster;
+        public WasapiAudioCaptureService AudioService => _audioService;
 
         public ScreenCaptureEngine(StreamBroadcaster broadcaster)
         {
@@ -47,7 +48,7 @@ namespace ScreenTask.Core.Capture
             {
                 if (enabled && !_audioService.IsRunning)
                 {
-                    _audioService.Start(SelectedAudioDevice);
+                    _audioService.Start(SelectedAudioDevice?.Device, SelectedAudioDevice?.IsInput ?? false);
                     if (_audioService.AudioFormat != null)
                     {
                         var fmt = _audioService.AudioFormat;
@@ -61,19 +62,24 @@ namespace ScreenTask.Core.Capture
             }
         }
 
-        public void SetAudioDevice(MMDevice? device)
+        public void SetAudioDevice(AudioDeviceDescriptor? device)
         {
             SelectedAudioDevice = device;
             if (IsRunning && AudioEnabled)
             {
                 _audioService.Stop();
-                _audioService.Start(SelectedAudioDevice);
+                _audioService.Start(device?.Device, device?.IsInput ?? false);
                 if (_audioService.AudioFormat != null)
                 {
                     var fmt = _audioService.AudioFormat;
                     _ = _broadcaster.BroadcastAudioFormatAsync(fmt.SampleRate, (short)fmt.Channels, (short)fmt.BitsPerSample);
                 }
             }
+        }
+
+        public void SetAudioDevice(MMDevice? device)
+        {
+            SetAudioDevice(device != null ? new AudioDeviceDescriptor(device.ID, device.FriendlyName, false, device) : null);
         }
 
         public void Start()
@@ -86,7 +92,7 @@ namespace ScreenTask.Core.Capture
 
             if (AudioEnabled)
             {
-                _audioService.Start(SelectedAudioDevice);
+                _audioService.Start(SelectedAudioDevice?.Device, SelectedAudioDevice?.IsInput ?? false);
                 if (_audioService.AudioFormat != null)
                 {
                     var fmt = _audioService.AudioFormat;

@@ -32,7 +32,9 @@ namespace ScreenTask
             this.cbCaptureMouse = new System.Windows.Forms.CheckBox();
             this.cbAudio = new System.Windows.Forms.CheckBox();
             this.comboAudioDevices = new System.Windows.Forms.ComboBox();
+            this.pbAudioMeter = new System.Windows.Forms.ProgressBar();
             this.btnTestAudio = new System.Windows.Forms.Button();
+            this.btnAudioDiag = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.comboFps = new System.Windows.Forms.ComboBox();
             this.lblQuality = new System.Windows.Forms.Label();
@@ -116,7 +118,9 @@ namespace ScreenTask
             this.groupBox1.Controls.Add(this.cbCaptureMouse);
             this.groupBox1.Controls.Add(this.cbAudio);
             this.groupBox1.Controls.Add(this.comboAudioDevices);
+            this.groupBox1.Controls.Add(this.pbAudioMeter);
             this.groupBox1.Controls.Add(this.btnTestAudio);
+            this.groupBox1.Controls.Add(this.btnAudioDiag);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.comboFps);
             this.groupBox1.Controls.Add(this.lblQuality);
@@ -153,7 +157,7 @@ namespace ScreenTask
             this.cbCaptureMouse.ForeColor = System.Drawing.Color.White;
             this.cbCaptureMouse.Location = new System.Drawing.Point(15, 58);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
-            this.cbCaptureMouse.Size = new System.Drawing.Size(95, 19);
+            this.cbCaptureMouse.Size = new System.Drawing.Size(90, 19);
             this.cbCaptureMouse.Text = "Show Cursor";
             this.cbCaptureMouse.UseVisualStyleBackColor = false;
 
@@ -161,9 +165,9 @@ namespace ScreenTask
             this.cbAudio.AutoSize = true;
             this.cbAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbAudio.ForeColor = System.Drawing.Color.White;
-            this.cbAudio.Location = new System.Drawing.Point(115, 58);
+            this.cbAudio.Location = new System.Drawing.Point(108, 58);
             this.cbAudio.Name = "cbAudio";
-            this.cbAudio.Size = new System.Drawing.Size(60, 19);
+            this.cbAudio.Size = new System.Drawing.Size(58, 19);
             this.cbAudio.Text = "Audio:";
             this.cbAudio.UseVisualStyleBackColor = false;
 
@@ -172,9 +176,19 @@ namespace ScreenTask
             this.comboAudioDevices.Enabled = false;
             this.comboAudioDevices.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.comboAudioDevices.FormattingEnabled = true;
-            this.comboAudioDevices.Location = new System.Drawing.Point(180, 56);
+            this.comboAudioDevices.Location = new System.Drawing.Point(168, 56);
             this.comboAudioDevices.Name = "comboAudioDevices";
-            this.comboAudioDevices.Size = new System.Drawing.Size(190, 21);
+            this.comboAudioDevices.Size = new System.Drawing.Size(138, 21);
+
+            // pbAudioMeter
+            this.pbAudioMeter.Enabled = false;
+            this.pbAudioMeter.Location = new System.Drawing.Point(312, 59);
+            this.pbAudioMeter.Maximum = 100;
+            this.pbAudioMeter.Minimum = 0;
+            this.pbAudioMeter.Name = "pbAudioMeter";
+            this.pbAudioMeter.Size = new System.Drawing.Size(28, 15);
+            this.pbAudioMeter.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.pbAudioMeter.Value = 0;
 
             // btnTestAudio
             this.btnTestAudio.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
@@ -183,11 +197,24 @@ namespace ScreenTask
             this.btnTestAudio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTestAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnTestAudio.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
-            this.btnTestAudio.Location = new System.Drawing.Point(375, 54);
+            this.btnTestAudio.Location = new System.Drawing.Point(344, 54);
             this.btnTestAudio.Name = "btnTestAudio";
-            this.btnTestAudio.Size = new System.Drawing.Size(29, 25);
+            this.btnTestAudio.Size = new System.Drawing.Size(28, 25);
             this.btnTestAudio.Text = "🔊";
             this.btnTestAudio.UseVisualStyleBackColor = false;
+
+            // btnAudioDiag
+            this.btnAudioDiag.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
+            this.btnAudioDiag.Enabled = false;
+            this.btnAudioDiag.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            this.btnAudioDiag.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAudioDiag.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnAudioDiag.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
+            this.btnAudioDiag.Location = new System.Drawing.Point(376, 54);
+            this.btnAudioDiag.Name = "btnAudioDiag";
+            this.btnAudioDiag.Size = new System.Drawing.Size(28, 25);
+            this.btnAudioDiag.Text = "⚙";
+            this.btnAudioDiag.UseVisualStyleBackColor = false;
 
             // label8 (Framerate:)
             this.label8.AutoSize = true;
@@ -512,7 +539,9 @@ namespace ScreenTask
         private System.Windows.Forms.CheckBox cbCaptureMouse;
         private System.Windows.Forms.CheckBox cbAudio;
         private System.Windows.Forms.ComboBox comboAudioDevices;
+        private System.Windows.Forms.ProgressBar pbAudioMeter;
         private System.Windows.Forms.Button btnTestAudio;
+        private System.Windows.Forms.Button btnAudioDiag;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ComboBox comboFps;
         private System.Windows.Forms.Label lblQuality;

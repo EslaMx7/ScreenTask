@@ -71,12 +71,16 @@ namespace ScreenTask.Tests.UI
                 var cbAudio = FindControl<CheckBox>(form, "cbAudio");
                 var comboAudioDevices = FindControl<ComboBox>(form, "comboAudioDevices");
                 var btnTestAudio = FindControl<Button>(form, "btnTestAudio");
+                var btnAudioDiag = FindControl<Button>(form, "btnAudioDiag");
+                var pbAudioMeter = FindControl<ProgressBar>(form, "pbAudioMeter");
                 var cbPrivate = FindControl<CheckBox>(form, "cbPrivate");
                 var txtPassword = FindControl<TextBox>(form, "txtPassword");
 
                 Assert.NotNull(cbAudio);
                 Assert.NotNull(comboAudioDevices);
                 Assert.NotNull(btnTestAudio);
+                Assert.NotNull(btnAudioDiag);
+                Assert.NotNull(pbAudioMeter);
                 Assert.NotNull(cbPrivate);
                 Assert.NotNull(txtPassword);
 
@@ -84,11 +88,15 @@ namespace ScreenTask.Tests.UI
                 cbAudio.Checked = false;
                 Assert.False(comboAudioDevices.Enabled);
                 Assert.False(btnTestAudio.Enabled);
+                Assert.False(btnAudioDiag.Enabled);
+                Assert.False(pbAudioMeter.Enabled);
 
                 // Toggle cbAudio
                 cbAudio.Checked = true;
                 Assert.True(comboAudioDevices.Enabled);
                 Assert.True(btnTestAudio.Enabled);
+                Assert.True(btnAudioDiag.Enabled);
+                Assert.True(pbAudioMeter.Enabled);
 
                 // Toggle cbPrivate
                 cbPrivate.Checked = false;

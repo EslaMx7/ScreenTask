@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using ScreenTask.Core.Audio;
 using Xunit;
 
@@ -7,23 +8,41 @@ namespace ScreenTask.Tests.Core
     public class WasapiAudioCaptureTests
     {
         [Fact]
-        public void GetRenderDevices_AlwaysIncludesDefaultPlaybackDevice()
+        public void GetAudioDevices_IncludesMicrophoneAndSpeakerDefaults()
         {
-            var devices = WasapiAudioCaptureService.GetRenderDevices();
+            var devices = WasapiAudioCaptureService.GetAudioDevices();
 
             Assert.NotNull(devices);
             Assert.NotEmpty(devices);
-            Assert.Equal("Default Playback Device", devices[0].Name);
-            Assert.Null(devices[0].Id);
-            Assert.Null(devices[0].Device);
+
+            // Verify default microphone (input)
+            var defaultMic = devices.FirstOrDefault(d => d.IsInput && d.Id == null);
+            Assert.NotNull(defaultMic);
+            Assert.Contains("Microphone", defaultMic.Name);
+
+            // Verify default speaker / loopback (output)
+            var defaultSpeaker = devices.FirstOrDefault(d => !d.IsInput && d.Id == null);
+            Assert.NotNull(defaultSpeaker);
+            Assert.Contains("Sound", defaultSpeaker.Name);
         }
 
         [Fact]
-        public void Service_InitialState_IsNotRunning()
+        public void Service_InitialState_IsNotRunningAndZeroLevel()
         {
             using var service = new WasapiAudioCaptureService();
             Assert.False(service.IsRunning);
             Assert.Null(service.CurrentDevice);
+            Assert.Equal(0f, service.CurrentPeakLevel);
+        }
+
+        [Fact]
+        public void AudioDeviceDescriptor_Properties_SetCorrectly()
+        {
+            var desc = new AudioDeviceDescriptor("test-id", "Test Mic", true, null);
+            Assert.Equal("test-id", desc.Id);
+            Assert.Equal("Test Mic", desc.Name);
+            Assert.True(desc.IsInput);
+            Assert.Null(desc.Device);
         }
     }
 }
