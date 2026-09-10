@@ -1,326 +1,713 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Screen Task">
-    <meta name="author" content="Eslam Hamouda">
-    <title>Screen Task</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+  <title>ScreenTask 2.0 – Live Screen Viewer</title>
+  <meta name="description" content="Instant, offline, zero-internet LAN screen sharing viewer." />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-dim: rgba(99, 102, 241, 0.15);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
 
-    <link href="bootstrap.min.css" rel="stylesheet" />
-    <style>
-        body {
-            padding-top: 5px;
-        }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --accent: #4f46e5;
+      --accent-hover: #4338ca;
+      --accent-dim: rgba(79, 70, 229, 0.1);
+    }
 
-        .footer {
-            border-top: 1px solid #eee;
-            margin-top: 20px;
-            padding-top: 5px;
-            padding-bottom: 5px;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        /* Main marketing message and sign up button */
-        .jumbotron {
-            text-align: center;
-            background-color: transparent;
-        }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      user-select: none;
+    }
 
-            .jumbotron .btn {
-                font-size: 21px;
-                padding: 14px 24px;
-            }
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
 
-        /* Customize the nav-justified links to be fill the entire space of the .navbar */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      text-decoration: none;
+      color: var(--text);
+    }
 
-        .nav-justified {
-            background-color: #eee;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
+    .brand svg {
+      color: var(--accent);
+    }
 
-            .nav-justified > li > a {
-                margin-bottom: 0;
-                padding-top: 15px;
-                padding-bottom: 15px;
-                color: #777;
-                font-weight: bold;
-                text-align: center;
-                border-bottom: 1px solid #d5d5d5;
-                background-color: #e5e5e5; /* Old browsers */
-                background-repeat: repeat-x; /* Repeat the gradient */
-                background-image: -moz-linear-gradient(top, #f5f5f5 0%, #e5e5e5 100%); /* FF3.6+ */
-                background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f5f5), color-stop(100%,#e5e5e5)); /* Chrome,Safari4+ */
-                background-image: -webkit-linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* Chrome 10+,Safari 5.1+ */
-                background-image: -o-linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* Opera 11.10+ */
-                filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f5f5f5', endColorstr='#e5e5e5',GradientType=0 ); /* IE6-9 */
-                background-image: linear-gradient(top, #f5f5f5 0%,#e5e5e5 100%); /* W3C */
-            }
+    .brand span {
+      color: var(--accent);
+    }
 
-            .nav-justified > .active > a,
-            .nav-justified > .active > a:hover,
-            .nav-justified > .active > a:focus {
-                background-color: #ddd;
-                background-image: none;
-                box-shadow: inset 0 3px 7px rgba(0,0,0,.15);
-            }
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      background: var(--accent-dim);
+      color: var(--accent);
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      font-weight: 600;
+    }
 
-            .nav-justified > li:first-child > a {
-                border-radius: 5px 5px 0 0;
-            }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--success);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse 2s infinite;
+    }
 
-            .nav-justified > li:last-child > a {
-                border-bottom: 0;
-                border-radius: 0 0 5px 5px;
-            }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
 
-        @media (min-width: 768px) {
-            .nav-justified {
-                max-height: 52px;
-            }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
 
-                .nav-justified > li > a {
-                    border-left: 1px solid #fff;
-                    border-right: 1px solid #d5d5d5;
-                }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--surface-border);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
 
-                .nav-justified > li:first-child > a {
-                    border-left: 0;
-                    border-radius: 5px 0 0 5px;
-                }
+    .btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
 
-                .nav-justified > li:last-child > a {
-                    border-radius: 0 5px 5px 0;
-                    border-right: 0;
-                }
-        }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
 
-        /* Responsive: Portrait tablets and up */
-        @media screen and (min-width: 768px) {
-            /* Remove the padding we set earlier */
-            .masthead,
-            .marketing,
-            .footer {
-                padding-left: 0;
-                padding-right: 0;
-            }
-        }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      color: #fff;
+    }
 
-    </style>
+    .btn-icon {
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .viewer-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #screenCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      transition: transform 0.05s ease-out;
+      transform-origin: center center;
+      cursor: grab;
+    }
+
+    #screenCanvas:active {
+      cursor: grabbing;
+    }
+
+    .floating-toolbar {
+      position: absolute;
+      bottom: 1.5rem;
+      background: rgba(30, 41, 59, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 5;
+    }
+
+    .stat-tag {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .stat-tag strong {
+      color: var(--text);
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--surface-border);
+    }
+
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .volume-slider {
+      width: 70px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .zoom-hud {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--surface-border);
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: none;
+      z-index: 5;
+    }
+
+    .overlay-message {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 20;
+      gap: 1rem;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .overlay-message.hidden {
+      display: none;
+    }
+
+    .overlay-message h2 {
+      font-size: 1.75rem;
+      color: var(--text);
+    }
+
+    .overlay-message p {
+      color: var(--text-muted);
+      max-width: 400px;
+    }
+
+    .pin-modal {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+    }
+
+    .pin-modal.hidden {
+      display: none;
+    }
+
+    .pin-card {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      padding: 2rem;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 360px;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .pin-card h3 {
+      margin-bottom: 0.5rem;
+    }
+
+    .pin-card p {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--surface-border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1.25rem;
+      text-align: center;
+      letter-spacing: 0.3em;
+      margin-bottom: 1rem;
+      outline: none;
+    }
+
+    .pin-input:focus {
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      header {
+        padding: 0.5rem 1rem;
+      }
+      .floating-toolbar {
+        bottom: 0.75rem;
+        padding: 0.4rem 0.75rem;
+        gap: 0.6rem;
+      }
+      .volume-slider {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- Top Header Navigation -->
+  <header>
+    <a href="https://screentask.eslamx.com/" target="_blank" rel="noopener" class="brand" title="ScreenTask Website">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+        <path d="M8 21h8M12 17v4"></path>
+      </svg>
+      Screen<span>Task</span> 2.0
+    </a>
 
-    <div class="container">
+    <div class="header-status">
+      <div class="pulse-dot"></div>
+      <span id="sourceLabel">Live Stream</span>
+    </div>
 
-        <div class="masthead">
-            <h1 class="text-muted">Screen Task</h1>
-            <ul class="nav nav-pills nav-fill">
-                <li class="nav-item"><a class="nav-link active" href="./">Home</a></li>
-                <li class="nav-item"><a class="nav-link" target="_blank" href="https://github.com/EslaMx7/ScreenTask">Project On Github</a></li>
-                <li class="nav-item"><a class="nav-link" id="lnkAbout" href="#">About</a></li>
-            </ul>
-        </div>
-        
-        <div id="msgAbout" class="alert alert-info alert-dismissable d-none mt-2">
-            <div class="d-flex justify-content-between">
-                <strong>About!</strong>
-                <button id="closeAbout" type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <p>Share Your Desktop With Your Friends Inside The Internal Network [No Internet Connection Required]</p>
-            <p> This Application Developed by :</p>
-            <ul class="ms-5">
-                <li class="ms-5"><a href="https://github.com/EslaMx7" target="_blank">Eslam Hamouda</a></li>
-                <li class="ms-5"><a href="https://github.com/ElBedeawi" target="_blank">Wagih ElBedeawi</a></li>
-            </ul>
-            <p class="text-center">
-                <em>Hope This Helps You On Your Work!</em>
-                <a href="https://www.buymeacoffee.com/eslamx7" target="_blank"><img src="./buymeacoffee.png"></a>
-            </p>
-            <p>
-                Send Your Feedback to <a href="https://github.com/EslaMx7/ScreenTask/issues/new/choose" style="font-weight: bold;" target="_blank">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
-                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
-                    </svg> GitHub
-                </a>
-            </p>
-        </div>
+    <div class="header-actions">
+      <!-- Theme Toggle -->
+      <button id="themeToggle" class="btn btn-icon" title="Toggle Theme" aria-label="Toggle Theme">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+      </button>
 
-        <hr />
-        <!-- Preview -->
-        <div id="Viewer" class="imgPreview">
-            <div id="serverStoppedMessage" class="d-none" style="text-align: center;">
-                <h1>ScreenTask</h1>
-                <h3>Server Stopped</h3>
-                <h3><a href="https://screentask.me" target="_blank">screentask.me</a></h3>
-            </div>
-            <img id="imgPrev" src="ScreenTask.jpg" class="img-responsive" style="max-width: 100%;" alt="LIVE! Sever Screen Now!" />
-            <br />
-            <div class="well text-center mt-2">
+      <!-- GitHub Link -->
+      <a href="https://github.com/EslaMx7/ScreenTask" target="_blank" rel="noopener" class="btn btn-icon" title="View on GitHub" aria-label="GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/>
+        </svg>
+      </a>
+    </div>
+  </header>
 
-                <div class="row">
+  <!-- Video Viewport Container -->
+  <main class="viewer-wrap">
+    <div id="zoomHud" class="zoom-hud">100%</div>
 
-                    <div class="col-lg-4 col-md-4 col-sm-4">
-                        <button id="btnStartStop" class="btn btn-danger" data-state="stop">
-                            <div id="stop">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                    <path d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3z" />
-                                </svg>
-                                Stop Watching!
-                            </div>
+    <canvas id="screenCanvas"></canvas>
 
-                            <div id="play" class="d-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                    <path d="M6.271 5.055a.5.5 0 0 1 .52.038l3.5 2.5a.5.5 0 0 1 0 .814l-3.5 2.5A.5.5 0 0 1 6 10.5v-5a.5.5 0 0 1 .271-.445z" />
-                                </svg>
-                                Start Watching!
-                            </div>
-                        </button>
-                    </div>
+    <!-- Floating Overlay Controls -->
+    <div class="floating-toolbar">
+      <div class="stat-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <span id="fpsValue">0 FPS</span>
+      </div>
 
-                    <div id="intervalSection" class="col-lg-4 col-md-4 col-sm-4">
-                        <div class="input-group input-group-sm">
-                            <input id="txtInterval" type="text" class="form-control" placeholder="Interval in Mellisecond" value="500">
-                            <div class="input-group-btn">
-                                <button id="btnSetTimer" type="button" class="btn btn-outline-secondary">Set Refresh Interval(ms)</button>
-                            </div><!-- /btn-group -->
-                        </div><!-- /input-group -->
-                    </div>
+      <div class="stat-tag">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect></svg>
+        <span id="resValue">Connecting...</span>
+      </div>
 
-                    <div class="col-lg-4 col-md-4 col-sm-4">
-                        <button id="btnFullscreen" class="btn btn-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrows-fullscreen" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M5.828 10.172a.5.5 0 0 0-.707 0l-4.096 4.096V11.5a.5.5 0 0 0-1 0v3.975a.5.5 0 0 0 .5.5H4.5a.5.5 0 0 0 0-1H1.732l4.096-4.096a.5.5 0 0 0 0-.707zm4.344 0a.5.5 0 0 1 .707 0l4.096 4.096V11.5a.5.5 0 1 1 1 0v3.975a.5.5 0 0 1-.5.5H11.5a.5.5 0 0 1 0-1h2.768l-4.096-4.096a.5.5 0 0 1 0-.707zm0-4.344a.5.5 0 0 0 .707 0l4.096-4.096V4.5a.5.5 0 1 0 1 0V.525a.5.5 0 0 0-.5-.5H11.5a.5.5 0 0 0 0 1h2.768l-4.096 4.096a.5.5 0 0 0 0 .707zm-4.344 0a.5.5 0 0 1-.707 0L1.025 1.732V4.5a.5.5 0 0 1-1 0V.525a.5.5 0 0 1 .5-.5H4.5a.5.5 0 0 1 0 1H1.732l4.096 4.096a.5.5 0 0 1 0 .707z" />
-                            </svg>
-                            Fullscreen
-                        </button>
-                    </div>
-                </div>
-                <div class="row">
+      <div class="toolbar-divider"></div>
 
-                </div>
-            </div>
+      <!-- Audio Section -->
+      <div class="audio-controls">
+        <button id="btnAudio" class="btn btn-icon" title="Unmute Audio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+            <path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path>
+            <path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+        </button>
+        <input id="audioSlider" type="range" min="0" max="1" step="0.05" value="0.8" class="volume-slider" title="Volume" />
+      </div>
 
-        </div>
-        <!-- Site footer -->
-        <div class="footer">
-            <p>&copy; Screen Task 2014-2022 | <a href="https://screentask.me">ScreenTask</a>.</p>
-        </div>
+      <div class="toolbar-divider"></div>
 
-    </div> <!-- /container -->
+      <!-- Reset Zoom (Visible only when scaled) -->
+      <button id="btnResetZoom" class="btn" style="display: none;" title="Reset Zoom">
+        Reset Zoom
+      </button>
 
-    <script>
-        var refreshInterval = 500;
-        var isWatching = true;
-        var serverFailCount = 0;
-        var ImagePreview = document.getElementById('imgPrev');
-        var viewer = document.getElementById('serverStoppedMessage');
+      <!-- Fullscreen Button -->
+      <button id="btnFullscreen" class="btn btn-icon" title="Toggle Fullscreen">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+        </svg>
+      </button>
+    </div>
 
-        function LoadImage() {
-            setTimeout(function () {
-                viewer.className = 'd-none';
-                ImagePreview.className = 'img-responsive';
-                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
-            }, refreshInterval);
+    <!-- Disconnected Message Overlay -->
+    <div id="overlayMessage" class="overlay-message">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+        <line x1="2" y1="20" x2="22" y2="20"></line>
+      </svg>
+      <h2 id="overlayTitle">Connecting to Stream...</h2>
+      <p id="overlayDesc">Connecting directly to host over local network.</p>
+    </div>
+
+    <!-- PIN Authentication Modal -->
+    <div id="pinModal" class="pin-modal hidden">
+      <div class="pin-card">
+        <h3>🔒 Private Session</h3>
+        <p>This stream is password protected. Enter the PIN or password:</p>
+        <input id="pinInput" type="password" class="pin-input" placeholder="••••" maxlength="32" autofocus />
+        <button id="btnSubmitPin" class="btn btn-primary" style="width: 100%;">Connect to Stream</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById('screenCanvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      const overlay = document.getElementById('overlayMessage');
+      const overlayTitle = document.getElementById('overlayTitle');
+      const overlayDesc = document.getElementById('overlayDesc');
+      const fpsDisplay = document.getElementById('fpsValue');
+      const resolutionDisplay = document.getElementById('resValue');
+      const btnFullscreen = document.getElementById('btnFullscreen');
+      const btnAudio = document.getElementById('btnAudio');
+      const audioSlider = document.getElementById('audioSlider');
+      const btnResetZoom = document.getElementById('btnResetZoom');
+      const zoomHud = document.getElementById('zoomHud');
+      const pinModal = document.getElementById('pinModal');
+      const pinInput = document.getElementById('pinInput');
+      const btnSubmitPin = document.getElementById('btnSubmitPin');
+      const themeToggle = document.getElementById('themeToggle');
+
+      let ws = null;
+      let audioCtx = null;
+      let audioGain = null;
+      let isAudioMuted = true;
+      let audioSampleRate = 48000;
+      let frameCount = 0;
+      let lastFpsTime = performance.now();
+      let currentFps = 0;
+      let pin = localStorage.getItem('st_pin') || '';
+
+      // Zoom & Pan
+      let scale = 1;
+      let panX = 0;
+      let panY = 0;
+      let isDragging = false;
+      let startX = 0;
+      let startY = 0;
+      let initialPinchDistance = null;
+      let initialScale = 1;
+
+      // Theme
+      const savedTheme = localStorage.getItem('st-theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      themeToggle?.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('st-theme', next);
+      });
+
+      function initAudio() {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          audioCtx = new AudioContext({ sampleRate: audioSampleRate });
+          audioGain = audioCtx.createGain();
+          audioGain.gain.value = isAudioMuted ? 0 : parseFloat(audioSlider.value);
+          audioGain.connect(audioCtx.destination);
         }
-
-        ImagePreview.onload = function () {
-            if (isWatching) {
-                serverFailCount = 0;
-                LoadImage();
-            }
-        };
-
-        var checkServerStatusInterval;
-
-        ImagePreview.onerror = function (err) {
-            console.log(err);
-            serverFailCount++;
-            if (serverFailCount >= 5) {
-                viewer.className = '';
-                ImagePreview.className = 'img-responsive d-none';
-                checkServerStatusInterval = setInterval(function () {
-                    fetch("/ScreenTask.jpg", {
-                        "method": "GET",
-                    }).then(function (success) {
-                        clearInterval(checkServerStatusInterval);
-                        LoadImage();
-                    });
-                }, 3000);
-            }
-            else
-                LoadImage();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
         }
+      }
 
-        var btn = document.getElementById('btnStartStop');
+      btnAudio?.addEventListener('click', () => {
+        initAudio();
+        isAudioMuted = !isAudioMuted;
+        if (audioGain) audioGain.gain.value = isAudioMuted ? 0 : parseFloat(audioSlider.value);
+        updateAudioBtn();
+      });
 
-        btn.onclick = function () {
-            if (btn.getAttribute('data-state') == 'stop') {
-                btn.setAttribute('data-state', 'start');
-                btn.className = 'btn btn-primary';
-                btn.querySelector('#stop').className = 'd-none';
-                btn.querySelector('#play').className = '';
-                isWatching = false;
-            } else {
-                btn.setAttribute('data-state', 'stop');
-                btn.className = 'btn btn-danger';
-                btn.querySelector('#stop').className = '';
-                btn.querySelector('#play').className = 'd-none';
-                isWatching = true;
-                ImagePreview.src = 'ScreenTask.jpg?rand=' + Math.random();
-                
-            }
-
-        };
-
-        var btnSetTimer = document.getElementById('btnSetTimer');
-
-
-        btnSetTimer.onclick = function () {
-            var txtInterval = document.getElementById('txtInterval');
-            refreshInterval = txtInterval.value;
-
-        };
-
-        var lnkAbout = document.getElementById('lnkAbout');
-        var msgAbout = document.getElementById('msgAbout');
-        var closeAbout = document.getElementById('closeAbout');
-        lnkAbout.onclick = function () {
-
-            msgAbout.className = "alert alert-info alert-dismissable mt-2";
-        };
-        closeAbout.onclick = function () {
-            msgAbout.className = "alert alert-info alert-dismissable d-none mt-2";
-        };
-
-        function requestFullScreen(element) {
-            // Supports most browsers and their versions.
-            var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
-
-            if (requestMethod) { // Native full screen.
-                requestMethod.call(element);
-            } else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-                var wscript = new ActiveXObject("WScript.Shell");
-                if (wscript !== null) {
-                    wscript.SendKeys("{F11}");
-                }
-            }
+      audioSlider?.addEventListener('input', (e) => {
+        initAudio();
+        if (isAudioMuted) {
+          isAudioMuted = false;
+          updateAudioBtn();
         }
+        if (audioGain) audioGain.gain.value = parseFloat(e.target.value);
+      });
 
-        var btnFullscreen = document.getElementById('btnFullscreen');
-        btnFullscreen.onclick = function () {
+      function updateAudioBtn() {
+        if (isAudioMuted) {
+          btnAudio.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>`;
+          btnAudio.title = "Unmute Audio";
+        } else {
+          btnAudio.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
+          btnAudio.title = "Mute Audio";
+        }
+      }
 
-            var viewer = document.getElementById('Viewer');
-            requestFullScreen(viewer);
+      function connect() {
+        const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${location.host}/stream/ws${pin ? `?pin=${encodeURIComponent(pin)}` : ''}`;
+
+        ws = new WebSocket(wsUrl);
+        ws.binaryType = 'arraybuffer';
+
+        ws.onopen = () => {
+          overlay.classList.add('hidden');
+          pinModal.classList.add('hidden');
         };
 
+        ws.onmessage = async (event) => {
+          if (!(event.data instanceof ArrayBuffer)) return;
+          const data = new Uint8Array(event.data);
+          if (data.length === 0) return;
 
+          const packetType = data[0];
 
-    </script>
+          if (packetType === 0x01) {
+            const frameBytes = data.subarray(1);
+            const blob = new Blob([frameBytes], { type: 'image/jpeg' });
+            try {
+              const bitmap = await createImageBitmap(blob);
+              if (canvas.width !== bitmap.width || canvas.height !== bitmap.height) {
+                canvas.width = bitmap.width;
+                canvas.height = bitmap.height;
+                resolutionDisplay.textContent = `${bitmap.width}x${bitmap.height}`;
+              }
+              ctx.drawImage(bitmap, 0, 0);
+              bitmap.close();
 
+              frameCount++;
+              const now = performance.now();
+              if (now - lastFpsTime >= 1000) {
+                currentFps = frameCount;
+                frameCount = 0;
+                lastFpsTime = now;
+                fpsDisplay.textContent = `${currentFps} FPS`;
+              }
+            } catch (err) {}
+          } else if (packetType === 0x02) {
+            if (!isAudioMuted && audioCtx && audioCtx.state === 'running') {
+              playPcmChunk(data.subarray(1));
+            }
+          } else if (packetType === 0x03 && data.length >= 9) {
+            const view = new DataView(event.data);
+            audioSampleRate = view.getInt32(1, true);
+          }
+        };
+
+        ws.onclose = (e) => {
+          if (e.code === 1008 || e.code === 4001) {
+            pinModal.classList.remove('hidden');
+            pinInput.focus();
+          } else {
+            overlay.classList.remove('hidden');
+            overlayTitle.textContent = "Host Disconnected";
+            overlayDesc.textContent = "Reconnecting to ScreenTask server...";
+            setTimeout(connect, 2000);
+          }
+        };
+
+        ws.onerror = () => ws.close();
+      }
+
+      function playPcmChunk(pcmBytes) {
+        try {
+          const numSamples = pcmBytes.length / 4;
+          const float32Data = new Float32Array(pcmBytes.buffer, pcmBytes.byteOffset, numSamples);
+          const buffer = audioCtx.createBuffer(1, float32Data.length, audioSampleRate);
+          buffer.copyToChannel(float32Data, 0);
+          const source = audioCtx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioGain);
+          source.start();
+        } catch (e) {}
+      }
+
+      btnFullscreen?.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+
+      function applyTransform() {
+        canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        if (scale > 1) {
+          zoomHud.style.display = 'block';
+          zoomHud.textContent = `${Math.round(scale * 100)}%`;
+          btnResetZoom.style.display = 'inline-flex';
+        } else {
+          zoomHud.style.display = 'none';
+          btnResetZoom.style.display = 'none';
+        }
+      }
+
+      btnResetZoom?.addEventListener('click', () => {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform();
+      });
+
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const zoomDelta = e.deltaY < 0 ? 1.15 : 0.85;
+        scale = Math.min(Math.max(1, scale * zoomDelta), 5);
+        if (scale === 1) { panX = 0; panY = 0; }
+        applyTransform();
+      }, { passive: false });
+
+      canvas.addEventListener('mousedown', (e) => {
+        if (scale > 1) {
+          isDragging = true;
+          startX = e.clientX - panX;
+          startY = e.clientY - panY;
+        }
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          panX = e.clientX - startX;
+          panY = e.clientY - startY;
+          applyTransform();
+        }
+      });
+
+      window.addEventListener('mouseup', () => isDragging = false);
+
+      canvas.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+          initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
+          initialScale = scale;
+        } else if (e.touches.length === 1 && scale > 1) {
+          isDragging = true;
+          startX = e.touches[0].clientX - panX;
+          startY = e.touches[0].clientY - panY;
+        }
+      });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2 && initialPinchDistance) {
+          e.preventDefault();
+          const currentDistance = getDistance(e.touches[0], e.touches[1]);
+          scale = Math.min(Math.max(1, initialScale * (currentDistance / initialPinchDistance)), 5);
+          if (scale === 1) { panX = 0; panY = 0; }
+          applyTransform();
+        } else if (e.touches.length === 1 && isDragging) {
+          panX = e.touches[0].clientX - startX;
+          panY = e.touches[0].clientY - startY;
+          applyTransform();
+        }
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', () => {
+        initialPinchDistance = null;
+        isDragging = false;
+      });
+
+      function getDistance(t1, t2) {
+        const dx = t1.clientX - t2.clientX;
+        const dy = t1.clientY - t2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      btnSubmitPin?.addEventListener('click', () => {
+        pin = pinInput.value.trim();
+        if (pin) {
+          localStorage.setItem('st_pin', pin);
+          connect();
+        }
+      });
+
+      pinInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') btnSubmitPin.click();
+      });
+
+      connect();
+    })();
+  </script>
 </body>
-
 </html>

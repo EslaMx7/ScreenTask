@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace ScreenTask
 
         public static Bitmap CapturePrimaryScreen(bool captureMouse)
         {
-            Rectangle bounds = Screen.PrimaryScreen.Bounds;
+            Rectangle bounds = Screen.PrimaryScreen?.Bounds ?? new Rectangle(0, 0, 1920, 1080);
             
             var bitmap = CaptureScreen(bounds, captureMouse);
             return bitmap;

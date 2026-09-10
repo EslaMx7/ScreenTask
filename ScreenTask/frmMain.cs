@@ -1,414 +1,363 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
+using System.Net.Http;
 using System.Net.Sockets;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+using ScreenTask.Core.Capture;
+using ScreenTask.Core.Network;
+using ScreenTask.Core.Streaming;
+using ScreenTask.UI;
+using ScreenTask.WebServer;
 
 namespace ScreenTask
 {
     public partial class frmMain : Form
     {
-        private bool isWorking;
+        private StreamBroadcaster _broadcaster;
+        private ScreenCaptureEngine _captureEngine;
+        private EmbeddedWebServer _webServer;
+        private List<NetworkAdapterInfo> _adapters = new();
+        private List<ICaptureSource> _captureSources = new();
+        private AppSettings _currentSettings = new();
+        private readonly System.Windows.Forms.Timer _statsTimer = new();
+        private readonly HttpClient _httpClient = new();
 
-        private object locker = new object();
-        private ReaderWriterLock rwl = new ReaderWriterLock();
-        private List<Tuple<string, string>> _ips;
-        HttpListener serv;
-        private Version currentVersion;
-        private AppSettings _currentSettings = new AppSettings();
         public frmMain()
         {
             InitializeComponent();
-            currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
-            serv = new HttpListener();
-            serv.IgnoreWriteExceptions = true; // Seems Had No Effect :(
 
-            foreach (var screen in Screen.AllScreens)
-            {
-                comboScreens.Items.Add(screen.DeviceName.Replace("\\", "").Replace(".", ""));
-            }
-            comboScreens.SelectedIndex = 0;
-            this.Text = $"Screen Task v{currentVersion.Major}.{currentVersion.Minor}";
+            // Core 2.0 Engine Initialization
+            _broadcaster = new StreamBroadcaster(80);
+            _captureEngine = new ScreenCaptureEngine(_broadcaster);
+            _webServer = new EmbeddedWebServer(_broadcaster, _captureEngine);
+
+            _statsTimer.Interval = 1000;
+            _statsTimer.Tick += OnStatsTimerTick;
+
+            WireEvents();
         }
 
-        private async void btnStartServer_Click(object sender, EventArgs e)
+        private void WireEvents()
         {
+            this.Load += frmMain_Load;
+            this.FormClosing += frmMain_FormClosing;
+            this.Resize += frmMain_Resize;
 
-            if (btnStartServer.Tag.ToString() != "start")
+            btnStartServer.Click += btnStartServer_Click;
+            btnLaunch.Click += btnLaunch_Click;
+            btnCopyUrl.Click += btnCopyUrl_Click;
+            btnQr.Click += btnQr_Click;
+
+            cbPrivate.CheckedChanged += cbPrivate_CheckedChanged;
+            cbCaptureMouse.CheckedChanged += cbCaptureMouse_CheckedChanged;
+            cbAudio.CheckedChanged += cbAudio_CheckedChanged;
+            qualitySlider.Scroll += qualitySlider_Scroll;
+            comboFps.SelectedIndexChanged += comboFps_SelectedIndexChanged;
+
+            lblMe.Click += lblMe_Click;
+            appNotify.Click += appNotify_Click;
+            appNotify.MouseDoubleClick += (s, e) => RestoreFromTray();
+        }
+
+        private void frmMain_Load(object? sender, EventArgs e)
+        {
+            PopulateNetworkAdapters();
+            PopulateCaptureSources();
+            LoadSettings();
+
+            if (_currentSettings.IsStartMinimizedEnabled)
             {
-                btnStartServer.Tag = "start";
-                btnStartServer.Text = "Start Server";
-                isWorking = false;
-                if (serv.IsListening)
-                {
-                    serv.Stop();
-                    serv.Close();
-                }
-                Log("Server Stopped.");
-                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Server Stopped.", ToolTipIcon.Info);
-
-                return;
+                this.WindowState = FormWindowState.Minimized;
             }
 
+            if (_currentSettings.IsAutoStartServerEnabled)
+            {
+                btnStartServer_Click(this, EventArgs.Empty);
+            }
+
+            _ = CheckForUpdatesAsync();
+            Log("ScreenTask 2.0 initialized. Ready.");
+        }
+
+        private void PopulateNetworkAdapters()
+        {
+            comboIPs.Items.Clear();
+            _adapters = NetworkHelper.GetAvailableAdapters();
+
+            int recommendedIndex = 0;
+            for (int i = 0; i < _adapters.Count; i++)
+            {
+                comboIPs.Items.Add(_adapters[i].DisplayName);
+                if (_adapters[i].IsRecommended && recommendedIndex == 0)
+                {
+                    recommendedIndex = i;
+                }
+            }
+
+            if (comboIPs.Items.Count > 0)
+            {
+                comboIPs.SelectedIndex = recommendedIndex;
+                UpdateUrlPreview();
+            }
+        }
+
+        private void PopulateCaptureSources()
+        {
+            comboScreens.Items.Clear();
+            _captureSources.Clear();
+
+            // 1. Physical Screens
+            var screens = Screen.AllScreens;
+            for (int i = 0; i < screens.Length; i++)
+            {
+                var src = new ScreenCaptureSource(i);
+                _captureSources.Add(src);
+                comboScreens.Items.Add($"🖥️ {src.DisplayName}");
+            }
+
+            // 2. Shareable Open Windows
             try
             {
-
-                serv = new HttpListener();
-                serv.IgnoreWriteExceptions = true;
-                isWorking = true;
-                Log("Starting Server, Please Wait...");
-                await AddFirewallRule((int)numPort.Value);
-                _ = Task.Factory.StartNew(() => CaptureScreenEvery((int)numShotEvery.Value), TaskCreationOptions.LongRunning);
-                btnStartServer.Tag = "stop";
-                btnStartServer.Text = "Stop Server";
-                await StartServer();
-
-            }
-            catch (ObjectDisposedException disObj)
-            {
-                serv = new HttpListener();
-                serv.IgnoreWriteExceptions = true;
-            }
-            catch (HttpListenerException httpEx)
-            {
-                if (httpEx.ErrorCode == 32) // Port Already Used
+                var windows = WindowEnumerator.GetShareableWindows();
+                foreach (var win in windows)
                 {
-                    btnStartServer.Tag = "start";
-                    btnStartServer.Text = "Start Server";
-                    isWorking = false;
-                    Log($"This port {numPort.Value} is already used");
-                    var msgResult = MessageBox.Show($"This port {numPort.Value} is already used, Do you want to use another random one ?", "Port Already Used !", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (msgResult == DialogResult.Yes)
-                    {
-                        numPort.Value += DateTime.Now.Second;
-                        Log($"New port is {numPort.Value}");
-                        btnStartServer_Click(sender, e);
-                    }
-                    else
-                    {
-
-                        Log("Port Change Request Declined");
-                    }
-
+                    var src = new WindowCaptureSource(win.Handle, win.Title);
+                    _captureSources.Add(src);
+                    comboScreens.Items.Add($"🪟 App: {win.Title}");
                 }
-                else if (httpEx.ErrorCode == 183)
+            }
+            catch { }
+
+            if (comboScreens.Items.Count > 0)
+            {
+                comboScreens.SelectedIndex = 0;
+            }
+        }
+
+        private void UpdateUrlPreview()
+        {
+            if (comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count)
+            {
+                var ip = _adapters[comboIPs.SelectedIndex].IpAddress;
+                txtURL.Text = $"http://{ip}:{numPort.Value}";
+            }
+        }
+
+        private async void btnStartServer_Click(object? sender, EventArgs e)
+        {
+            if (_webServer.IsRunning)
+            {
+                await StopServerAsync();
+            }
+            else
+            {
+                await StartServerAsync();
+            }
+        }
+
+        private async Task StartServerAsync()
+        {
+            try
+            {
+                Log("Starting ScreenTask 2.0 streaming engine...");
+                btnStartServer.Enabled = false;
+
+                // 1. Configure Selected Capture Source
+                if (comboScreens.SelectedIndex >= 0 && comboScreens.SelectedIndex < _captureSources.Count)
                 {
-                    MessageBox.Show(httpEx.Message);
+                    _captureEngine.SetSource(_captureSources[comboScreens.SelectedIndex]);
+                }
+                else
+                {
+                    _captureEngine.SetSource(new ScreenCaptureSource(0));
                 }
 
+                // 2. Configure Stream Options
+                _captureEngine.CaptureMouse = cbCaptureMouse.Checked;
+                _captureEngine.AudioEnabled = cbAudio.Checked;
+
+                // Framerate
+                _captureEngine.TargetFps = comboFps.SelectedIndex switch
+                {
+                    0 => 60,
+                    1 => 30,
+                    2 => 15,
+                    3 => 5,
+                    _ => 30
+                };
+
+                _broadcaster.SetQuality(qualitySlider.Value);
+
+                // 3. Configure Security
+                _webServer.RequirePin = cbPrivate.Checked;
+                _webServer.PinCode = txtPassword.Text.Trim();
+
+                // 4. Resolve IP & Port
+                var selectedIp = "127.0.0.1";
+                if (comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count)
+                {
+                    selectedIp = _adapters[comboIPs.SelectedIndex].IpAddress;
+                }
+                int port = (int)numPort.Value;
+
+                // 5. Start Web Server & Capture Engine
+                await _webServer.StartAsync(selectedIp, port);
+                _captureEngine.Start();
+                _statsTimer.Start();
+
+                var streamUrl = _webServer.ServerUrl;
+                txtURL.Text = streamUrl;
+
+                // Update UI state
+                btnStartServer.Text = "⏹  STOP BROADCAST";
+                btnStartServer.BackColor = Color.FromArgb(239, 68, 68); // Red
+                lblStatusBadge.Text = "● LIVE";
+                lblStatusBadge.ForeColor = Color.FromArgb(34, 197, 94); // Green
+
+                Log($"Stream live at: {streamUrl}");
+                Log($"Broadcasting: {_captureEngine.CurrentSource.DisplayName} at {_captureEngine.TargetFps} FPS (Audio: {(cbAudio.Checked ? "On" : "Off")})");
+                appNotify.ShowBalloonTip(1000, "ScreenTask 2.0 Live", $"Streaming at {streamUrl}", ToolTipIcon.Info);
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.AddressAlreadyInUse)
+            {
+                MessageBox.Show($"Port {numPort.Value} is already in use. Please select a different port.", "Port Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Log($"Port {numPort.Value} is already in use.");
             }
             catch (Exception ex)
             {
-                Log("Error! : " + ex.ToString());
+                Log($"Error starting server: {ex.Message}");
+                MessageBox.Show($"Failed to start server:\n{ex.Message}", "ScreenTask Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnStartServer.Enabled = true;
             }
         }
-        private async Task StartServer()
+
+        private async Task StopServerAsync()
         {
-            //serv = serv??new HttpListener();
-            var selectedIP = _ips.ElementAt(comboIPs.SelectedIndex).Item2;
-
-            var url = string.Format("http://{0}:{1}", selectedIP, numPort.Value.ToString());
-            txtURL.Text = url;
-            serv.Prefixes.Clear();
-            //serv.Prefixes.Add("http://localhost:" + numPort.Value.ToString() + "/");
-            //serv.Prefixes.Add("http://*:" + numPort.Value.ToString() + "/"); // Uncomment this to Allow Public IP Over Internet. [Commented for Security Reasons.]
-            serv.Prefixes.Add(url + "/");
-            serv.Start();
-            Log("Server Started Successfully!");
-            appNotify.ShowBalloonTip(1_000, "ScreenTask", $"Server Started Successfully!\r\n{url}", ToolTipIcon.Info);
-
-            Log("Network URL : " + url);
-            Log("Localhost URL : " + "http://localhost:" + numPort.Value.ToString() + "/");
-            while (isWorking)
+            try
             {
-                var ctx = await serv.GetContextAsync();
-                //Screenshot();
-                var resPath = ctx.Request.Url.LocalPath;
-                if (resPath == "/") // Route The Root Dir to the Index Page
-                    resPath += "index.html";
-                var page = Application.StartupPath + Constants.WebServerDirectory + resPath;
-                bool fileExist;
-                lock (locker)
-                    fileExist = File.Exists(page);
-                if (!fileExist)
+                btnStartServer.Enabled = false;
+                Log("Stopping streaming server...");
+
+                _statsTimer.Stop();
+                await _captureEngine.StopAsync();
+                await _webServer.StopAsync();
+
+                btnStartServer.Text = "▶  START BROADCAST";
+                btnStartServer.BackColor = Color.FromArgb(99, 102, 241); // Indigo
+                lblStatusBadge.Text = "● READY";
+                lblStatusBadge.ForeColor = Color.FromArgb(148, 163, 184); // Muted
+
+                lblLiveStats.Text = "⚡ Stopped • Ready to broadcast";
+                Log("ScreenTask server stopped.");
+                appNotify.ShowBalloonTip(1000, "ScreenTask", "Server stopped.", ToolTipIcon.Info);
+            }
+            catch (Exception ex)
+            {
+                Log($"Error stopping server: {ex.Message}");
+            }
+            finally
+            {
+                btnStartServer.Enabled = true;
+            }
+        }
+
+        private void OnStatsTimerTick(object? sender, EventArgs e)
+        {
+            if (!_webServer.IsRunning) return;
+
+            int viewers = _broadcaster.ConnectedClientsCount;
+            int fps = _broadcaster.CurrentFps;
+            long bytes = _broadcaster.TotalBytesTransferred;
+            string mbTransferred = (bytes / (1024.0 * 1024.0)).ToString("0.0");
+
+            lblLiveStats.Text = $"🟢 LIVE: {viewers} Viewers | {fps} FPS | {mbTransferred} MB sent";
+        }
+
+        private void btnCopyUrl_Click(object? sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(txtURL.Text))
+            {
+                Clipboard.SetText(txtURL.Text);
+                btnCopyUrl.Text = "✓";
+                var timer = new System.Windows.Forms.Timer { Interval = 1200 };
+                timer.Tick += (s, args) =>
                 {
-                    var errorPage = Encoding.UTF8.GetBytes("<h1 style=\"color:red\">Error 404 , File Not Found </h1><hr><a href=\".\\\">Back to Home</a>");
-                    ctx.Response.ContentType = "text/html";
-                    ctx.Response.StatusCode = 404;
-                    try
-                    {
-                        await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
-                    }
-                    catch (IOException)
-                    {
-                        // Client disconnected, do nothing.
-                    }
-                    catch (HttpListenerException)
-                    {
-                        // Client disconnected, do nothing.
-                    }
-                    ctx.Response.Close();
-                    continue;
-                }
+                    btnCopyUrl.Text = "Copy";
+                    timer.Stop();
+                    timer.Dispose();
+                };
+                timer.Start();
+            }
+        }
 
-
-                if (_currentSettings.IsPrivateSession)
-                {
-                    if (!ctx.Request.Headers.AllKeys.Contains("Authorization"))
-                    {
-                        ctx.Response.StatusCode = 401;
-                        ctx.Response.AddHeader("WWW-Authenticate", "Basic realm=Screen Task Authentication : ");
-                        ctx.Response.Close();
-                        continue;
-                    }
-                    else
-                    {
-                        var auth1 = ctx.Request.Headers["Authorization"];
-                        auth1 = auth1.Remove(0, 6); // Remove "Basic " From The Header Value
-                        auth1 = Encoding.UTF8.GetString(Convert.FromBase64String(auth1));
-                        var auth2 = string.Format("{0}:{1}", txtUser.Text, txtPassword.Text);
-                        if (auth1 != auth2)
-                        {
-                            // MessageBox.Show(auth1+"\r\n"+auth2);
-                            Log(string.Format("Bad Login from {0} using {1}", ctx.Request.RemoteEndPoint.Address.ToString(), auth1));
-                            var errorPage = Encoding.UTF8.GetBytes("<h1 style=\"color:red\">Not Authorized !!! </h1><hr><a href=\"./\">Back to Home</a>");
-                            ctx.Response.ContentType = "text/html";
-                            ctx.Response.StatusCode = 401;
-                            ctx.Response.AddHeader("WWW-Authenticate", "Basic realm=Screen Task Authentication : ");
-                            try
-                            {
-                                await ctx.Response.OutputStream.WriteAsync(errorPage, 0, errorPage.Length);
-                            }
-                            catch (IOException)
-                            {
-                                // Client disconnected, do nothing.
-                            }
-                            catch (HttpListenerException)
-                            {
-                                // Client disconnected, do nothing.
-                            }
-                            ctx.Response.Close();
-                            continue;
-                        }
-
-                    }
-                }
-
-                //Everything OK! ??? Then Read The File From HDD as Bytes and Send it to the Client 
-                byte[] filedata;
-
-                // Required for One-Time Access of the file {Reader\Writer Problem in OS}
-                rwl.AcquireReaderLock(Timeout.Infinite);
-                filedata = File.ReadAllBytes(page);
-                rwl.ReleaseReaderLock();
-
-                var fileinfo = new FileInfo(page);
-                if (fileinfo.Extension == ".css") // important for IE -> Content-Type must be defiend for CSS files unless will ignored !!!
-                    ctx.Response.ContentType = "text/css";
-                else if (fileinfo.Extension == ".svg")
-                    ctx.Response.ContentType = "image/svg+xml";
-                else if (fileinfo.Extension == ".html" || fileinfo.Extension == ".htm")
-                    ctx.Response.ContentType = "text/html"; // Important For Chrome Otherwise will display the HTML as plain text.
-
-
-
-                ctx.Response.StatusCode = 200;
+        private void btnLaunch_Click(object? sender, EventArgs e)
+        {
+            if (txtURL.Text.StartsWith("http"))
+            {
                 try
                 {
-                    await ctx.Response.OutputStream.WriteAsync(filedata, 0, filedata.Length);
+                    Process.Start(new ProcessStartInfo(txtURL.Text) { UseShellExecute = true });
                 }
-                catch (IOException)
-                {
-                    // Client disconnected, do nothing.
-                }
-                catch (HttpListenerException)
-                {
-                    // Client disconnected, do nothing.
-                }
-
-                ctx.Response.Close();
+                catch { }
             }
-
         }
-        private async Task CaptureScreenEvery(int msec)
+
+        private void btnQr_Click(object? sender, EventArgs e)
         {
-            while (isWorking)
-            {
-                TakeScreenshot(_currentSettings.IsShowMouseEnabled);
-                msec = (int)numShotEvery.Value;
-                await Task.Delay(msec);
-            }
+            var url = txtURL.Text.StartsWith("http") ? txtURL.Text : _webServer.ServerUrl;
+            using var qrForm = new QrCodeForm(url);
+            qrForm.ShowDialog(this);
         }
-        private void TakeScreenshot(bool captureMouse)
+
+        private void cbPrivate_CheckedChanged(object? sender, EventArgs e)
         {
-            try
-            {
-                ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
-
-                var encoderQuality = System.Drawing.Imaging.Encoder.Quality;
-                var encoderParam = new EncoderParameter(encoderQuality, _currentSettings.ImageQuality);
-                var encoderParams = new EncoderParameters(1);
-                encoderParams.Param[0] = encoderParam;
-                if (captureMouse)
-                {
-                    using (var bmp = ScreenCapturePInvoke.CaptureSelectedScreen(true, comboScreens.SelectedIndex))
-                    {
-                        rwl.AcquireWriterLock(Timeout.Infinite);
-                        bmp.Save(Application.StartupPath + Constants.ScreenshotFilePath, jpgEncoder, encoderParams);
-                        rwl.ReleaseWriterLock();
-                    }
-                    return;
-                }
-
-                Rectangle bounds = Screen.AllScreens[comboScreens.SelectedIndex].Bounds;
-                using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
-                {
-                    using (Graphics g = Graphics.FromImage(bitmap))
-                    {
-                        g.CopyFromScreen(new Point(bounds.X, bounds.Y), Point.Empty, bounds.Size);
-                    }
-                    rwl.AcquireWriterLock(Timeout.Infinite);
-
-                    bitmap.Save(Application.StartupPath + Constants.ScreenshotFilePath, jpgEncoder, encoderParams);
-                    rwl.ReleaseWriterLock();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log($"Error taking screenshot: {ex.Message}");
-            }
+            txtPassword.Enabled = cbPrivate.Checked;
+            _currentSettings.IsPrivateSession = cbPrivate.Checked;
+            if (cbPrivate.Checked) txtPassword.Focus();
         }
 
-        private ImageCodecInfo GetEncoder(ImageFormat format)
+        private void cbCaptureMouse_CheckedChanged(object? sender, EventArgs e)
         {
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
-            foreach (ImageCodecInfo codec in codecs)
-            {
-                if (codec.FormatID == format.Guid)
-                {
-                    return codec;
-                }
-            }
-            return null;
+            _captureEngine.CaptureMouse = cbCaptureMouse.Checked;
+            _currentSettings.IsShowMouseEnabled = cbCaptureMouse.Checked;
         }
-        private string GetIPv4Address()
+
+        private void cbAudio_CheckedChanged(object? sender, EventArgs e)
         {
-            string IP4Address = String.Empty;
-
-            foreach (IPAddress IPA in Dns.GetHostAddresses(Dns.GetHostName()))
-            {
-                if (IPA.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    IP4Address = IPA.ToString();
-                    break;
-                }
-            }
-
-            return IP4Address;
+            _captureEngine.AudioEnabled = cbAudio.Checked;
+            _currentSettings.IsAudioEnabled = cbAudio.Checked;
         }
-        private List<Tuple<string, string>> GetAllIPv4Addresses()
+
+        private void qualitySlider_Scroll(object? sender, EventArgs e)
         {
-            List<Tuple<string, string>> ipList = new List<Tuple<string, string>>();
-            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
-            {
-
-                foreach (var ua in ni.GetIPProperties().UnicastAddresses)
-                {
-                    if (ua.Address.AddressFamily == AddressFamily.InterNetwork)
-                    {
-                        ipList.Add(Tuple.Create(ni.Name, ua.Address.ToString()));
-                    }
-                }
-            }
-            return ipList;
+            _broadcaster.SetQuality(qualitySlider.Value);
+            _currentSettings.ImageQuality = qualitySlider.Value;
+            lblQuality.Text = $"Quality: {qualitySlider.Value}%";
         }
-        private async Task AddFirewallRule(int port)
+
+        private void comboFps_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            await Task.Run(() =>
+            _captureEngine.TargetFps = comboFps.SelectedIndex switch
             {
-                var rulename = $"Screen Task On Port {_currentSettings.Port}";
-                var remoteip = _currentSettings.AllowPublicAccess ? "any" : "localsubnet";
-                string cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
-                var splittedResponse = cmd.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-                if (cmd.Contains(rulename) && cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && splittedResponse[8].ToLower().Contains(remoteip))
-                {
-                    // Do Nothing, to prevent ask for admin access everytime without a change in the configurations
-                }
-                else if (!cmd.Contains(rulename) && !cmd.Contains(_currentSettings.Port.ToString()) && splittedResponse.Length >= 8 && !splittedResponse[8].ToLower().Contains(remoteip))
-                {
-                    cmd = RunCMD($"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
-                                 + " & " +
-                                 $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
-                                 , true);
-
-                    cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
-                    if (cmd.Contains(rulename))
-                    {
-                        Log("Screen Task Rule added to your firewall");
-                    }
-                }
-                else
-                {
-                    cmd = RunCMD($"netsh advfirewall firewall delete rule name=\"{rulename}\""
-                                + " & " +
-                                $"netsh http delete urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/"
-                                + " & " +
-                                $"netsh advfirewall firewall add rule name=\"{rulename}\" dir=in action=allow remoteip={remoteip} protocol=tcp localport={port}"
-                                + " & " +
-                                $"netsh http add urlacl url=http://{_currentSettings.IP}:{_currentSettings.Port}/ user=Everyone listen=yes"
-                                , true);
-
-                    cmd = RunCMD($"netsh advfirewall firewall show rule \"{rulename}\"");
-                    if (cmd.Contains(rulename))
-                    {
-                        Log("Screen Task Rule updated to your firewall");
-                    }
-                }
-            });
-
+                0 => 60,
+                1 => 30,
+                2 => 15,
+                3 => 5,
+                _ => 30
+            };
+            _currentSettings.TargetFps = _captureEngine.TargetFps;
         }
-        private string RunCMD(string cmd, bool requireAdmin = false)
-        {
-            using (Process proc = new Process())
-            {
-                proc.StartInfo.FileName = "cmd.exe";
-                proc.StartInfo.Arguments = "/C " + cmd;
-                proc.StartInfo.CreateNoWindow = true;
-                if (requireAdmin)
-                {
-                    proc.StartInfo.UseShellExecute = true;
-                    proc.StartInfo.Verb = "runas";
-                    proc.Start();
-                    return null;
-                }
-                else
-                {
-                    proc.StartInfo.UseShellExecute = false;
-                    proc.StartInfo.RedirectStandardOutput = true;
-                    proc.StartInfo.RedirectStandardError = true;
-                    proc.Start();
 
-                    string res = proc.StandardOutput.ReadToEnd();
-                    proc.StandardOutput.Close();
-                    proc.Close();
-                    return res;
-                }
-            }
-        }
         private void Log(string text)
         {
             if (txtLog.InvokeRequired)
@@ -416,214 +365,157 @@ namespace ScreenTask
                 txtLog.Invoke(new Action<string>(Log), text);
                 return;
             }
-            txtLog.AppendText(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " : " + text + "\r\n");
+            txtLog.AppendText($"{DateTime.Now:HH:mm:ss} : {text}\r\n");
         }
 
-        private void cbPrivate_CheckedChanged(object sender, EventArgs e)
+        private void lblMe_Click(object? sender, EventArgs e)
         {
-            if (cbPrivate.Checked == true)
-            {
-                txtUser.Enabled = true;
-                txtPassword.Enabled = true;
-                _currentSettings.IsPrivateSession = true;
-            }
-            else
-            {
-                txtUser.Enabled = false;
-                txtPassword.Enabled = false;
-                _currentSettings.IsPrivateSession = false;
-            }
-        }
-
-        private void cbCaptureMouse_CheckedChanged(object sender, EventArgs e)
-        {
-            if (cbCaptureMouse.Checked)
-            {
-                _currentSettings.IsShowMouseEnabled = true;
-            }
-            else
-            {
-                _currentSettings.IsShowMouseEnabled = false;
-            }
-        }
-
-        private void txtLog_TextChanged(object sender, EventArgs e)
-        {
-            txtLog.SelectionStart = txtLog.Text.Length;
-            txtLog.ScrollToCaret();
-        }
-
-        private void frmMain_Load(object sender, EventArgs e)
-        {
-            _ips = GetAllIPv4Addresses();
-            foreach (var ip in _ips)
-            {
-                comboIPs.Items.Add(ip.Item2 + " - " + ip.Item1);
-            }
-            comboIPs.SelectedIndex = comboIPs.Items.Count - 1;
-            var recommendedIP = _ips.FirstOrDefault(ip => ip.Item2.StartsWith("192.") || ip.Item2.StartsWith("10."));
-            if (recommendedIP != null)
-            {
-                this.comboIPs.SelectedIndex = _ips.IndexOf(recommendedIP);
-            }
-
             try
             {
-                if (File.Exists(Constants.AppSettingsFileName))
-                {
-                    var serializer = new XmlSerializer(typeof(AppSettings));
-                    using (var appSettingsFile = File.OpenRead(Constants.AppSettingsFileName))
-                    {
-                        _currentSettings = (AppSettings)serializer.Deserialize(appSettingsFile);
-                    }
-
-                    this.cbPrivate.Checked = _currentSettings.IsPrivateSession;
-                    this.cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
-                    this.cbAutoStart.Checked = _currentSettings.IsAutoStartServerEnabled;
-                    this.cbMiniStart.Checked = _currentSettings.IsStartMinimizedEnabled;
-                    this.txtUser.Text = _currentSettings.Username;
-                    this.txtPassword.Text = _currentSettings.Password;
-                    this.numPort.Value = _currentSettings.Port;
-                    this.numShotEvery.Value = _currentSettings.ScreenshotsSpeed;
-                    this.qualitySlider.Value = _currentSettings.ImageQuality != default ? _currentSettings.ImageQuality : 75;
-                    this.cbAllowPublicAccess.Checked = _currentSettings.AllowPublicAccess;
-                    this.comboIPs.SelectedIndex = _ips.IndexOf(_ips.FirstOrDefault(ip => ip.Item2.Contains(_currentSettings.IP)));
-                    if (_currentSettings.SelectedScreenIndex > -1 && comboScreens.Items.Count > 0 && _currentSettings.SelectedScreenIndex <= comboScreens.Items.Count - 1)
-                        this.comboScreens.SelectedIndex = _currentSettings.SelectedScreenIndex;
-                }
+                Process.Start(new ProcessStartInfo(Constants.WebsiteUrl) { UseShellExecute = true });
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Failed to load local appsettings.xml file.\r\n{ex.ToString()}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-            if (_currentSettings.IsStartMinimizedEnabled)
-            {
-                this.WindowState = FormWindowState.Minimized;
-            }
-            if (_currentSettings.IsAutoStartServerEnabled)
-            {
-                btnStartServer_Click(null, null);
-            }
-
-            try
-            {
-                Task.Factory.StartNew(() =>
-            {
-                var wc = new WebClient();
-                wc.Headers.Add(HttpRequestHeader.UserAgent, Constants.UserAgent);
-                var latestGithubReleaseText = wc.DownloadString(Constants.GitHubApiLatestReleaseUrl);
-                var tagNameMarker = "\"tag_name\":\"";
-                var startIndex = latestGithubReleaseText.IndexOf(tagNameMarker);
-                if (startIndex > -1)
-                {
-                    startIndex += tagNameMarker.Length;
-                    var endIndex = latestGithubReleaseText.IndexOf("\"", startIndex);
-                    if (endIndex > -1)
-                    {
-                        var tagName = latestGithubReleaseText.Substring(startIndex, endIndex - startIndex);
-                        var newVersion = new Version(tagName.Replace("v", ""));
-                        if (newVersion > currentVersion)
-                        {
-                            this.Invoke((MethodInvoker)delegate
-                            {
-                                var msgResult = MessageBox.Show(this, $"There is a new update available for download.\nCurrent Version: {currentVersion}\nLatest Version: {newVersion}\nDo you want to download it now ?", "New Version Released!", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-                                if (msgResult == DialogResult.Yes)
-                                {
-                                    Process.Start(Constants.WebsiteUrl);
-                                }
-                            });
-                        }
-                    }
-                }
-            });
-            }
-            catch (Exception ex)
-            {
-                Log($"Failed to check for updates.\r\n{ex.ToString()}");
-            }
+            catch { }
         }
 
-        private void lblMe_Click(object sender, EventArgs e)
+        private void appNotify_Click(object? sender, EventArgs e)
         {
-            Process.Start(Constants.WebsiteUrl);
-            Process.Start(Constants.TwitterUrl);
+            RestoreFromTray();
         }
 
-        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (serv.IsListening)
-            {
-                serv.Stop();
-                serv.Close();
-            }
-            try
-            {
-                _currentSettings.Port = (int)numPort.Value;
-                _currentSettings.Username = txtUser.Text;
-                _currentSettings.Password = txtPassword.Text;
-                _currentSettings.IsShowMouseEnabled = cbCaptureMouse.Checked;
-                _currentSettings.IsPrivateSession = cbPrivate.Checked;
-                _currentSettings.IsAutoStartServerEnabled = cbAutoStart.Checked;
-                _currentSettings.IsStartMinimizedEnabled = cbMiniStart.Checked;
-                _currentSettings.ScreenshotsSpeed = (int)numShotEvery.Value;
-                _currentSettings.IP = _ips.ElementAt(comboIPs.SelectedIndex).Item2;
-                _currentSettings.SelectedScreenIndex = comboScreens.SelectedIndex;
-                _currentSettings.ImageQuality = qualitySlider.Value;
-                _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
-
-                using (var appSettingsFile = new FileStream(Constants.AppSettingsFileName, FileMode.Create, FileAccess.Write))
-                {
-                    var serializer = new XmlSerializer(typeof(AppSettings));
-                    serializer.Serialize(appSettingsFile, _currentSettings);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Cannot save the settings file next to the executable file.\r\n{ex.ToString()}", "ScreenTask", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void btnLaunch_Click(object sender, EventArgs e)
-        {
-            if (txtURL.Text.StartsWith("http"))
-                Process.Start(txtURL.Text);
-
-        }
-
-        private void appNotify_MouseDoubleClick(object sender, MouseEventArgs e)
+        private void RestoreFromTray()
         {
             this.WindowState = FormWindowState.Normal;
-            this.Focus();
             this.ShowInTaskbar = true;
+            this.Focus();
         }
 
-        private void frmMain_Resize(object sender, EventArgs e)
+        private void frmMain_Resize(object? sender, EventArgs e)
         {
             if (this.WindowState == FormWindowState.Minimized)
             {
                 this.ShowInTaskbar = false;
                 appNotify.Visible = true;
-                appNotify.ShowBalloonTip(1_000, "ScreenTask", "Running in the background", ToolTipIcon.Info);
+                appNotify.ShowBalloonTip(1000, "ScreenTask 2.0", "Running in background tray", ToolTipIcon.Info);
             }
         }
 
-        private void appNotify_Click(object sender, EventArgs e)
+        private async Task CheckForUpdatesAsync()
         {
-            this.WindowState = FormWindowState.Normal;
-            this.ShowInTaskbar = true;
-            this.Focus();
+            try
+            {
+                _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd(Constants.UserAgent);
+                var json = await _httpClient.GetStringAsync(Constants.GitHubApiLatestReleaseUrl);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("tag_name", out var tagProp))
+                {
+                    var tag = tagProp.GetString()?.Replace("v", "") ?? "";
+                    if (Version.TryParse(tag, out var latestVer))
+                    {
+                        var currentVer = new Version(Constants.AppVersion);
+                        if (latestVer > currentVer)
+                        {
+                            this.Invoke(() =>
+                            {
+                                var res = MessageBox.Show(this,
+                                    $"A new ScreenTask version is available (v{latestVer}).\nWould you like to visit the website to update?",
+                                    "Update Available", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                                if (res == DialogResult.Yes)
+                                {
+                                    Process.Start(new ProcessStartInfo(Constants.WebsiteUrl) { UseShellExecute = true });
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            catch { }
         }
 
-        private void qualitySlider_Scroll(object sender, EventArgs e)
+        private void LoadSettings()
         {
-            _currentSettings.ImageQuality = qualitySlider.Value;
+            try
+            {
+                if (File.Exists(Constants.AppSettingsFileName))
+                {
+                    var serializer = new XmlSerializer(typeof(AppSettings));
+                    using var file = File.OpenRead(Constants.AppSettingsFileName);
+                    _currentSettings = (AppSettings)serializer.Deserialize(file)!;
 
+                    cbPrivate.Checked = _currentSettings.IsPrivateSession;
+                    cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
+                    cbAudio.Checked = _currentSettings.IsAudioEnabled;
+                    cbAutoStart.Checked = _currentSettings.IsAutoStartServerEnabled;
+                    cbMiniStart.Checked = _currentSettings.IsStartMinimizedEnabled;
+                    txtPassword.Text = _currentSettings.PinCode;
+                    numPort.Value = Math.Clamp(_currentSettings.Port, 1, 65535);
+                    qualitySlider.Value = Math.Clamp(_currentSettings.ImageQuality, 20, 100);
+                    lblQuality.Text = $"Quality: {qualitySlider.Value}%";
+
+                    comboFps.SelectedIndex = _currentSettings.TargetFps switch
+                    {
+                        60 => 0,
+                        30 => 1,
+                        15 => 2,
+                        5 => 3,
+                        _ => 1
+                    };
+
+                    if (!string.IsNullOrEmpty(_currentSettings.IP))
+                    {
+                        var match = _adapters.FirstOrDefault(a => a.IpAddress == _currentSettings.IP);
+                        if (match != null)
+                        {
+                            comboIPs.SelectedIndex = _adapters.IndexOf(match);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Could not load settings: {ex.Message}");
+            }
         }
 
-        private void cbAllowPublicAccess_CheckedChanged(object sender, EventArgs e)
+        private void SaveSettings()
         {
-            _currentSettings.AllowPublicAccess = cbAllowPublicAccess.Checked;
+            try
+            {
+                _currentSettings.Port = (int)numPort.Value;
+                _currentSettings.PinCode = txtPassword.Text;
+                _currentSettings.IsShowMouseEnabled = cbCaptureMouse.Checked;
+                _currentSettings.IsAudioEnabled = cbAudio.Checked;
+                _currentSettings.IsPrivateSession = cbPrivate.Checked;
+                _currentSettings.IsAutoStartServerEnabled = cbAutoStart.Checked;
+                _currentSettings.IsStartMinimizedEnabled = cbMiniStart.Checked;
+                _currentSettings.ImageQuality = qualitySlider.Value;
+                _currentSettings.TargetFps = comboFps.SelectedIndex switch
+                {
+                    0 => 60,
+                    1 => 30,
+                    2 => 15,
+                    3 => 5,
+                    _ => 30
+                };
+
+                if (comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count)
+                {
+                    _currentSettings.IP = _adapters[comboIPs.SelectedIndex].IpAddress;
+                }
+
+                var serializer = new XmlSerializer(typeof(AppSettings));
+                using var file = new FileStream(Constants.AppSettingsFileName, FileMode.Create, FileAccess.Write);
+                serializer.Serialize(file, _currentSettings);
+            }
+            catch { }
+        }
+
+        private void frmMain_FormClosing(object? sender, FormClosingEventArgs e)
+        {
+            SaveSettings();
+            _statsTimer.Stop();
+            _ = _webServer.StopAsync();
+            _ = _captureEngine.StopAsync();
+            _broadcaster.Dispose();
         }
     }
 }
