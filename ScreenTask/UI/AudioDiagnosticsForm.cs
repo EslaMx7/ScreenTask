@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using ScreenTask.Core.Audio;
 
-#pragma warning disable CS0618
 namespace ScreenTask.UI
 {
     public class AudioDiagnosticsForm : Form
@@ -28,8 +28,8 @@ namespace ScreenTask.UI
 
         private List<AudioDeviceDescriptor> _devices = new();
         private System.Windows.Forms.Timer _meterTimer = null!;
-        private WasapiCapture? _diagnosticCapture;
-        private WasapiOut? _testPlayer;
+        private WasapiRecorder? _diagnosticRecorder;
+        private WasapiPlayer? _testPlayer;
         private readonly List<byte> _testMicBuffer = new();
         private bool _isRecordingMicTest;
         private float _livePeak;
@@ -255,9 +255,9 @@ namespace ScreenTask.UI
             FormClosing += (s, e) =>
             {
                 _meterTimer.Stop();
-                _diagnosticCapture?.StopRecording();
-                _diagnosticCapture?.Dispose();
-                _diagnosticCapture = null;
+                _diagnosticRecorder?.StopRecording();
+                _diagnosticRecorder?.Dispose();
+                _diagnosticRecorder = null;
                 _testPlayer?.Dispose();
                 _testPlayer = null;
             };
@@ -288,46 +288,59 @@ namespace ScreenTask.UI
         {
             try
             {
-                _diagnosticCapture?.StopRecording();
-                _diagnosticCapture?.Dispose();
-                _diagnosticCapture = null;
+                _diagnosticRecorder?.StopRecording();
+                _diagnosticRecorder?.Dispose();
+                _diagnosticRecorder = null;
 
                 if (comboDevices.SelectedIndex < 0 || comboDevices.SelectedIndex >= _devices.Count) return;
                 var desc = _devices[comboDevices.SelectedIndex];
 
-                if (desc.IsInput)
+                var builder = new WasapiRecorderBuilder()
+                    .WithSharedMode()
+                    .WithEventSync()
+                    .WithLowLatency(true)
+                    .WithMmcssThreadPriority("Pro Audio");
+
+                if (desc.Device != null)
                 {
-                    _diagnosticCapture = desc.Device != null ? new WasapiCapture(desc.Device) : new WasapiCapture();
-                }
-                else
-                {
-                    _diagnosticCapture = desc.Device != null ? new WasapiLoopbackCapture(desc.Device) : new WasapiLoopbackCapture();
+                    builder.WithDevice(desc.Device);
                 }
 
-                _diagnosticCapture.DataAvailable += (s, e) =>
+                if (!desc.IsInput)
                 {
-                    if (e.BytesRecorded <= 0) return;
+                    builder.WithLoopbackCapture();
+                }
 
-                    // Calculate peak level
+                _diagnosticRecorder = builder.Build();
+
+                _diagnosticRecorder.DataAvailable += (buffer, flags, pos, qpc) =>
+                {
+                    if (buffer.Length == 0) return;
+
+                    if (flags.HasFlag(AudioClientBufferFlags.Silent))
+                    {
+                        _livePeak = 0;
+                        return;
+                    }
+
+                    // Calculate peak level directly over span
                     float peak = 0;
-                    var fmt = _diagnosticCapture.WaveFormat;
+                    var fmt = _diagnosticRecorder.WaveFormat;
                     if (fmt.BitsPerSample == 16)
                     {
-                        int samples = e.BytesRecorded / 2;
-                        for (int i = 0; i < samples; i += 2)
+                        var span = MemoryMarshal.Cast<byte, short>(buffer);
+                        for (int i = 0; i < span.Length; i += 2)
                         {
-                            short val = BitConverter.ToInt16(e.Buffer, i * 2);
-                            float abs = Math.Abs(val / 32768f);
+                            float abs = Math.Abs(span[i] / 32768f);
                             if (abs > peak) peak = abs;
                         }
                     }
                     else if (fmt.BitsPerSample == 32)
                     {
-                        int samples = e.BytesRecorded / 4;
-                        for (int i = 0; i < samples; i += 2)
+                        var span = MemoryMarshal.Cast<byte, float>(buffer);
+                        for (int i = 0; i < span.Length; i += 2)
                         {
-                            float val = BitConverter.ToSingle(e.Buffer, i * 4);
-                            float abs = Math.Abs(val);
+                            float abs = Math.Abs(span[i]);
                             if (abs > peak) peak = abs;
                         }
                     }
@@ -338,14 +351,12 @@ namespace ScreenTask.UI
                     {
                         if (_isRecordingMicTest)
                         {
-                            var copy = new byte[e.BytesRecorded];
-                            Buffer.BlockCopy(e.Buffer, 0, copy, 0, e.BytesRecorded);
-                            _testMicBuffer.AddRange(copy);
+                            _testMicBuffer.AddRange(buffer.ToArray());
                         }
                     }
                 };
 
-                _diagnosticCapture.StartRecording();
+                _diagnosticRecorder.StartRecording();
             }
             catch (Exception ex)
             {
@@ -357,7 +368,7 @@ namespace ScreenTask.UI
         {
             if (comboDevices.SelectedIndex < 0 || comboDevices.SelectedIndex >= _devices.Count) return;
             var desc = _devices[comboDevices.SelectedIndex];
-            var fmt = _diagnosticCapture?.WaveFormat;
+            var fmt = _diagnosticRecorder?.WaveFormat;
 
             if (fmt != null)
             {
@@ -410,14 +421,14 @@ namespace ScreenTask.UI
                 rawData = _testMicBuffer.ToArray();
             }
 
-            if (rawData.Length > 0 && _diagnosticCapture?.WaveFormat != null)
+            if (rawData.Length > 0 && _diagnosticRecorder?.WaveFormat != null)
             {
                 try
                 {
                     var ms = new MemoryStream(rawData);
-                    var stream = new RawSourceWaveStream(ms, _diagnosticCapture.WaveFormat);
+                    var stream = new RawSourceWaveStream(ms, _diagnosticRecorder.WaveFormat);
                     _testPlayer?.Dispose();
-                    _testPlayer = new WasapiOut();
+                    _testPlayer = new WasapiPlayerBuilder().WithSharedMode().WithEventSync().Build();
                     _testPlayer.Init(stream);
                     _testPlayer.Play();
 
@@ -441,6 +452,18 @@ namespace ScreenTask.UI
                 System.Media.SystemSounds.Asterisk.Play();
             }
             catch { }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            base.OnFormClosed(e);
+            _meterTimer?.Stop();
+            _meterTimer?.Dispose();
+            _diagnosticRecorder?.StopRecording();
+            _diagnosticRecorder?.Dispose();
+            _diagnosticRecorder = null;
+            _testPlayer?.Dispose();
+            _testPlayer = null;
         }
     }
 }

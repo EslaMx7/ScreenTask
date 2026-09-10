@@ -30,7 +30,8 @@
   const themeToggle = document.getElementById('themeToggle');
 
   // State
-  let ws = null;
+  let wsVideo = null;
+  let wsAudio = null;
   let audioCtx = null;
   let audioGain = null;
   let isAudioMuted = true;
@@ -242,21 +243,88 @@
     if (!isAudioMuted && audioBanner) audioBanner.style.display = 'none';
   });
 
-  // Connect WebSocket
+  function parseAudioFormat(arrayBuffer) {
+    const view = new DataView(arrayBuffer);
+    audioSampleRate = view.getInt32(1, true);
+    audioChannels = view.getInt16(5, true);
+    audioBitsPerSample = view.getInt16(7, true);
+    updateAudioInfoUi();
+  }
+
+  function connectAudioOnly() {
+    if (!isConnected) return;
+    const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const audioWsUrl = `${protocol}//${location.host}/stream/audio${pin ? `?pin=${encodeURIComponent(pin)}` : ''}`;
+
+    if (wsAudio) {
+      try { wsAudio.close(); } catch (e) {}
+      wsAudio = null;
+    }
+
+    wsAudio = new WebSocket(audioWsUrl);
+    wsAudio.binaryType = 'arraybuffer';
+
+    wsAudio.onmessage = (event) => {
+      if (!(event.data instanceof ArrayBuffer)) return;
+      const data = new Uint8Array(event.data);
+      if (data.length === 0) return;
+
+      const packetType = data[0];
+      if (packetType === 0x02) {
+        if (isAudioMuted && audioBanner && audioBanner.style.display !== 'flex') {
+          audioBanner.style.display = 'flex';
+        }
+        playPcmChunk(data.subarray(1));
+      } else if (packetType === 0x03 && data.length >= 9) {
+        parseAudioFormat(event.data);
+      }
+    };
+
+    wsAudio.onclose = (e) => {
+      if (e.code === 1008 || e.code === 4001) {
+        showPinModal();
+      } else if (isConnected) {
+        setTimeout(() => {
+          if (isConnected && (!wsAudio || wsAudio.readyState === WebSocket.CLOSED)) {
+            connectAudioOnly();
+          }
+        }, 2500);
+      }
+    };
+
+    wsAudio.onerror = () => {
+      try { wsAudio.close(); } catch (e) {}
+    };
+  }
+
+  // Connect WebSockets (Video + Audio)
   function connect() {
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${location.host}/stream/ws${pin ? `?pin=${encodeURIComponent(pin)}` : ''}`;
+    const pinParam = pin ? `?pin=${encodeURIComponent(pin)}` : '';
+    const videoWsUrl = `${protocol}//${location.host}/stream/ws${pinParam}`;
 
-    ws = new WebSocket(wsUrl);
-    ws.binaryType = 'arraybuffer';
+    if (wsVideo) {
+      try { wsVideo.close(); } catch (e) {}
+      wsVideo = null;
+    }
+    if (wsAudio) {
+      try { wsAudio.close(); } catch (e) {}
+      wsAudio = null;
+    }
 
-    ws.onopen = () => {
+    // 1. Video WebSocket Channel
+    wsVideo = new WebSocket(videoWsUrl);
+    wsVideo.binaryType = 'arraybuffer';
+
+    wsVideo.onopen = () => {
       isConnected = true;
       overlay.classList.add('hidden');
       pinModal.classList.add('hidden');
+      // Connect audio channel once video connection succeeds
+      connectAudioOnly();
     };
 
-    ws.onmessage = async (event) => {
+    wsVideo.onmessage = async (event) => {
       if (!(event.data instanceof ArrayBuffer)) return;
 
       const data = new Uint8Array(event.data);
@@ -290,27 +358,25 @@
           // Ignore transient decode errors
         }
       }
-      // 0x02 = Audio PCM Chunk
+      // Fallback: 0x02 = Audio PCM Chunk (for single-channel compatibility)
       else if (packetType === 0x02) {
-        if (isAudioMuted) {
-          if (audioBanner && audioBanner.style.display !== 'flex') {
-            audioBanner.style.display = 'flex';
-          }
+        if (isAudioMuted && audioBanner && audioBanner.style.display !== 'flex') {
+          audioBanner.style.display = 'flex';
         }
         playPcmChunk(data.subarray(1));
       }
-      // 0x03 = Audio Format
+      // Fallback: 0x03 = Audio Format
       else if (packetType === 0x03 && data.length >= 9) {
-        const view = new DataView(event.data);
-        audioSampleRate = view.getInt32(1, true);
-        audioChannels = view.getInt16(5, true);
-        audioBitsPerSample = view.getInt16(7, true);
-        updateAudioInfoUi();
+        parseAudioFormat(event.data);
       }
     };
 
-    ws.onclose = (e) => {
+    wsVideo.onclose = (e) => {
       isConnected = false;
+      if (wsAudio) {
+        try { wsAudio.close(); } catch (err) {}
+        wsAudio = null;
+      }
       if (e.code === 1008 || e.code === 4001) {
         showPinModal();
       } else {
@@ -324,8 +390,8 @@
       }
     };
 
-    ws.onerror = () => {
-      ws.close();
+    wsVideo.onerror = () => {
+      try { wsVideo.close(); } catch (e) {}
     };
   }
 
@@ -389,9 +455,9 @@
 
       const currentTime = audioCtx.currentTime;
       if (nextAudioPlayTime < currentTime) {
-        nextAudioPlayTime = currentTime + 0.03;
-      } else if (nextAudioPlayTime > currentTime + 0.25) {
-        nextAudioPlayTime = currentTime + 0.03;
+        nextAudioPlayTime = currentTime + 0.05;
+      } else if (nextAudioPlayTime > currentTime + 0.35) {
+        nextAudioPlayTime = currentTime + 0.05;
       }
 
       source.start(nextAudioPlayTime);
@@ -546,9 +612,13 @@
   }
 
   function showPinModal() {
-    if (ws) {
-      try { ws.close(); } catch (e) {}
-      ws = null;
+    if (wsVideo) {
+      try { wsVideo.close(); } catch (e) {}
+      wsVideo = null;
+    }
+    if (wsAudio) {
+      try { wsAudio.close(); } catch (e) {}
+      wsAudio = null;
     }
     overlay.classList.add('hidden');
     pinModal.classList.remove('hidden');

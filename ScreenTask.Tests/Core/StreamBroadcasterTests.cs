@@ -52,6 +52,27 @@ namespace ScreenTask.Tests.Core
             _broadcaster.SetQuality(50);
         }
 
+        [Fact]
+        public async Task BroadcastAudioFormatAsync_DoesNotThrowAndCanBeCalledRepeatedly()
+        {
+            await _broadcaster.BroadcastAudioFormatAsync(44100, 2, 16);
+            await _broadcaster.BroadcastAudioFormatAsync(48000, 1, 32);
+        }
+
+        [Fact]
+        public async Task BroadcastAudioChunkAsync_WithNoClients_DoesNotThrow()
+        {
+            var pcmData = new byte[100];
+            await _broadcaster.BroadcastAudioChunkAsync(pcmData);
+        }
+
+        [Fact]
+        public void RemoveClients_NonExistent_DoesNotThrow()
+        {
+            _broadcaster.RemoveVideoClient("unknown_vid");
+            _broadcaster.RemoveAudioClient("unknown_aud");
+        }
+
         public void Dispose()
         {
             _broadcaster.Dispose();

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
-#pragma warning disable CS0618
 namespace ScreenTask.Core.Audio
 {
     public record AudioDeviceDescriptor(string? Id, string Name, bool IsInput, MMDevice? Device)
@@ -15,10 +15,10 @@ namespace ScreenTask.Core.Audio
 
     public class WasapiAudioCaptureService : IDisposable
     {
-        private WasapiCapture? _capture;
+        private WasapiRecorder? _recorder;
         private readonly List<byte> _testBuffer = new();
         private bool _isTestRecording;
-        private WasapiOut? _testPlayer;
+        private WasapiPlayer? _testPlayer;
 
         public event Action<byte[]>? AudioDataAvailable;
         public event Action<float>? AudioLevelChanged;
@@ -29,7 +29,7 @@ namespace ScreenTask.Core.Audio
         public bool IsCurrentDeviceInput { get; private set; }
         public float CurrentPeakLevel { get; private set; }
 
-        public WaveFormat? AudioFormat => _capture?.WaveFormat;
+        public WaveFormat? AudioFormat => _recorder?.WaveFormat;
 
         public static List<AudioDeviceDescriptor> GetAudioDevices()
         {
@@ -82,20 +82,27 @@ namespace ScreenTask.Core.Audio
                 CurrentDevice = device;
                 IsCurrentDeviceInput = isInput;
 
-                if (isInput)
+                var builder = new WasapiRecorderBuilder()
+                    .WithSharedMode()
+                    .WithEventSync()
+                    .WithLowLatency(true)
+                    .WithMmcssThreadPriority("Pro Audio");
+
+                if (device != null)
                 {
-                    // Microphone capture
-                    _capture = device != null ? new WasapiCapture(device) : new WasapiCapture();
-                }
-                else
-                {
-                    // Speakers loopback capture
-                    _capture = device != null ? new WasapiLoopbackCapture(device) : new WasapiLoopbackCapture();
+                    builder.WithDevice(device);
                 }
 
-                _capture.DataAvailable += OnAudioDataAvailable;
-                _capture.RecordingStopped += (s, a) => IsRunning = false;
-                _capture.StartRecording();
+                if (!isInput)
+                {
+                    // Loopback capture for system / speaker audio
+                    builder.WithLoopbackCapture();
+                }
+
+                _recorder = builder.Build();
+                _recorder.DataAvailable += OnAudioDataAvailable;
+                _recorder.RecordingStopped += (s, a) => IsRunning = false;
+                _recorder.StartRecording();
                 IsRunning = true;
             }
             catch (Exception)
@@ -106,11 +113,11 @@ namespace ScreenTask.Core.Audio
 
         public void Stop()
         {
-            if (!IsRunning || _capture == null) return;
+            if (!IsRunning || _recorder == null) return;
 
             try
             {
-                _capture.StopRecording();
+                _recorder.StopRecording();
             }
             catch { }
             finally
@@ -145,34 +152,39 @@ namespace ScreenTask.Core.Audio
             byte[] rawData;
             lock (_testBuffer)
             {
-                if (_testBuffer.Count == 0 || _capture?.WaveFormat == null) return;
+                if (_testBuffer.Count == 0 || _recorder?.WaveFormat == null) return;
                 rawData = _testBuffer.ToArray();
             }
 
             try
             {
                 var ms = new MemoryStream(rawData);
-                var waveStream = new RawSourceWaveStream(ms, _capture.WaveFormat);
+                var waveStream = new RawSourceWaveStream(ms, _recorder.WaveFormat);
 
                 _testPlayer?.Dispose();
-                _testPlayer = new WasapiOut();
+                _testPlayer = new WasapiPlayerBuilder().WithSharedMode().WithEventSync().Build();
                 _testPlayer.Init(waveStream);
                 _testPlayer.Play();
             }
             catch { }
         }
 
-        private void OnAudioDataAvailable(object? sender, WaveInEventArgs e)
+        private void OnAudioDataAvailable(ReadOnlySpan<byte> buffer, AudioClientBufferFlags flags, long devicePosition, long qpcPosition)
         {
-            if (e.BytesRecorded <= 0) return;
+            if (buffer.Length == 0) return;
 
-            var chunk = new byte[e.BytesRecorded];
-            Buffer.BlockCopy(e.Buffer, 0, chunk, 0, e.BytesRecorded);
+            byte[] chunk = buffer.ToArray();
 
-            // Calculate peak volume level
-            CalculatePeakLevel(e.Buffer, e.BytesRecorded);
+            if (flags.HasFlag(AudioClientBufferFlags.Silent))
+            {
+                CurrentPeakLevel = 0;
+                AudioLevelChanged?.Invoke(0);
+            }
+            else
+            {
+                CalculatePeakLevel(buffer);
+            }
 
-            // Record into test buffer if active
             lock (_testBuffer)
             {
                 if (_isTestRecording)
@@ -184,30 +196,28 @@ namespace ScreenTask.Core.Audio
             AudioDataAvailable?.Invoke(chunk);
         }
 
-        private void CalculatePeakLevel(byte[] buffer, int bytesRecorded)
+        private void CalculatePeakLevel(ReadOnlySpan<byte> buffer)
         {
-            if (_capture?.WaveFormat == null || bytesRecorded <= 0) return;
+            if (_recorder?.WaveFormat == null || buffer.Length == 0) return;
 
             float peak = 0;
-            var fmt = _capture.WaveFormat;
+            var fmt = _recorder.WaveFormat;
 
             if (fmt.BitsPerSample == 16)
             {
-                int samples = bytesRecorded / 2;
-                for (int i = 0; i < samples; i += 2)
+                var span = MemoryMarshal.Cast<byte, short>(buffer);
+                for (int i = 0; i < span.Length; i += 2)
                 {
-                    short val = BitConverter.ToInt16(buffer, i * 2);
-                    float abs = Math.Abs(val / 32768f);
+                    float abs = Math.Abs(span[i] / 32768f);
                     if (abs > peak) peak = abs;
                 }
             }
             else if (fmt.BitsPerSample == 32)
             {
-                int samples = bytesRecorded / 4;
-                for (int i = 0; i < samples; i += 2)
+                var span = MemoryMarshal.Cast<byte, float>(buffer);
+                for (int i = 0; i < span.Length; i += 2)
                 {
-                    float val = BitConverter.ToSingle(buffer, i * 4);
-                    float abs = Math.Abs(val);
+                    float abs = Math.Abs(span[i]);
                     if (abs > peak) peak = abs;
                 }
             }
@@ -221,8 +231,8 @@ namespace ScreenTask.Core.Audio
             Stop();
             _testPlayer?.Dispose();
             _testPlayer = null;
-            _capture?.Dispose();
-            _capture = null;
+            _recorder?.Dispose();
+            _recorder = null;
         }
     }
 }

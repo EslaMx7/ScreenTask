@@ -11,7 +11,8 @@ namespace ScreenTask.Core.Streaming
 {
     public class StreamBroadcaster : IDisposable
     {
-        private readonly ConcurrentDictionary<string, (WebSocket Socket, SemaphoreSlim Lock)> _clients = new();
+        private readonly ConcurrentDictionary<string, (WebSocket Socket, SemaphoreSlim Lock)> _videoClients = new();
+        private readonly ConcurrentDictionary<string, (WebSocket Socket, SemaphoreSlim Lock)> _audioClients = new();
         private readonly ImageCodecInfo _jpegEncoder;
         private EncoderParameters _encoderParams;
         private long _frameCounter;
@@ -24,7 +25,7 @@ namespace ScreenTask.Core.Streaming
         private byte[]? _latestAudioFormatPacket;
         private readonly object _audioFormatLock = new();
 
-        public int ConnectedClientsCount => _clients.Count;
+        public int ConnectedClientsCount => Math.Max(_videoClients.Count, _audioClients.Count);
         public int CurrentFps => _currentFps;
         public long TotalBytesTransferred => Interlocked.Read(ref _totalBytesTransferred);
 
@@ -47,10 +48,28 @@ namespace ScreenTask.Core.Streaming
             return p;
         }
 
-        public void AddClient(string id, WebSocket socket)
+        public void AddVideoClient(string id, WebSocket socket)
         {
             var clientLock = new SemaphoreSlim(1, 1);
-            _clients[id] = (socket, clientLock);
+            _videoClients[id] = (socket, clientLock);
+        }
+
+        public void RemoveVideoClient(string id)
+        {
+            if (_videoClients.TryRemove(id, out var entry))
+            {
+                entry.Lock.Dispose();
+            }
+        }
+
+        // Backward compatibility
+        public void AddClient(string id, WebSocket socket) => AddVideoClient(id, socket);
+        public void RemoveClient(string id) => RemoveVideoClient(id);
+
+        public void AddAudioClient(string id, WebSocket socket)
+        {
+            var clientLock = new SemaphoreSlim(1, 1);
+            _audioClients[id] = (socket, clientLock);
 
             byte[]? formatPacket;
             lock (_audioFormatLock)
@@ -60,38 +79,49 @@ namespace ScreenTask.Core.Streaming
 
             if (formatPacket != null)
             {
-                _ = SendToClientAsync(id, socket, clientLock, formatPacket);
+                _ = SendToClientAsync(id, socket, clientLock, formatPacket, isAudio: true);
+            }
+        }
+
+        public void RemoveAudioClient(string id)
+        {
+            if (_audioClients.TryRemove(id, out var entry))
+            {
+                entry.Lock.Dispose();
             }
         }
 
         public async Task KickAllClientsAsync(WebSocketCloseStatus closeStatus, string reason)
         {
             var kickTasks = new List<Task>();
-            foreach (var kvp in _clients)
+
+            foreach (var kvp in _videoClients)
             {
                 var socket = kvp.Value.Socket;
                 if (socket.State == WebSocketState.Open)
                 {
                     kickTasks.Add(Task.Run(async () =>
                     {
-                        try
-                        {
-                            await socket.CloseAsync(closeStatus, reason, CancellationToken.None);
-                        }
-                        catch { }
+                        try { await socket.CloseAsync(closeStatus, reason, CancellationToken.None); } catch { }
                     }));
                 }
             }
-            await Task.WhenAll(kickTasks);
-            _clients.Clear();
-        }
 
-        public void RemoveClient(string id)
-        {
-            if (_clients.TryRemove(id, out var entry))
+            foreach (var kvp in _audioClients)
             {
-                entry.Lock.Dispose();
+                var socket = kvp.Value.Socket;
+                if (socket.State == WebSocketState.Open)
+                {
+                    kickTasks.Add(Task.Run(async () =>
+                    {
+                        try { await socket.CloseAsync(closeStatus, reason, CancellationToken.None); } catch { }
+                    }));
+                }
             }
+
+            await Task.WhenAll(kickTasks);
+            _videoClients.Clear();
+            _audioClients.Clear();
         }
 
         public byte[] GetLatestSnapshot()
@@ -118,7 +148,7 @@ namespace ScreenTask.Core.Streaming
                 _latestJpegSnapshot = jpegBytes;
             }
 
-            var frameIndex = Interlocked.Increment(ref _frameCounter);
+            Interlocked.Increment(ref _frameCounter);
 
             // Update FPS metrics
             Interlocked.Increment(ref _fpsCounter);
@@ -130,21 +160,21 @@ namespace ScreenTask.Core.Streaming
                 _lastFpsTimestamp = now;
             }
 
-            if (_clients.IsEmpty) return;
+            if (_videoClients.IsEmpty) return;
 
             // Construct binary packet: [0x01 (Video), ...jpeg bytes]
             var packet = new byte[jpegBytes.Length + 1];
             packet[0] = 0x01; // Video frame type
             Buffer.BlockCopy(jpegBytes, 0, packet, 1, jpegBytes.Length);
 
-            Interlocked.Add(ref _totalBytesTransferred, packet.Length * _clients.Count);
+            Interlocked.Add(ref _totalBytesTransferred, packet.Length * _videoClients.Count);
 
-            // Broadcast concurrently to all connected clients
-            var sendTasks = new Task[_clients.Count];
+            // Broadcast concurrently to all connected video clients
+            var sendTasks = new Task[_videoClients.Count];
             int i = 0;
-            foreach (var kvp in _clients)
+            foreach (var kvp in _videoClients)
             {
-                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet);
+                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: false);
             }
 
             await Task.WhenAll(sendTasks);
@@ -152,20 +182,24 @@ namespace ScreenTask.Core.Streaming
 
         public async Task BroadcastAudioChunkAsync(byte[] audioPcm)
         {
-            if (_clients.IsEmpty || audioPcm == null || audioPcm.Length == 0) return;
+            if (audioPcm == null || audioPcm.Length == 0) return;
+
+            // Send to dedicated audio clients; if none connected yet, fallback to video clients
+            var targetClients = !_audioClients.IsEmpty ? _audioClients : _videoClients;
+            if (targetClients.IsEmpty) return;
 
             // Construct binary packet: [0x02 (Audio), ...pcm bytes]
             var packet = new byte[audioPcm.Length + 1];
             packet[0] = 0x02; // Audio chunk type
             Buffer.BlockCopy(audioPcm, 0, packet, 1, audioPcm.Length);
 
-            Interlocked.Add(ref _totalBytesTransferred, packet.Length * _clients.Count);
+            Interlocked.Add(ref _totalBytesTransferred, packet.Length * targetClients.Count);
 
-            var sendTasks = new Task[_clients.Count];
+            var sendTasks = new Task[targetClients.Count];
             int i = 0;
-            foreach (var kvp in _clients)
+            foreach (var kvp in targetClients)
             {
-                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet);
+                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: true);
             }
 
             await Task.WhenAll(sendTasks);
@@ -185,30 +219,41 @@ namespace ScreenTask.Core.Streaming
                 _latestAudioFormatPacket = packet;
             }
 
-            if (_clients.IsEmpty) return;
+            var count = _audioClients.Count + _videoClients.Count;
+            if (count == 0) return;
 
-            var sendTasks = new Task[_clients.Count];
-            int i = 0;
-            foreach (var kvp in _clients)
+            var sendTasks = new List<Task>(count);
+            foreach (var kvp in _audioClients)
             {
-                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet);
+                sendTasks.Add(SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: true));
+            }
+            foreach (var kvp in _videoClients)
+            {
+                sendTasks.Add(SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: false));
             }
 
             await Task.WhenAll(sendTasks);
         }
 
-        private async Task SendToClientAsync(string clientId, WebSocket socket, SemaphoreSlim clientLock, byte[] data)
+        private async Task SendToClientAsync(string clientId, WebSocket socket, SemaphoreSlim clientLock, byte[] data, bool isAudio)
         {
             if (socket.State != WebSocketState.Open)
             {
-                RemoveClient(clientId);
+                if (isAudio) RemoveAudioClient(clientId);
+                else RemoveVideoClient(clientId);
                 return;
             }
 
-            // Drop-frame protection: if client is already sending previous frame and locked, drop this frame for them
-            if (!clientLock.Wait(0))
+            // Drop-frame protection:
+            // For video: if previous video frame is still sending, drop the new video frame to maintain real-time sync.
+            // For audio: audio packets are small (1KB). A small 50ms wait ensures audio packets are never dropped due to transient lock contention.
+            if (isAudio)
             {
-                return;
+                if (!await clientLock.WaitAsync(50)) return;
+            }
+            else
+            {
+                if (!clientLock.Wait(0)) return;
             }
 
             try
@@ -217,7 +262,8 @@ namespace ScreenTask.Core.Streaming
             }
             catch (Exception)
             {
-                RemoveClient(clientId);
+                if (isAudio) RemoveAudioClient(clientId);
+                else RemoveVideoClient(clientId);
             }
             finally
             {
@@ -237,19 +283,27 @@ namespace ScreenTask.Core.Streaming
 
         public void Dispose()
         {
-            foreach (var kvp in _clients)
+            foreach (var kvp in _videoClients)
             {
                 try
                 {
-                    if (kvp.Value.Socket.State == WebSocketState.Open)
-                    {
-                        kvp.Value.Socket.Abort();
-                    }
+                    if (kvp.Value.Socket.State == WebSocketState.Open) kvp.Value.Socket.Abort();
                     kvp.Value.Lock.Dispose();
                 }
                 catch { }
             }
-            _clients.Clear();
+            _videoClients.Clear();
+
+            foreach (var kvp in _audioClients)
+            {
+                try
+                {
+                    if (kvp.Value.Socket.State == WebSocketState.Open) kvp.Value.Socket.Abort();
+                    kvp.Value.Lock.Dispose();
+                }
+                catch { }
+            }
+            _audioClients.Clear();
         }
     }
 }

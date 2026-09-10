@@ -141,7 +141,7 @@ namespace ScreenTask.WebServer
 
         private void ConfigureRoutes(WebApplication app)
         {
-            // WebSocket stream endpoint
+            // WebSocket stream endpoint (video frames)
             app.Map("/stream/ws", async (HttpContext context) =>
             {
                 if (!context.WebSockets.IsWebSocketRequest)
@@ -163,7 +163,7 @@ namespace ScreenTask.WebServer
                 }
 
                 var clientId = Guid.NewGuid().ToString("N");
-                _broadcaster.AddClient(clientId, webSocket);
+                _broadcaster.AddVideoClient(clientId, webSocket);
 
                 var buffer = new byte[1024];
                 try
@@ -181,7 +181,51 @@ namespace ScreenTask.WebServer
                 catch { }
                 finally
                 {
-                    _broadcaster.RemoveClient(clientId);
+                    _broadcaster.RemoveVideoClient(clientId);
+                }
+            });
+
+            // Dedicated audio WebSocket endpoint
+            app.Map("/stream/audio", async (HttpContext context) =>
+            {
+                if (!context.WebSockets.IsWebSocketRequest)
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    return;
+                }
+
+                using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+
+                if (RequirePin && !string.IsNullOrEmpty(PinCode))
+                {
+                    var queryPin = context.Request.Query["pin"].ToString();
+                    if (queryPin != PinCode)
+                    {
+                        await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid or missing PIN", CancellationToken.None);
+                        return;
+                    }
+                }
+
+                var clientId = Guid.NewGuid().ToString("N");
+                _broadcaster.AddAudioClient(clientId, webSocket);
+
+                var buffer = new byte[1024];
+                try
+                {
+                    while (webSocket.State == WebSocketState.Open && !_cts!.Token.IsCancellationRequested)
+                    {
+                        var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), _cts.Token);
+                        if (result.MessageType == WebSocketMessageType.Close)
+                        {
+                            await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
+                            break;
+                        }
+                    }
+                }
+                catch { }
+                finally
+                {
+                    _broadcaster.RemoveAudioClient(clientId);
                 }
             });
 

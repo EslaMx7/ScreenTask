@@ -194,5 +194,77 @@ namespace ScreenTask.Tests.Integration
             Assert.Equal(WebSocketMessageType.Close, result.MessageType);
             Assert.Equal(WebSocketCloseStatus.PolicyViolation, ws.CloseStatus);
         }
+
+        [Fact]
+        public async Task AudioWebSocketStream_HandshakesAndReceivesFormatAndPcm()
+        {
+            _server.RequirePin = false;
+            await _broadcaster.BroadcastAudioFormatAsync(48000, 2, 16);
+
+            using var ws = new ClientWebSocket();
+            var uri = new Uri($"ws://127.0.0.1:{_testPort}/stream/audio");
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            await ws.ConnectAsync(uri, cts.Token);
+            Assert.Equal(WebSocketState.Open, ws.State);
+
+            // AddAudioClient immediately sends the cached audio format packet (0x03)
+            var formatBuffer = new byte[256];
+            var formatResult = await ws.ReceiveAsync(new ArraySegment<byte>(formatBuffer), cts.Token);
+
+            Assert.Equal(WebSocketMessageType.Binary, formatResult.MessageType);
+            Assert.Equal(9, formatResult.Count);
+            Assert.Equal(0x03, formatBuffer[0]); // Audio format packet
+            Assert.Equal(48000, BitConverter.ToInt32(formatBuffer, 1));
+            Assert.Equal(2, BitConverter.ToInt16(formatBuffer, 5));
+            Assert.Equal(16, BitConverter.ToInt16(formatBuffer, 7));
+
+            // Now broadcast a PCM audio chunk
+            var dummyPcm = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+            await _broadcaster.BroadcastAudioChunkAsync(dummyPcm);
+
+            var pcmBuffer = new byte[256];
+            var pcmResult = await ws.ReceiveAsync(new ArraySegment<byte>(pcmBuffer), cts.Token);
+
+            Assert.Equal(WebSocketMessageType.Binary, pcmResult.MessageType);
+            Assert.Equal(1 + dummyPcm.Length, pcmResult.Count);
+            Assert.Equal(0x02, pcmBuffer[0]); // Audio chunk packet
+            Assert.Equal(0x01, pcmBuffer[1]);
+            Assert.Equal(0x02, pcmBuffer[2]);
+            Assert.Equal(0x03, pcmBuffer[3]);
+            Assert.Equal(0x04, pcmBuffer[4]);
+
+            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task AudioWebSocket_WithInvalidPin_ClosesWithPolicyViolation()
+        {
+            _server.RequirePin = true;
+            _server.PinCode = "7777";
+
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/audio?pin=wrong"), CancellationToken.None);
+
+            var buffer = new byte[256];
+            var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            Assert.Equal(WebSocketMessageType.Close, result.MessageType);
+            Assert.Equal(WebSocketCloseStatus.PolicyViolation, ws.CloseStatus);
+        }
+
+        [Fact]
+        public async Task AudioWebSocket_WithValidPin_ConnectsSuccessfully()
+        {
+            _server.RequirePin = true;
+            _server.PinCode = "7777";
+
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/audio?pin=7777"), CancellationToken.None);
+
+            Assert.Equal(WebSocketState.Open, ws.State);
+
+            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
+        }
     }
 }
