@@ -21,6 +21,8 @@ namespace ScreenTask.Core.Streaming
         private long _lastFpsTimestamp;
         private byte[] _latestJpegSnapshot = Array.Empty<byte>();
         private readonly object _snapshotLock = new();
+        private byte[]? _latestAudioFormatPacket;
+        private readonly object _audioFormatLock = new();
 
         public int ConnectedClientsCount => _clients.Count;
         public int CurrentFps => _currentFps;
@@ -47,7 +49,41 @@ namespace ScreenTask.Core.Streaming
 
         public void AddClient(string id, WebSocket socket)
         {
-            _clients[id] = (socket, new SemaphoreSlim(1, 1));
+            var clientLock = new SemaphoreSlim(1, 1);
+            _clients[id] = (socket, clientLock);
+
+            byte[]? formatPacket;
+            lock (_audioFormatLock)
+            {
+                formatPacket = _latestAudioFormatPacket;
+            }
+
+            if (formatPacket != null)
+            {
+                _ = SendToClientAsync(id, socket, clientLock, formatPacket);
+            }
+        }
+
+        public async Task KickAllClientsAsync(WebSocketCloseStatus closeStatus, string reason)
+        {
+            var kickTasks = new List<Task>();
+            foreach (var kvp in _clients)
+            {
+                var socket = kvp.Value.Socket;
+                if (socket.State == WebSocketState.Open)
+                {
+                    kickTasks.Add(Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await socket.CloseAsync(closeStatus, reason, CancellationToken.None);
+                        }
+                        catch { }
+                    }));
+                }
+            }
+            await Task.WhenAll(kickTasks);
+            _clients.Clear();
         }
 
         public void RemoveClient(string id)
@@ -137,14 +173,19 @@ namespace ScreenTask.Core.Streaming
 
         public async Task BroadcastAudioFormatAsync(int sampleRate, short channels, short bitsPerSample)
         {
-            if (_clients.IsEmpty) return;
-
             // Construct metadata packet: [0x03, 4 bytes sampleRate, 2 bytes channels, 2 bytes bits]
             var packet = new byte[9];
             packet[0] = 0x03; // Audio format info
             BitConverter.GetBytes(sampleRate).CopyTo(packet, 1);
             BitConverter.GetBytes(channels).CopyTo(packet, 5);
             BitConverter.GetBytes(bitsPerSample).CopyTo(packet, 7);
+
+            lock (_audioFormatLock)
+            {
+                _latestAudioFormatPacket = packet;
+            }
+
+            if (_clients.IsEmpty) return;
 
             var sendTasks = new Task[_clients.Count];
             int i = 0;

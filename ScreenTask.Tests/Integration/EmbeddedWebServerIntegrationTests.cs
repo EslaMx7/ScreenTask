@@ -143,5 +143,56 @@ namespace ScreenTask.Tests.Integration
             using var goodDoc = JsonDocument.Parse(goodJson);
             Assert.True(goodDoc.RootElement.GetProperty("success").GetBoolean());
         }
+
+        [Fact]
+        public async Task WebSocket_WithInvalidPin_ClosesWithPolicyViolation()
+        {
+            _server.RequirePin = true;
+            _server.PinCode = "5678";
+
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/ws?pin=wrong"), CancellationToken.None);
+
+            var buffer = new byte[256];
+            var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            // Expect server to close socket with PolicyViolation (1008)
+            Assert.Equal(WebSocketMessageType.Close, result.MessageType);
+            Assert.Equal(WebSocketCloseStatus.PolicyViolation, ws.CloseStatus);
+        }
+
+        [Fact]
+        public async Task WebSocket_WithValidPin_ConnectsSuccessfully()
+        {
+            _server.RequirePin = true;
+            _server.PinCode = "5678";
+
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/ws?pin=5678"), CancellationToken.None);
+
+            Assert.Equal(WebSocketState.Open, ws.State);
+
+            await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
+        }
+
+        [Fact]
+        public async Task UpdateSecurity_DynamicallyKicksConnectedClientsWhenPinEnabled()
+        {
+            _server.RequirePin = false;
+
+            using var ws = new ClientWebSocket();
+            await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/ws"), CancellationToken.None);
+            Assert.Equal(WebSocketState.Open, ws.State);
+
+            // Dynamically enable PIN while client is connected
+            _server.UpdateSecurity(true, "9999");
+
+            var buffer = new byte[256];
+            var result = await ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+
+            // Client should be kicked with PolicyViolation
+            Assert.Equal(WebSocketMessageType.Close, result.MessageType);
+            Assert.Equal(WebSocketCloseStatus.PolicyViolation, ws.CloseStatus);
+        }
     }
 }

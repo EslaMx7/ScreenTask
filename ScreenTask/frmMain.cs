@@ -56,8 +56,11 @@ namespace ScreenTask
             btnQr.Click += btnQr_Click;
 
             cbPrivate.CheckedChanged += cbPrivate_CheckedChanged;
+            txtPassword.TextChanged += txtPassword_TextChanged;
             cbCaptureMouse.CheckedChanged += cbCaptureMouse_CheckedChanged;
             cbAudio.CheckedChanged += cbAudio_CheckedChanged;
+            comboAudioDevices.SelectedIndexChanged += comboAudioDevices_SelectedIndexChanged;
+            btnTestAudio.Click += btnTestAudio_Click;
             qualitySlider.Scroll += qualitySlider_Scroll;
             comboFps.SelectedIndexChanged += comboFps_SelectedIndexChanged;
 
@@ -70,6 +73,7 @@ namespace ScreenTask
         {
             PopulateNetworkAdapters();
             PopulateCaptureSources();
+            PopulateAudioDevices();
             LoadSettings();
 
             if (_currentSettings.IsStartMinimizedEnabled)
@@ -181,6 +185,10 @@ namespace ScreenTask
 
                 // 2. Configure Stream Options
                 _captureEngine.CaptureMouse = cbCaptureMouse.Checked;
+                if (comboAudioDevices.SelectedIndex >= 0 && comboAudioDevices.SelectedIndex < _audioDevices.Count)
+                {
+                    _captureEngine.SetAudioDevice(_audioDevices[comboAudioDevices.SelectedIndex].Device);
+                }
                 _captureEngine.AudioEnabled = cbAudio.Checked;
 
                 // Framerate
@@ -196,8 +204,7 @@ namespace ScreenTask
                 _broadcaster.SetQuality(qualitySlider.Value);
 
                 // 3. Configure Security
-                _webServer.RequirePin = cbPrivate.Checked;
-                _webServer.PinCode = txtPassword.Text.Trim();
+                _webServer.UpdateSecurity(cbPrivate.Checked, txtPassword.Text.Trim());
 
                 // 4. Resolve IP & Port
                 var selectedIp = "127.0.0.1";
@@ -323,7 +330,35 @@ namespace ScreenTask
         {
             txtPassword.Enabled = cbPrivate.Checked;
             _currentSettings.IsPrivateSession = cbPrivate.Checked;
-            if (cbPrivate.Checked) txtPassword.Focus();
+
+            if (cbPrivate.Checked)
+            {
+                if (string.IsNullOrWhiteSpace(txtPassword.Text))
+                {
+                    txtPassword.Text = Random.Shared.Next(1000, 9999).ToString();
+                }
+                txtPassword.Focus();
+                txtPassword.SelectAll();
+            }
+
+            _webServer.UpdateSecurity(cbPrivate.Checked, txtPassword.Text.Trim());
+            _currentSettings.PinCode = txtPassword.Text.Trim();
+
+            if (_webServer.IsRunning)
+            {
+                Log(cbPrivate.Checked
+                    ? $"Security: PIN protection enabled (PIN: {txtPassword.Text.Trim()})"
+                    : "Security: PIN protection disabled (Open session)");
+            }
+        }
+
+        private void txtPassword_TextChanged(object? sender, EventArgs e)
+        {
+            _currentSettings.PinCode = txtPassword.Text.Trim();
+            if (cbPrivate.Checked)
+            {
+                _webServer.UpdateSecurity(cbPrivate.Checked, txtPassword.Text.Trim());
+            }
         }
 
         private void cbCaptureMouse_CheckedChanged(object? sender, EventArgs e)
@@ -334,8 +369,59 @@ namespace ScreenTask
 
         private void cbAudio_CheckedChanged(object? sender, EventArgs e)
         {
-            _captureEngine.AudioEnabled = cbAudio.Checked;
+            _captureEngine.SetAudioEnabled(cbAudio.Checked);
             _currentSettings.IsAudioEnabled = cbAudio.Checked;
+            comboAudioDevices.Enabled = cbAudio.Checked;
+            btnTestAudio.Enabled = cbAudio.Checked;
+
+            if (_webServer.IsRunning)
+            {
+                Log(cbAudio.Checked ? "Audio streaming enabled." : "Audio streaming disabled.");
+            }
+        }
+
+        private void comboAudioDevices_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (comboAudioDevices.SelectedIndex >= 0 && comboAudioDevices.SelectedIndex < _audioDevices.Count)
+            {
+                var selected = _audioDevices[comboAudioDevices.SelectedIndex];
+                _captureEngine.SetAudioDevice(selected.Device);
+                if (_captureEngine.IsRunning && _captureEngine.AudioEnabled)
+                {
+                    Log($"Audio device: {selected.Name}");
+                }
+            }
+        }
+
+        private void btnTestAudio_Click(object? sender, EventArgs e)
+        {
+            try
+            {
+                System.Media.SystemSounds.Asterisk.Play();
+                Log("Playing test sound chime (WASAPI loopback test).");
+            }
+            catch (Exception ex)
+            {
+                Log($"Test sound error: {ex.Message}");
+            }
+        }
+
+        private List<ScreenTask.Core.Audio.AudioDeviceDescriptor> _audioDevices = new();
+
+        private void PopulateAudioDevices()
+        {
+            comboAudioDevices.Items.Clear();
+            _audioDevices = ScreenTask.Core.Audio.WasapiAudioCaptureService.GetRenderDevices();
+            foreach (var dev in _audioDevices)
+            {
+                comboAudioDevices.Items.Add(dev.Name);
+            }
+            if (comboAudioDevices.Items.Count > 0)
+            {
+                comboAudioDevices.SelectedIndex = 0;
+            }
+            comboAudioDevices.Enabled = cbAudio.Checked;
+            btnTestAudio.Enabled = cbAudio.Checked;
         }
 
         private void qualitySlider_Scroll(object? sender, EventArgs e)
@@ -444,9 +530,12 @@ namespace ScreenTask
                     cbPrivate.Checked = _currentSettings.IsPrivateSession;
                     cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
                     cbAudio.Checked = _currentSettings.IsAudioEnabled;
+                    comboAudioDevices.Enabled = cbAudio.Checked;
+                    btnTestAudio.Enabled = cbAudio.Checked;
                     cbAutoStart.Checked = _currentSettings.IsAutoStartServerEnabled;
                     cbMiniStart.Checked = _currentSettings.IsStartMinimizedEnabled;
                     txtPassword.Text = _currentSettings.PinCode;
+                    txtPassword.Enabled = cbPrivate.Checked;
                     numPort.Value = Math.Clamp(_currentSettings.Port, 1, 65535);
                     qualitySlider.Value = Math.Clamp(_currentSettings.ImageQuality, 20, 100);
                     lblQuality.Text = $"Quality: {qualitySlider.Value}%";

@@ -15,7 +15,9 @@
   const zoomHud = document.getElementById('zoomHud');
   const pinModal = document.getElementById('pinModal');
   const pinInput = document.getElementById('pinInput');
+  const pinError = document.getElementById('pinError');
   const btnSubmitPin = document.getElementById('btnSubmitPin');
+  const audioBanner = document.getElementById('audioBanner');
   const themeToggle = document.getElementById('themeToggle');
 
   // State
@@ -25,6 +27,7 @@
   let isAudioMuted = true;
   let audioSampleRate = 48000;
   let audioChannels = 2;
+  let nextAudioPlayTime = 0;
   let frameCount = 0;
   let lastFpsTime = performance.now();
   let currentFps = 0;
@@ -66,6 +69,13 @@
     }
   }
 
+  audioBanner?.addEventListener('click', () => {
+    initAudio();
+    isAudioMuted = false;
+    updateAudioBtn();
+    if (audioBanner) audioBanner.style.display = 'none';
+  });
+
   btnAudio?.addEventListener('click', () => {
     initAudio();
     isAudioMuted = !isAudioMuted;
@@ -73,6 +83,7 @@
       audioGain.gain.value = isAudioMuted ? 0 : parseFloat(audioSlider.value);
     }
     updateAudioBtn();
+    if (!isAudioMuted && audioBanner) audioBanner.style.display = 'none';
   });
 
   audioSlider?.addEventListener('input', (e) => {
@@ -80,6 +91,7 @@
     if (isAudioMuted) {
       isAudioMuted = false;
       updateAudioBtn();
+      if (audioBanner) audioBanner.style.display = 'none';
     }
     if (audioGain) {
       audioGain.gain.value = parseFloat(e.target.value);
@@ -146,7 +158,11 @@
       }
       // 0x02 = Audio PCM Chunk
       else if (packetType === 0x02) {
-        if (!isAudioMuted && audioCtx && audioCtx.state === 'running') {
+        if (isAudioMuted) {
+          if (audioBanner && audioBanner.style.display !== 'flex') {
+            audioBanner.style.display = 'flex';
+          }
+        } else if (audioCtx && audioCtx.state === 'running') {
           playPcmChunk(data.subarray(1));
         }
       }
@@ -161,14 +177,15 @@
     ws.onclose = (e) => {
       isConnected = false;
       if (e.code === 1008 || e.code === 4001) {
-        // PIN required or invalid
-        pinModal.classList.remove('hidden');
-        pinInput.focus();
+        showPinModal();
       } else {
         overlay.classList.remove('hidden');
         overlayTitle.textContent = "Host Disconnected";
         overlayDesc.textContent = "ScreenTask server was stopped or connection was lost. Reconnecting...";
-        setTimeout(connect, 2000);
+        setTimeout(async () => {
+          const ok = await checkServerStatus();
+          if (ok) connect();
+        }, 2000);
       }
     };
 
@@ -180,17 +197,35 @@
   // Audio Playback
   function playPcmChunk(pcmBytes) {
     try {
-      // Typically 32-bit Float or 16-bit Int PCM from WASAPI
-      const numSamples = pcmBytes.length / 4; // Assuming 32-bit float stereo or 16-bit
-      const float32Data = new Float32Array(pcmBytes.buffer, pcmBytes.byteOffset, numSamples);
+      if (!audioCtx || audioCtx.state !== 'running' || isAudioMuted) return;
 
-      const buffer = audioCtx.createBuffer(1, float32Data.length, audioSampleRate);
-      buffer.copyToChannel(float32Data, 0);
+      const float32Data = new Float32Array(pcmBytes.buffer, pcmBytes.byteOffset, pcmBytes.byteLength / 4);
+      const numChannels = audioChannels || 2;
+      const numFrames = float32Data.length / numChannels;
+      if (numFrames <= 0) return;
+
+      const buffer = audioCtx.createBuffer(numChannels, numFrames, audioSampleRate);
+      if (numChannels === 2) {
+        const left = buffer.getChannelData(0);
+        const right = buffer.getChannelData(1);
+        for (let i = 0; i < numFrames; i++) {
+          left[i] = float32Data[i * 2];
+          right[i] = float32Data[i * 2 + 1];
+        }
+      } else {
+        buffer.copyToChannel(float32Data, 0);
+      }
 
       const source = audioCtx.createBufferSource();
       source.buffer = buffer;
       source.connect(audioGain);
-      source.start();
+
+      const currentTime = audioCtx.currentTime;
+      if (nextAudioPlayTime < currentTime) {
+        nextAudioPlayTime = currentTime + 0.04;
+      }
+      source.start(nextAudioPlayTime);
+      nextAudioPlayTime += buffer.duration;
     } catch (e) { }
   }
 
@@ -296,21 +331,96 @@
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  // PIN modal submission
-  btnSubmitPin?.addEventListener('click', () => {
-    pin = pinInput.value.trim();
-    if (pin) {
-      localStorage.setItem('st_pin', pin);
-      connect();
-    }
-  });
+  async function submitPin() {
+    const enteredPin = pinInput.value.trim();
+    if (!enteredPin) return;
 
+    if (pinError) pinError.style.display = 'none';
+    btnSubmitPin.disabled = true;
+    btnSubmitPin.textContent = 'Verifying...';
+
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: enteredPin })
+      });
+      const data = await res.json();
+      if (data.success) {
+        pin = enteredPin;
+        localStorage.setItem('st_pin', pin);
+        pinModal.classList.add('hidden');
+        btnSubmitPin.disabled = false;
+        btnSubmitPin.textContent = 'Connect to Stream';
+        connect();
+      } else {
+        if (pinError) {
+          pinError.textContent = data.message || 'Incorrect PIN code. Please try again.';
+          pinError.style.display = 'block';
+        }
+        pinInput.focus();
+        pinInput.select();
+        btnSubmitPin.disabled = false;
+        btnSubmitPin.textContent = 'Connect to Stream';
+      }
+    } catch (e) {
+      if (pinError) {
+        pinError.textContent = 'Connection error. Please try again.';
+        pinError.style.display = 'block';
+      }
+      btnSubmitPin.disabled = false;
+      btnSubmitPin.textContent = 'Connect to Stream';
+    }
+  }
+
+  function showPinModal() {
+    if (ws) {
+      try { ws.close(); } catch (e) {}
+      ws = null;
+    }
+    overlay.classList.add('hidden');
+    pinModal.classList.remove('hidden');
+    if (pinError) pinError.style.display = 'none';
+    pinInput.focus();
+  }
+
+  async function checkServerStatus() {
+    try {
+      const res = await fetch('/api/status');
+      if (!res.ok) return true;
+      const status = await res.json();
+      if (status.audioEnabled && isAudioMuted) {
+        if (audioBanner) audioBanner.style.display = 'flex';
+      }
+      if (status.requirePin) {
+        if (!pin) {
+          showPinModal();
+          return false;
+        }
+        const authRes = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pin })
+        });
+        const authData = await authRes.json();
+        if (!authData.success) {
+          localStorage.removeItem('st_pin');
+          pin = '';
+          showPinModal();
+          return false;
+        }
+      }
+    } catch (e) {}
+    return true;
+  }
+
+  btnSubmitPin?.addEventListener('click', submitPin);
   pinInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      btnSubmitPin.click();
-    }
+    if (e.key === 'Enter') submitPin();
   });
 
-  // Start connection
-  connect();
+  (async () => {
+    const ok = await checkServerStatus();
+    if (ok) connect();
+  })();
 })();

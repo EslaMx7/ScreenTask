@@ -61,6 +61,45 @@ namespace ScreenTask.Tests.UI
             });
         }
 
+        [Fact]
+        public void MainForm_AudioAndSecurityControls_ToggleProperly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+
+                var cbAudio = FindControl<CheckBox>(form, "cbAudio");
+                var comboAudioDevices = FindControl<ComboBox>(form, "comboAudioDevices");
+                var btnTestAudio = FindControl<Button>(form, "btnTestAudio");
+                var cbPrivate = FindControl<CheckBox>(form, "cbPrivate");
+                var txtPassword = FindControl<TextBox>(form, "txtPassword");
+
+                Assert.NotNull(cbAudio);
+                Assert.NotNull(comboAudioDevices);
+                Assert.NotNull(btnTestAudio);
+                Assert.NotNull(cbPrivate);
+                Assert.NotNull(txtPassword);
+
+                // Initially if cbAudio is unchecked, devices and test are disabled
+                cbAudio.Checked = false;
+                Assert.False(comboAudioDevices.Enabled);
+                Assert.False(btnTestAudio.Enabled);
+
+                // Toggle cbAudio
+                cbAudio.Checked = true;
+                Assert.True(comboAudioDevices.Enabled);
+                Assert.True(btnTestAudio.Enabled);
+
+                // Toggle cbPrivate
+                cbPrivate.Checked = false;
+                Assert.False(txtPassword.Enabled);
+
+                cbPrivate.Checked = true;
+                Assert.True(txtPassword.Enabled);
+                Assert.False(string.IsNullOrEmpty(txtPassword.Text)); // Auto-generated PIN
+            });
+        }
+
         private static void RunInSta(Action action)
         {
             Exception? ex = null;

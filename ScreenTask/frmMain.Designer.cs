@@ -31,6 +31,8 @@ namespace ScreenTask
             this.comboScreens = new System.Windows.Forms.ComboBox();
             this.cbCaptureMouse = new System.Windows.Forms.CheckBox();
             this.cbAudio = new System.Windows.Forms.CheckBox();
+            this.comboAudioDevices = new System.Windows.Forms.ComboBox();
+            this.btnTestAudio = new System.Windows.Forms.Button();
             this.label8 = new System.Windows.Forms.Label();
             this.comboFps = new System.Windows.Forms.ComboBox();
             this.lblQuality = new System.Windows.Forms.Label();
@@ -113,6 +115,8 @@ namespace ScreenTask
             this.groupBox1.Controls.Add(this.comboScreens);
             this.groupBox1.Controls.Add(this.cbCaptureMouse);
             this.groupBox1.Controls.Add(this.cbAudio);
+            this.groupBox1.Controls.Add(this.comboAudioDevices);
+            this.groupBox1.Controls.Add(this.btnTestAudio);
             this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.comboFps);
             this.groupBox1.Controls.Add(this.lblQuality);
@@ -149,19 +153,41 @@ namespace ScreenTask
             this.cbCaptureMouse.ForeColor = System.Drawing.Color.White;
             this.cbCaptureMouse.Location = new System.Drawing.Point(15, 58);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
-            this.cbCaptureMouse.Size = new System.Drawing.Size(130, 19);
-            this.cbCaptureMouse.Text = "Show Mouse Cursor";
+            this.cbCaptureMouse.Size = new System.Drawing.Size(95, 19);
+            this.cbCaptureMouse.Text = "Show Cursor";
             this.cbCaptureMouse.UseVisualStyleBackColor = false;
 
             // cbAudio
             this.cbAudio.AutoSize = true;
             this.cbAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbAudio.ForeColor = System.Drawing.Color.White;
-            this.cbAudio.Location = new System.Drawing.Point(180, 58);
+            this.cbAudio.Location = new System.Drawing.Point(115, 58);
             this.cbAudio.Name = "cbAudio";
-            this.cbAudio.Size = new System.Drawing.Size(155, 19);
-            this.cbAudio.Text = "Stream Audio (WASAPI)";
+            this.cbAudio.Size = new System.Drawing.Size(60, 19);
+            this.cbAudio.Text = "Audio:";
             this.cbAudio.UseVisualStyleBackColor = false;
+
+            // comboAudioDevices
+            this.comboAudioDevices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboAudioDevices.Enabled = false;
+            this.comboAudioDevices.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.comboAudioDevices.FormattingEnabled = true;
+            this.comboAudioDevices.Location = new System.Drawing.Point(180, 56);
+            this.comboAudioDevices.Name = "comboAudioDevices";
+            this.comboAudioDevices.Size = new System.Drawing.Size(190, 21);
+
+            // btnTestAudio
+            this.btnTestAudio.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
+            this.btnTestAudio.Enabled = false;
+            this.btnTestAudio.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            this.btnTestAudio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTestAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnTestAudio.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
+            this.btnTestAudio.Location = new System.Drawing.Point(375, 54);
+            this.btnTestAudio.Name = "btnTestAudio";
+            this.btnTestAudio.Size = new System.Drawing.Size(29, 25);
+            this.btnTestAudio.Text = "🔊";
+            this.btnTestAudio.UseVisualStyleBackColor = false;
 
             // label8 (Framerate:)
             this.label8.AutoSize = true;
@@ -485,6 +511,8 @@ namespace ScreenTask
         private System.Windows.Forms.ComboBox comboScreens;
         private System.Windows.Forms.CheckBox cbCaptureMouse;
         private System.Windows.Forms.CheckBox cbAudio;
+        private System.Windows.Forms.ComboBox comboAudioDevices;
+        private System.Windows.Forms.Button btnTestAudio;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.ComboBox comboFps;
         private System.Windows.Forms.Label lblQuality;

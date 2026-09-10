@@ -31,6 +31,20 @@ namespace ScreenTask.WebServer
         public bool RequirePin { get; set; }
         public string PinCode { get; set; } = "";
 
+        public void UpdateSecurity(bool requirePin, string pinCode)
+        {
+            var oldRequirePin = RequirePin;
+            var oldPin = PinCode;
+            RequirePin = requirePin;
+            PinCode = pinCode;
+
+            if (requirePin && (!oldRequirePin || oldPin != pinCode))
+            {
+                // Disconnect existing viewers so they are prompted to enter the PIN
+                _ = _broadcaster.KickAllClientsAsync(WebSocketCloseStatus.PolicyViolation, "PIN required");
+            }
+        }
+
         public string ServerUrl => $"http://{HostIp}:{Port}";
 
         public EmbeddedWebServer(StreamBroadcaster broadcaster, ScreenCaptureEngine captureEngine)
@@ -136,17 +150,18 @@ namespace ScreenTask.WebServer
                     return;
                 }
 
+                using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+
                 if (RequirePin && !string.IsNullOrEmpty(PinCode))
                 {
                     var queryPin = context.Request.Query["pin"].ToString();
                     if (queryPin != PinCode)
                     {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await webSocket.CloseAsync(WebSocketCloseStatus.PolicyViolation, "Invalid or missing PIN", CancellationToken.None);
                         return;
                     }
                 }
 
-                using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                 var clientId = Guid.NewGuid().ToString("N");
                 _broadcaster.AddClient(clientId, webSocket);
 
