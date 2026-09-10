@@ -40,24 +40,45 @@ namespace ScreenTask.Core.Audio
                 using var enumerator = new MMDeviceEnumerator();
 
                 // 1. Input Devices (Microphones)
-                list.Add(new(null, "🎤 Default Microphone", true, null));
+                MMDevice? defaultMic = null;
+                try
+                {
+                    defaultMic = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
+                }
+                catch { }
+
+                var defaultMicName = defaultMic != null ? $"🎤 Default Microphone ({defaultMic.FriendlyName})" : "🎤 Default Microphone";
+                list.Add(new(null, defaultMicName, true, defaultMic));
+
                 try
                 {
                     var captureEndpoints = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active);
                     foreach (var endpoint in captureEndpoints)
                     {
+                        // Don't add duplicate if it has the same ID as default
+                        if (defaultMic != null && endpoint.ID == defaultMic.ID) continue;
                         list.Add(new(endpoint.ID, $"🎤 {endpoint.FriendlyName}", true, endpoint));
                     }
                 }
                 catch { }
 
                 // 2. Output Devices (Speakers / Loopback)
-                list.Add(new(null, "🔊 Default System Sound (Loopback)", false, null));
+                MMDevice? defaultSpeaker = null;
+                try
+                {
+                    defaultSpeaker = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                }
+                catch { }
+
+                var defaultSpeakerName = defaultSpeaker != null ? $"🔊 Default System Sound ({defaultSpeaker.FriendlyName})" : "🔊 Default System Sound (Loopback)";
+                list.Add(new(null, defaultSpeakerName, false, defaultSpeaker));
+
                 try
                 {
                     var renderEndpoints = enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active);
                     foreach (var endpoint in renderEndpoints)
                     {
+                        if (defaultSpeaker != null && endpoint.ID == defaultSpeaker.ID) continue;
                         list.Add(new(endpoint.ID, $"🔊 {endpoint.FriendlyName}", false, endpoint));
                     }
                 }
@@ -92,6 +113,14 @@ namespace ScreenTask.Core.Audio
                 {
                     builder.WithDevice(device);
                 }
+                else
+                {
+                    using var enumerator = new MMDeviceEnumerator();
+                    var defaultDev = isInput
+                        ? enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia)
+                        : enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                    builder.WithDevice(defaultDev);
+                }
 
                 if (!isInput)
                 {
@@ -113,19 +142,36 @@ namespace ScreenTask.Core.Audio
 
         public void Stop()
         {
-            if (!IsRunning || _recorder == null) return;
+            if (!IsRunning && _recorder == null) return;
+
+            var oldRecorder = _recorder;
+            _recorder = null;
+            IsRunning = false;
+            CurrentPeakLevel = 0;
+            AudioLevelChanged?.Invoke(0);
+
+            if (oldRecorder == null) return;
 
             try
             {
-                _recorder.StopRecording();
+                oldRecorder.StopRecording();
             }
             catch { }
-            finally
+
+            // Clean up recorder in background thread with safety so UI thread is never blocked
+            Task.Run(() =>
             {
-                IsRunning = false;
-                CurrentPeakLevel = 0;
-                AudioLevelChanged?.Invoke(0);
-            }
+                try
+                {
+                    var type = typeof(WasapiRecorder);
+                    var feField = type.GetField("frameEvent", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    var waitHandle = feField?.GetValue(oldRecorder) as System.Threading.EventWaitHandle;
+                    waitHandle?.Set();
+
+                    oldRecorder.Dispose();
+                }
+                catch { }
+            });
         }
 
         public void StartMicTest(int durationSeconds = 3)

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using NAudio.CoreAudioApi;
 using ScreenTask.Core.Audio;
 using Xunit;
 
@@ -43,6 +44,16 @@ namespace ScreenTask.Tests.Core
             Assert.Equal("Test Mic", desc.Name);
             Assert.True(desc.IsInput);
             Assert.Null(desc.Device);
+        }
+
+        [Fact]
+        public void Service_StartAndStop_ExecutesCleanlyWithoutHanging()
+        {
+            using var service = new WasapiAudioCaptureService();
+            service.Start(null, isInput: true);
+            System.Threading.Thread.Sleep(50);
+            service.Stop();
+            Assert.False(service.IsRunning);
         }
     }
 }

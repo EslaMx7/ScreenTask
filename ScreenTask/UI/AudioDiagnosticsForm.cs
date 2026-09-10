@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.CoreAudioApi;
@@ -16,6 +14,9 @@ namespace ScreenTask.UI
     {
         private readonly WasapiAudioCaptureService _audioService;
         private readonly Action<AudioDeviceDescriptor?> _onDeviceSelected;
+        private readonly bool _wasInitiallyRunning;
+        private readonly MMDevice? _initialDevice;
+        private readonly bool _initialIsInput;
 
         private ComboBox comboDevices = null!;
         private ProgressBar pbInputLevel = null!;
@@ -28,16 +29,16 @@ namespace ScreenTask.UI
 
         private List<AudioDeviceDescriptor> _devices = new();
         private System.Windows.Forms.Timer _meterTimer = null!;
-        private WasapiRecorder? _diagnosticRecorder;
-        private WasapiPlayer? _testPlayer;
-        private readonly List<byte> _testMicBuffer = new();
         private bool _isRecordingMicTest;
-        private float _livePeak;
+        private bool _isApplying;
 
         public AudioDiagnosticsForm(WasapiAudioCaptureService audioService, Action<AudioDeviceDescriptor?> onDeviceSelected)
         {
             _audioService = audioService;
             _onDeviceSelected = onDeviceSelected;
+            _wasInitiallyRunning = audioService.IsRunning;
+            _initialDevice = audioService.CurrentDevice;
+            _initialIsInput = audioService.IsCurrentDeviceInput;
 
             InitializeCustomComponents();
             PopulateDevices();
@@ -218,9 +219,17 @@ namespace ScreenTask.UI
             btnApply.FlatAppearance.BorderSize = 0;
             btnApply.Click += (s, e) =>
             {
+                _isApplying = true;
                 if (comboDevices.SelectedIndex >= 0 && comboDevices.SelectedIndex < _devices.Count)
                 {
-                    _onDeviceSelected(_devices[comboDevices.SelectedIndex]);
+                    var selected = _devices[comboDevices.SelectedIndex];
+                    _onDeviceSelected(selected);
+
+                    // If stream was not broadcasting when dialog opened, stop audio capture until broadcast starts
+                    if (!_wasInitiallyRunning)
+                    {
+                        _audioService.Stop();
+                    }
                 }
                 Close();
             };
@@ -245,7 +254,7 @@ namespace ScreenTask.UI
             _meterTimer = new System.Windows.Forms.Timer { Interval = 50 };
             _meterTimer.Tick += (s, e) =>
             {
-                int val = Math.Clamp((int)(_livePeak * 100), 0, 100);
+                int val = Math.Clamp((int)(_audioService.CurrentPeakLevel * 100), 0, 100);
                 pbInputLevel.Value = val;
                 lblLevelText.Text = $"Audio Input Level: {val}% {(val > 5 ? "● ACTIVE VOICE DETECTED" : "(silent)")}";
                 lblLevelText.ForeColor = val > 5 ? Color.FromArgb(34, 197, 94) : Color.FromArgb(148, 163, 184);
@@ -255,11 +264,16 @@ namespace ScreenTask.UI
             FormClosing += (s, e) =>
             {
                 _meterTimer.Stop();
-                _diagnosticRecorder?.StopRecording();
-                _diagnosticRecorder?.Dispose();
-                _diagnosticRecorder = null;
-                _testPlayer?.Dispose();
-                _testPlayer = null;
+
+                // If user closed dialog without applying changes, restore original audio state
+                if (!_isApplying)
+                {
+                    _audioService.Stop();
+                    if (_wasInitiallyRunning)
+                    {
+                        _audioService.Start(_initialDevice, _initialIsInput);
+                    }
+                }
             };
         }
 
@@ -288,75 +302,19 @@ namespace ScreenTask.UI
         {
             try
             {
-                _diagnosticRecorder?.StopRecording();
-                _diagnosticRecorder?.Dispose();
-                _diagnosticRecorder = null;
-
                 if (comboDevices.SelectedIndex < 0 || comboDevices.SelectedIndex >= _devices.Count) return;
                 var desc = _devices[comboDevices.SelectedIndex];
 
-                var builder = new WasapiRecorderBuilder()
-                    .WithSharedMode()
-                    .WithEventSync()
-                    .WithLowLatency(true)
-                    .WithMmcssThreadPriority("Pro Audio");
-
-                if (desc.Device != null)
+                // If audio service is already running on this exact device, keep it running
+                if (_audioService.IsRunning && _audioService.CurrentDevice == desc.Device && _audioService.IsCurrentDeviceInput == desc.IsInput)
                 {
-                    builder.WithDevice(desc.Device);
+                    UpdateDiagnosticInfo();
+                    return;
                 }
 
-                if (!desc.IsInput)
-                {
-                    builder.WithLoopbackCapture();
-                }
-
-                _diagnosticRecorder = builder.Build();
-
-                _diagnosticRecorder.DataAvailable += (buffer, flags, pos, qpc) =>
-                {
-                    if (buffer.Length == 0) return;
-
-                    if (flags.HasFlag(AudioClientBufferFlags.Silent))
-                    {
-                        _livePeak = 0;
-                        return;
-                    }
-
-                    // Calculate peak level directly over span
-                    float peak = 0;
-                    var fmt = _diagnosticRecorder.WaveFormat;
-                    if (fmt.BitsPerSample == 16)
-                    {
-                        var span = MemoryMarshal.Cast<byte, short>(buffer);
-                        for (int i = 0; i < span.Length; i += 2)
-                        {
-                            float abs = Math.Abs(span[i] / 32768f);
-                            if (abs > peak) peak = abs;
-                        }
-                    }
-                    else if (fmt.BitsPerSample == 32)
-                    {
-                        var span = MemoryMarshal.Cast<byte, float>(buffer);
-                        for (int i = 0; i < span.Length; i += 2)
-                        {
-                            float abs = Math.Abs(span[i]);
-                            if (abs > peak) peak = abs;
-                        }
-                    }
-                    _livePeak = peak;
-
-                    // If testing mic, record chunk
-                    lock (_testMicBuffer)
-                    {
-                        if (_isRecordingMicTest)
-                        {
-                            _testMicBuffer.AddRange(buffer.ToArray());
-                        }
-                    }
-                };
-
-                _diagnosticRecorder.StartRecording();
+                _audioService.Stop();
+                _audioService.Start(desc.Device, desc.IsInput);
+                UpdateDiagnosticInfo();
             }
             catch (Exception ex)
             {
@@ -368,7 +326,7 @@ namespace ScreenTask.UI
         {
             if (comboDevices.SelectedIndex < 0 || comboDevices.SelectedIndex >= _devices.Count) return;
             var desc = _devices[comboDevices.SelectedIndex];
-            var fmt = _diagnosticRecorder?.WaveFormat;
+            var fmt = _audioService.AudioFormat;
 
             if (fmt != null)
             {
@@ -381,7 +339,7 @@ namespace ScreenTask.UI
             }
             else
             {
-                lblDiagnostics.Text = $"Device: {desc.Name}\nStatus: Initializing...";
+                lblDiagnostics.Text = $"Device: {desc.Name}\nStatus: Active";
             }
         }
 
@@ -392,52 +350,21 @@ namespace ScreenTask.UI
             btnTestMic.Enabled = false;
             btnTestMic.BackColor = Color.FromArgb(239, 68, 68); // Red
             btnTestMic.Text = "🎙 Speak Now (3s)...";
+            _isRecordingMicTest = true;
 
-            lock (_testMicBuffer)
-            {
-                _testMicBuffer.Clear();
-                _isRecordingMicTest = true;
-            }
+            _audioService.StartMicTest(3);
 
-            // Record 3 seconds
             for (int i = 3; i > 0; i--)
             {
                 btnTestMic.Text = $"🎙 Speak Now ({i}s)...";
                 await Task.Delay(1000);
             }
 
-            lock (_testMicBuffer)
-            {
-                _isRecordingMicTest = false;
-            }
-
+            _isRecordingMicTest = false;
             btnTestMic.BackColor = Color.FromArgb(34, 197, 94); // Green
             btnTestMic.Text = "▶ Playing Back...";
 
-            // Playback
-            byte[] rawData;
-            lock (_testMicBuffer)
-            {
-                rawData = _testMicBuffer.ToArray();
-            }
-
-            if (rawData.Length > 0 && _diagnosticRecorder?.WaveFormat != null)
-            {
-                try
-                {
-                    var ms = new MemoryStream(rawData);
-                    var stream = new RawSourceWaveStream(ms, _diagnosticRecorder.WaveFormat);
-                    _testPlayer?.Dispose();
-                    _testPlayer = new WasapiPlayerBuilder().WithSharedMode().WithEventSync().Build();
-                    _testPlayer.Init(stream);
-                    _testPlayer.Play();
-
-                    // Wait playback duration
-                    var duration = (int)(stream.TotalTime.TotalMilliseconds) + 200;
-                    await Task.Delay(Math.Clamp(duration, 1000, 5000));
-                }
-                catch { }
-            }
+            await Task.Delay(3500);
 
             btnTestMic.BackColor = Color.FromArgb(30, 41, 59);
             btnTestMic.ForeColor = Color.FromArgb(129, 140, 248);
@@ -452,18 +379,6 @@ namespace ScreenTask.UI
                 System.Media.SystemSounds.Asterisk.Play();
             }
             catch { }
-        }
-
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            base.OnFormClosed(e);
-            _meterTimer?.Stop();
-            _meterTimer?.Dispose();
-            _diagnosticRecorder?.StopRecording();
-            _diagnosticRecorder?.Dispose();
-            _diagnosticRecorder = null;
-            _testPlayer?.Dispose();
-            _testPlayer = null;
         }
     }
 }

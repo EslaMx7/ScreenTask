@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using ScreenTask;
+using ScreenTask.Core.Audio;
 using ScreenTask.UI;
 using Xunit;
 
@@ -105,6 +106,17 @@ namespace ScreenTask.Tests.UI
                 cbPrivate.Checked = true;
                 Assert.True(txtPassword.Enabled);
                 Assert.False(string.IsNullOrEmpty(txtPassword.Text)); // Auto-generated PIN
+            });
+        }
+
+        [Fact]
+        public void AudioDiagnosticsForm_InitializesAndDisposesWithoutHanging()
+        {
+            RunInSta(() =>
+            {
+                using var service = new WasapiAudioCaptureService();
+                using var form = new AudioDiagnosticsForm(service, _ => { });
+                Assert.NotNull(form);
             });
         }
 
