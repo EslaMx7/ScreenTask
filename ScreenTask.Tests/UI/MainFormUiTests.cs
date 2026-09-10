@@ -18,6 +18,7 @@ namespace ScreenTask.Tests.UI
             RunInSta(() =>
             {
                 using var form = new frmMain();
+                form.Show();
 
                 Assert.NotNull(form);
                 Assert.Contains("ScreenTask 2.0", form.Text);
@@ -41,6 +42,69 @@ namespace ScreenTask.Tests.UI
                 var qualitySlider = FindControl<TrackBar>(form, "qualitySlider");
                 Assert.NotNull(qualitySlider);
                 Assert.Equal(80, qualitySlider.Value);
+
+                // Verify refresh buttons exist
+                var btnRefreshScreens = FindControl<Button>(form, "btnRefreshScreens");
+                Assert.NotNull(btnRefreshScreens);
+                Assert.Equal("🔄", btnRefreshScreens.Text);
+
+                var btnRefreshIPs = FindControl<Button>(form, "btnRefreshIPs");
+                Assert.NotNull(btnRefreshIPs);
+                Assert.Equal("🔄", btnRefreshIPs.Text);
+
+                var btnRefreshAudio = FindControl<Button>(form, "btnRefreshAudio");
+                Assert.NotNull(btnRefreshAudio);
+                Assert.Equal("🔄", btnRefreshAudio.Text);
+
+                // Test clicking refresh buttons
+                btnRefreshScreens.PerformClick();
+                btnRefreshIPs.PerformClick();
+                btnRefreshAudio.PerformClick();
+
+                // Verify comboIPs contains Loopback after refresh
+                var hasLoopback = false;
+                foreach (var item in comboIPs.Items)
+                {
+                    if (item.ToString()?.Contains("127.0.0.1") == true || item.ToString()?.Contains("Loopback") == true)
+                    {
+                        hasLoopback = true;
+                        break;
+                    }
+                }
+                Assert.True(hasLoopback, "comboIPs must include loopback adapter");
+            });
+        }
+
+        [Fact]
+        public void MainForm_ReactiveSettings_CanBeChangedWithoutErrors()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var comboScreens = FindControl<ComboBox>(form, "comboScreens");
+                var cbCaptureMouse = FindControl<CheckBox>(form, "cbCaptureMouse");
+                var qualitySlider = FindControl<TrackBar>(form, "qualitySlider");
+                var comboFps = FindControl<ComboBox>(form, "comboFps");
+
+                Assert.NotNull(comboScreens);
+                Assert.NotNull(cbCaptureMouse);
+                Assert.NotNull(qualitySlider);
+                Assert.NotNull(comboFps);
+
+                // Test changing settings live
+                if (comboScreens.Items.Count > 0)
+                {
+                    comboScreens.SelectedIndex = 0;
+                }
+
+                cbCaptureMouse.Checked = !cbCaptureMouse.Checked;
+                qualitySlider.Value = 65;
+                if (comboFps.Items.Count > 1)
+                {
+                    comboFps.SelectedIndex = 1;
+                }
             });
         }
 

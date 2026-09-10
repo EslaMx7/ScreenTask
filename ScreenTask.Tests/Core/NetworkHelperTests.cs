@@ -35,5 +35,15 @@ namespace ScreenTask.Tests.Core
                 Assert.True(adapters[0].IsRecommended);
             }
         }
+
+        [Fact]
+        public void GetAvailableAdapters_AlwaysIncludesLoopback()
+        {
+            var adapters = NetworkHelper.GetAvailableAdapters();
+
+            var loopback = adapters.FirstOrDefault(a => a.IpAddress == "127.0.0.1");
+            Assert.NotNull(loopback);
+            Assert.Contains("Loopback", loopback.DisplayName);
+        }
     }
 }

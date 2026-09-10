@@ -57,6 +57,35 @@ namespace ScreenTask.Tests.Integration
         }
 
         [Fact]
+        public async Task GetViewerCss_ReturnsHttp200AndCssContentType()
+        {
+            var res = await _http.GetAsync($"http://127.0.0.1:{_testPort}/viewer.css");
+
+            Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+            Assert.Contains("text/css", res.Content.Headers.ContentType?.ToString());
+
+            var css = await res.Content.ReadAsStringAsync();
+            Assert.Contains(".simulated-fullscreen", css);
+            Assert.Contains(".floating-toolbar", css);
+            Assert.Contains("100dvh", css);
+        }
+
+        [Fact]
+        public async Task GetViewerJs_ReturnsHttp200AndJavaScriptContentType()
+        {
+            var res = await _http.GetAsync($"http://127.0.0.1:{_testPort}/viewer.js");
+
+            Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+            Assert.True(
+                res.Content.Headers.ContentType?.ToString().Contains("javascript") == true,
+                $"Expected javascript Content-Type, got: {res.Content.Headers.ContentType}");
+
+            var js = await res.Content.ReadAsStringAsync();
+            Assert.Contains("screenCanvas", js);
+            Assert.Contains("simulated-fullscreen", js);
+        }
+
+        [Fact]
         public async Task GetStatusApi_ReturnsValidJsonMetrics()
         {
             var res = await _http.GetAsync($"http://127.0.0.1:{_testPort}/api/status");

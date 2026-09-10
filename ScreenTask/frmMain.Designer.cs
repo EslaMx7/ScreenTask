@@ -29,9 +29,11 @@ namespace ScreenTask
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label7 = new System.Windows.Forms.Label();
             this.comboScreens = new System.Windows.Forms.ComboBox();
+            this.btnRefreshScreens = new System.Windows.Forms.Button();
             this.cbCaptureMouse = new System.Windows.Forms.CheckBox();
             this.cbAudio = new System.Windows.Forms.CheckBox();
             this.comboAudioDevices = new System.Windows.Forms.ComboBox();
+            this.btnRefreshAudio = new System.Windows.Forms.Button();
             this.pbAudioMeter = new System.Windows.Forms.ProgressBar();
             this.btnTestAudio = new System.Windows.Forms.Button();
             this.btnAudioDiag = new System.Windows.Forms.Button();
@@ -44,10 +46,12 @@ namespace ScreenTask
             this.gbOptions = new System.Windows.Forms.GroupBox();
             this.label5 = new System.Windows.Forms.Label();
             this.comboIPs = new System.Windows.Forms.ComboBox();
+            this.btnRefreshIPs = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.numPort = new System.Windows.Forms.NumericUpDown();
             this.cbPrivate = new System.Windows.Forms.CheckBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
+            this.toolTipMain = new System.Windows.Forms.ToolTip(this.components);
 
             // Card 3: Broadcast Control
             this.groupBox3 = new System.Windows.Forms.GroupBox();
@@ -115,9 +119,11 @@ namespace ScreenTask
             // 
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.comboScreens);
+            this.groupBox1.Controls.Add(this.btnRefreshScreens);
             this.groupBox1.Controls.Add(this.cbCaptureMouse);
             this.groupBox1.Controls.Add(this.cbAudio);
             this.groupBox1.Controls.Add(this.comboAudioDevices);
+            this.groupBox1.Controls.Add(this.btnRefreshAudio);
             this.groupBox1.Controls.Add(this.pbAudioMeter);
             this.groupBox1.Controls.Add(this.btnTestAudio);
             this.groupBox1.Controls.Add(this.btnAudioDiag);
@@ -147,7 +153,20 @@ namespace ScreenTask
             this.comboScreens.FormattingEnabled = true;
             this.comboScreens.Location = new System.Drawing.Point(68, 22);
             this.comboScreens.Name = "comboScreens";
-            this.comboScreens.Size = new System.Drawing.Size(336, 21);
+            this.comboScreens.Size = new System.Drawing.Size(304, 21);
+
+            // btnRefreshScreens
+            this.btnRefreshScreens.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
+            this.btnRefreshScreens.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRefreshScreens.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            this.btnRefreshScreens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRefreshScreens.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnRefreshScreens.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
+            this.btnRefreshScreens.Location = new System.Drawing.Point(376, 20);
+            this.btnRefreshScreens.Name = "btnRefreshScreens";
+            this.btnRefreshScreens.Size = new System.Drawing.Size(28, 25);
+            this.btnRefreshScreens.Text = "🔄";
+            this.btnRefreshScreens.UseVisualStyleBackColor = false;
 
             // cbCaptureMouse
             this.cbCaptureMouse.AutoSize = true;
@@ -178,15 +197,29 @@ namespace ScreenTask
             this.comboAudioDevices.FormattingEnabled = true;
             this.comboAudioDevices.Location = new System.Drawing.Point(168, 56);
             this.comboAudioDevices.Name = "comboAudioDevices";
-            this.comboAudioDevices.Size = new System.Drawing.Size(138, 21);
+            this.comboAudioDevices.Size = new System.Drawing.Size(108, 21);
+
+            // btnRefreshAudio
+            this.btnRefreshAudio.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
+            this.btnRefreshAudio.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRefreshAudio.Enabled = false;
+            this.btnRefreshAudio.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            this.btnRefreshAudio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRefreshAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnRefreshAudio.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
+            this.btnRefreshAudio.Location = new System.Drawing.Point(280, 54);
+            this.btnRefreshAudio.Name = "btnRefreshAudio";
+            this.btnRefreshAudio.Size = new System.Drawing.Size(26, 25);
+            this.btnRefreshAudio.Text = "🔄";
+            this.btnRefreshAudio.UseVisualStyleBackColor = false;
 
             // pbAudioMeter
             this.pbAudioMeter.Enabled = false;
-            this.pbAudioMeter.Location = new System.Drawing.Point(312, 59);
+            this.pbAudioMeter.Location = new System.Drawing.Point(310, 59);
             this.pbAudioMeter.Maximum = 100;
             this.pbAudioMeter.Minimum = 0;
             this.pbAudioMeter.Name = "pbAudioMeter";
-            this.pbAudioMeter.Size = new System.Drawing.Size(28, 15);
+            this.pbAudioMeter.Size = new System.Drawing.Size(26, 15);
             this.pbAudioMeter.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbAudioMeter.Value = 0;
 
@@ -197,9 +230,9 @@ namespace ScreenTask
             this.btnTestAudio.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnTestAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnTestAudio.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
-            this.btnTestAudio.Location = new System.Drawing.Point(344, 54);
+            this.btnTestAudio.Location = new System.Drawing.Point(340, 54);
             this.btnTestAudio.Name = "btnTestAudio";
-            this.btnTestAudio.Size = new System.Drawing.Size(28, 25);
+            this.btnTestAudio.Size = new System.Drawing.Size(30, 25);
             this.btnTestAudio.Text = "🔊";
             this.btnTestAudio.UseVisualStyleBackColor = false;
 
@@ -210,9 +243,9 @@ namespace ScreenTask
             this.btnAudioDiag.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAudioDiag.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnAudioDiag.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
-            this.btnAudioDiag.Location = new System.Drawing.Point(376, 54);
+            this.btnAudioDiag.Location = new System.Drawing.Point(374, 54);
             this.btnAudioDiag.Name = "btnAudioDiag";
-            this.btnAudioDiag.Size = new System.Drawing.Size(28, 25);
+            this.btnAudioDiag.Size = new System.Drawing.Size(30, 25);
             this.btnAudioDiag.Text = "⚙";
             this.btnAudioDiag.UseVisualStyleBackColor = false;
 
@@ -263,6 +296,7 @@ namespace ScreenTask
             // 
             this.gbOptions.Controls.Add(this.label5);
             this.gbOptions.Controls.Add(this.comboIPs);
+            this.gbOptions.Controls.Add(this.btnRefreshIPs);
             this.gbOptions.Controls.Add(this.label2);
             this.gbOptions.Controls.Add(this.numPort);
             this.gbOptions.Controls.Add(this.cbPrivate);
@@ -289,24 +323,37 @@ namespace ScreenTask
             this.comboIPs.FormattingEnabled = true;
             this.comboIPs.Location = new System.Drawing.Point(75, 22);
             this.comboIPs.Name = "comboIPs";
-            this.comboIPs.Size = new System.Drawing.Size(225, 21);
+            this.comboIPs.Size = new System.Drawing.Size(195, 21);
+
+            // btnRefreshIPs
+            this.btnRefreshIPs.BackColor = System.Drawing.Color.FromArgb(30, 41, 59);
+            this.btnRefreshIPs.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnRefreshIPs.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(71, 85, 105);
+            this.btnRefreshIPs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRefreshIPs.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnRefreshIPs.ForeColor = System.Drawing.Color.FromArgb(129, 140, 248);
+            this.btnRefreshIPs.Location = new System.Drawing.Point(274, 20);
+            this.btnRefreshIPs.Name = "btnRefreshIPs";
+            this.btnRefreshIPs.Size = new System.Drawing.Size(28, 25);
+            this.btnRefreshIPs.Text = "🔄";
+            this.btnRefreshIPs.UseVisualStyleBackColor = false;
 
             // label2 (Port:)
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.label2.ForeColor = System.Drawing.Color.White;
-            this.label2.Location = new System.Drawing.Point(312, 25);
+            this.label2.Location = new System.Drawing.Point(310, 25);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(32, 15);
             this.label2.Text = "Port:";
 
             // numPort
             this.numPort.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.numPort.Location = new System.Drawing.Point(348, 22);
+            this.numPort.Location = new System.Drawing.Point(346, 22);
             this.numPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
             this.numPort.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             this.numPort.Name = "numPort";
-            this.numPort.Size = new System.Drawing.Size(56, 23);
+            this.numPort.Size = new System.Drawing.Size(58, 23);
             this.numPort.Value = new decimal(new int[] { 7070, 0, 0, 0 });
 
             // cbPrivate
@@ -514,6 +561,16 @@ namespace ScreenTask
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ScreenTask 2.0 – Offline & LAN Screen Sharing";
 
+            // toolTipMain
+            this.toolTipMain.SetToolTip(this.btnRefreshScreens, "Refresh active screens and open application windows");
+            this.toolTipMain.SetToolTip(this.btnRefreshIPs, "Refresh available network adapters");
+            this.toolTipMain.SetToolTip(this.btnRefreshAudio, "Refresh connected audio input and output devices");
+            this.toolTipMain.SetToolTip(this.btnTestAudio, "Play speaker test chime");
+            this.toolTipMain.SetToolTip(this.btnAudioDiag, "Open Audio Diagnostics & Microphone Tester");
+            this.toolTipMain.SetToolTip(this.btnCopyUrl, "Copy stream URL to clipboard");
+            this.toolTipMain.SetToolTip(this.btnLaunch, "Open stream in default web browser");
+            this.toolTipMain.SetToolTip(this.btnQr, "Show QR Code for mobile phones");
+
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.qualitySlider)).EndInit();
@@ -536,9 +593,11 @@ namespace ScreenTask
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.ComboBox comboScreens;
+        private System.Windows.Forms.Button btnRefreshScreens;
         private System.Windows.Forms.CheckBox cbCaptureMouse;
         private System.Windows.Forms.CheckBox cbAudio;
         private System.Windows.Forms.ComboBox comboAudioDevices;
+        private System.Windows.Forms.Button btnRefreshAudio;
         private System.Windows.Forms.ProgressBar pbAudioMeter;
         private System.Windows.Forms.Button btnTestAudio;
         private System.Windows.Forms.Button btnAudioDiag;
@@ -549,6 +608,7 @@ namespace ScreenTask
         private System.Windows.Forms.GroupBox gbOptions;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox comboIPs;
+        private System.Windows.Forms.Button btnRefreshIPs;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numPort;
         private System.Windows.Forms.CheckBox cbPrivate;
@@ -567,5 +627,6 @@ namespace ScreenTask
         private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.Label lblMe;
         private System.Windows.Forms.NotifyIcon appNotify;
+        private System.Windows.Forms.ToolTip toolTipMain;
     }
 }

@@ -467,14 +467,99 @@
     }
   }
 
-  // Fullscreen
-  btnFullscreen?.addEventListener('click', () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+  // Fullscreen handling (Cross-platform: Desktop, Android, iOS Safari simulated)
+  let isSimulatedFullscreen = false;
+
+  function updateFullscreenBtn(isFullscreen) {
+    if (!btnFullscreen) return;
+    if (isFullscreen) {
+      btnFullscreen.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
+      btnFullscreen.title = "Exit Fullscreen";
     } else {
-      document.exitFullscreen().catch(() => {});
+      btnFullscreen.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+      btnFullscreen.title = "Toggle Fullscreen";
     }
+  }
+
+  function activateSimulatedFullscreen() {
+    isSimulatedFullscreen = true;
+    document.body.classList.add('simulated-fullscreen');
+    document.documentElement.classList.add('simulated-fullscreen');
+    window.scrollTo(0, 1);
+    updateFullscreenBtn(true);
+    showToast("🖥️ Entered Fullscreen Mode");
+  }
+
+  function exitSimulatedFullscreen() {
+    isSimulatedFullscreen = false;
+    document.body.classList.remove('simulated-fullscreen');
+    document.documentElement.classList.remove('simulated-fullscreen');
+    updateFullscreenBtn(false);
+  }
+
+  function toggleFullscreen() {
+    const docEl = document.documentElement;
+    const isStandardFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement);
+
+    if (isSimulatedFullscreen) {
+      exitSimulatedFullscreen();
+      return;
+    }
+
+    if (isStandardFullscreen) {
+      if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      updateFullscreenBtn(false);
+      return;
+    }
+
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().then(() => {
+        updateFullscreenBtn(true);
+      }).catch(() => {
+        activateSimulatedFullscreen();
+      });
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen();
+      updateFullscreenBtn(true);
+    } else {
+      activateSimulatedFullscreen();
+    }
+  }
+
+  btnFullscreen?.addEventListener('click', toggleFullscreen);
+
+  document.addEventListener('fullscreenchange', () => {
+    updateFullscreenBtn(!!document.fullscreenElement);
   });
+  document.addEventListener('webkitfullscreenchange', () => {
+    updateFullscreenBtn(!!document.webkitFullscreenElement);
+  });
+
+  // Auto-Hiding Floating Toolbar on Mobile & Fullscreen
+  const toolbar = document.querySelector('.floating-toolbar');
+  let toolbarHideTimeout = null;
+
+  function showToolbar() {
+    if (!toolbar) return;
+    toolbar.classList.remove('autohide');
+    resetToolbarHideTimer();
+  }
+
+  function resetToolbarHideTimer() {
+    clearTimeout(toolbarHideTimeout);
+    toolbarHideTimeout = setTimeout(() => {
+      if (!audioDiagModal?.classList.contains('hidden') || !pinModal?.classList.contains('hidden')) return;
+      if (toolbar && (scale > 1 || window.innerWidth <= 768 || isSimulatedFullscreen || document.fullscreenElement)) {
+        toolbar.classList.add('autohide');
+      }
+    }, 3500);
+  }
+
+  window.addEventListener('mousemove', showToolbar, { passive: true });
+  window.addEventListener('touchstart', showToolbar, { passive: true });
+  toolbar?.addEventListener('mouseenter', () => clearTimeout(toolbarHideTimeout));
+  toolbar?.addEventListener('mouseleave', resetToolbarHideTimer);
 
   // Touch Zoom & Pan Handlers
   function applyTransform() {
@@ -529,7 +614,9 @@
     isDragging = false;
   });
 
-  // Touch Pinch-to-Zoom
+  // Touch Pinch-to-Zoom & Double-tap
+  let lastTapTime = 0;
+
   canvas.addEventListener('touchstart', (e) => {
     if (e.touches.length === 2) {
       initialPinchDistance = getDistance(e.touches[0], e.touches[1]);
@@ -558,9 +645,27 @@
     }
   }, { passive: false });
 
-  canvas.addEventListener('touchend', () => {
+  canvas.addEventListener('touchend', (e) => {
     initialPinchDistance = null;
     isDragging = false;
+
+    // Double-tap to zoom toggle (100% <-> 200%)
+    const currentTime = performance.now();
+    const tapInterval = currentTime - lastTapTime;
+    if (tapInterval < 300 && tapInterval > 50 && (!e.touches || e.touches.length === 0)) {
+      if (scale > 1) {
+        scale = 1;
+        panX = 0;
+        panY = 0;
+      } else {
+        scale = 2;
+        panX = 0;
+        panY = 0;
+      }
+      applyTransform();
+      showToast(scale > 1 ? "🔍 Zoom 200%" : "🔍 Zoom Reset (100%)");
+    }
+    lastTapTime = currentTime;
   });
 
   function getDistance(t1, t2) {
@@ -652,9 +757,54 @@
           return false;
         }
       }
-    } catch (e) {}
-    return true;
+  // Toast notifications helper
+  function showToast(message) {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'toastContainer';
+      container.className = 'toast-container';
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
   }
+
+  let lastSourceName = '';
+  let lastAudioEnabled = false;
+
+  async function pollStatus() {
+    if (!isConnected) return;
+    try {
+      const res = await fetch('/api/status');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.sourceName && data.sourceName !== lastSourceName) {
+          if (lastSourceName !== '') {
+            showToast(`🖥️ Host switched to: ${data.sourceName}`);
+          }
+          lastSourceName = data.sourceName;
+          const sourceLabel = document.getElementById('sourceLabel');
+          if (sourceLabel) sourceLabel.textContent = data.sourceName;
+        }
+
+        if (data.audioEnabled !== undefined && data.audioEnabled !== lastAudioEnabled) {
+          if (data.audioEnabled && isAudioMuted) {
+            if (audioBanner) audioBanner.style.display = 'flex';
+            showToast("🔊 Stream has audio. Tap banner to listen.");
+          }
+          lastAudioEnabled = data.audioEnabled;
+        }
+      }
+    } catch (e) {}
+  }
+
+  setInterval(pollStatus, 3000);
 
   btnSubmitPin?.addEventListener('click', submitPin);
   pinInput?.addEventListener('keydown', (e) => {

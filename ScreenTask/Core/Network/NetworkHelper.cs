@@ -8,7 +8,9 @@ namespace ScreenTask.Core.Network
 {
     public record NetworkAdapterInfo(string InterfaceName, string IpAddress, NetworkInterfaceType Type, bool IsRecommended)
     {
-        public string DisplayName => $"{InterfaceName} - {IpAddress}{(IsRecommended ? " (Recommended)" : "")}";
+        public string DisplayName => Type == NetworkInterfaceType.Loopback
+            ? $"{InterfaceName} - {IpAddress} (Loopback)"
+            : $"{InterfaceName} - {IpAddress}{(IsRecommended ? " (Recommended)" : "")}";
         public override string ToString() => DisplayName;
     }
 
@@ -45,14 +47,19 @@ namespace ScreenTask.Core.Network
             }
             catch { }
 
-            // If empty, add fallback localhost
-            if (list.Count == 0)
+            // Always ensure loopback (localhost) is available for offline / local browser testing
+            if (!list.Any(a => a.IpAddress == "127.0.0.1"))
             {
-                list.Add(new NetworkAdapterInfo("Localhost", "127.0.0.1", NetworkInterfaceType.Loopback, true));
+                bool isFallbackRecommended = list.Count == 0;
+                list.Add(new NetworkAdapterInfo("Localhost", "127.0.0.1", NetworkInterfaceType.Loopback, isFallbackRecommended));
             }
 
-            // Order so recommended IPs come first
-            return list.OrderByDescending(a => a.IsRecommended).ThenBy(a => a.InterfaceName).ToList();
+            // Order so recommended IPs come first, then interfaces, then loopback
+            return list
+                .OrderByDescending(a => a.IsRecommended)
+                .ThenBy(a => a.Type == NetworkInterfaceType.Loopback ? 1 : 0)
+                .ThenBy(a => a.InterfaceName)
+                .ToList();
         }
     }
 }

@@ -27,7 +27,9 @@ namespace ScreenTask
         private List<ICaptureSource> _captureSources = new();
         private AppSettings _currentSettings = new();
         private readonly System.Windows.Forms.Timer _statsTimer = new();
+        private readonly System.Windows.Forms.Timer _deviceChangeTimer = new() { Interval = 600 };
         private readonly HttpClient _httpClient = new();
+        private const int WM_DEVICECHANGE = 0x0219;
 
         public frmMain()
         {
@@ -40,6 +42,18 @@ namespace ScreenTask
 
             _statsTimer.Interval = 1000;
             _statsTimer.Tick += OnStatsTimerTick;
+
+            _deviceChangeTimer.Tick += (s, e) =>
+            {
+                _deviceChangeTimer.Stop();
+                try
+                {
+                    PopulateAudioDevices();
+                    PopulateNetworkAdapters();
+                    Log("Hardware change detected: refreshed audio & network devices.");
+                }
+                catch { }
+            };
 
             WireEvents();
         }
@@ -54,6 +68,13 @@ namespace ScreenTask
             btnLaunch.Click += btnLaunch_Click;
             btnCopyUrl.Click += btnCopyUrl_Click;
             btnQr.Click += btnQr_Click;
+
+            comboScreens.SelectedIndexChanged += comboScreens_SelectedIndexChanged;
+            btnRefreshScreens.Click += btnRefreshScreens_Click;
+            comboIPs.SelectedIndexChanged += (s, e) => UpdateUrlPreview();
+            btnRefreshIPs.Click += btnRefreshIPs_Click;
+            btnRefreshAudio.Click += btnRefreshAudio_Click;
+            numPort.ValueChanged += (s, e) => UpdateUrlPreview();
 
             cbPrivate.CheckedChanged += cbPrivate_CheckedChanged;
             txtPassword.TextChanged += txtPassword_TextChanged;
@@ -85,6 +106,16 @@ namespace ScreenTask
             appNotify.MouseDoubleClick += (s, e) => RestoreFromTray();
         }
 
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            if (m.Msg == WM_DEVICECHANGE)
+            {
+                _deviceChangeTimer.Stop();
+                _deviceChangeTimer.Start();
+            }
+        }
+
         private void frmMain_Load(object? sender, EventArgs e)
         {
             PopulateNetworkAdapters();
@@ -108,28 +139,46 @@ namespace ScreenTask
 
         private void PopulateNetworkAdapters()
         {
+            var previousIp = comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count
+                ? _adapters[comboIPs.SelectedIndex].IpAddress
+                : null;
+
             comboIPs.Items.Clear();
             _adapters = NetworkHelper.GetAvailableAdapters();
 
-            int recommendedIndex = 0;
+            int selectedIndex = -1;
             for (int i = 0; i < _adapters.Count; i++)
             {
                 comboIPs.Items.Add(_adapters[i].DisplayName);
-                if (_adapters[i].IsRecommended && recommendedIndex == 0)
+                if (previousIp != null && _adapters[i].IpAddress == previousIp)
                 {
-                    recommendedIndex = i;
+                    selectedIndex = i;
+                }
+                else if (selectedIndex == -1 && _adapters[i].IsRecommended)
+                {
+                    selectedIndex = i;
                 }
             }
 
             if (comboIPs.Items.Count > 0)
             {
-                comboIPs.SelectedIndex = recommendedIndex;
+                comboIPs.SelectedIndex = selectedIndex >= 0 ? selectedIndex : 0;
                 UpdateUrlPreview();
             }
         }
 
+        private void btnRefreshIPs_Click(object? sender, EventArgs e)
+        {
+            PopulateNetworkAdapters();
+            Log("Refreshed network adapters.");
+        }
+
         private void PopulateCaptureSources()
         {
+            var previousSelection = comboScreens.SelectedIndex >= 0 && comboScreens.SelectedIndex < _captureSources.Count
+                ? _captureSources[comboScreens.SelectedIndex].DisplayName
+                : null;
+
             comboScreens.Items.Clear();
             _captureSources.Clear();
 
@@ -155,10 +204,36 @@ namespace ScreenTask
             }
             catch { }
 
+            int newIndex = 0;
+            if (previousSelection != null)
+            {
+                int found = _captureSources.FindIndex(s => s.DisplayName == previousSelection);
+                if (found >= 0) newIndex = found;
+            }
+
             if (comboScreens.Items.Count > 0)
             {
-                comboScreens.SelectedIndex = 0;
+                comboScreens.SelectedIndex = newIndex;
             }
+        }
+
+        private void comboScreens_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (comboScreens.SelectedIndex >= 0 && comboScreens.SelectedIndex < _captureSources.Count)
+            {
+                var source = _captureSources[comboScreens.SelectedIndex];
+                _captureEngine.SetSource(source);
+                if (_webServer.IsRunning)
+                {
+                    Log($"Switched capture source to: {source.DisplayName}");
+                }
+            }
+        }
+
+        private void btnRefreshScreens_Click(object? sender, EventArgs e)
+        {
+            PopulateCaptureSources();
+            Log("Refreshed capture sources and open application windows.");
         }
 
         private void UpdateUrlPreview()
@@ -235,6 +310,11 @@ namespace ScreenTask
                 _captureEngine.Start();
                 _statsTimer.Start();
 
+                // Lock IP and Port controls while broadcasting
+                comboIPs.Enabled = false;
+                btnRefreshIPs.Enabled = false;
+                numPort.Enabled = false;
+
                 var streamUrl = _webServer.ServerUrl;
                 txtURL.Text = streamUrl;
 
@@ -261,6 +341,12 @@ namespace ScreenTask
             finally
             {
                 btnStartServer.Enabled = true;
+                if (!_webServer.IsRunning)
+                {
+                    comboIPs.Enabled = true;
+                    btnRefreshIPs.Enabled = true;
+                    numPort.Enabled = true;
+                }
             }
         }
 
@@ -274,6 +360,11 @@ namespace ScreenTask
                 _statsTimer.Stop();
                 await _captureEngine.StopAsync();
                 await _webServer.StopAsync();
+
+                // Re-enable IP and Port controls
+                comboIPs.Enabled = true;
+                btnRefreshIPs.Enabled = true;
+                numPort.Enabled = true;
 
                 btnStartServer.Text = "▶  START BROADCAST";
                 btnStartServer.BackColor = Color.FromArgb(99, 102, 241); // Indigo
@@ -381,6 +472,10 @@ namespace ScreenTask
         {
             _captureEngine.CaptureMouse = cbCaptureMouse.Checked;
             _currentSettings.IsShowMouseEnabled = cbCaptureMouse.Checked;
+            if (_webServer.IsRunning)
+            {
+                Log(cbCaptureMouse.Checked ? "Cursor capture: Visible" : "Cursor capture: Hidden");
+            }
         }
 
         private void cbAudio_CheckedChanged(object? sender, EventArgs e)
@@ -388,6 +483,7 @@ namespace ScreenTask
             _captureEngine.SetAudioEnabled(cbAudio.Checked);
             _currentSettings.IsAudioEnabled = cbAudio.Checked;
             comboAudioDevices.Enabled = cbAudio.Checked;
+            btnRefreshAudio.Enabled = cbAudio.Checked;
             pbAudioMeter.Enabled = cbAudio.Checked;
             btnTestAudio.Enabled = cbAudio.Checked;
             btnAudioDiag.Enabled = cbAudio.Checked;
@@ -409,9 +505,9 @@ namespace ScreenTask
             {
                 var selected = _audioDevices[comboAudioDevices.SelectedIndex];
                 _captureEngine.SetAudioDevice(selected);
-                if (_captureEngine.IsRunning && _captureEngine.AudioEnabled)
+                if (_webServer.IsRunning && _captureEngine.AudioEnabled)
                 {
-                    Log($"Audio device: {selected.Name}");
+                    Log($"Audio device switched to: {selected.Name}");
                 }
             }
         }
@@ -448,20 +544,39 @@ namespace ScreenTask
 
         private void PopulateAudioDevices()
         {
+            var previousDevId = comboAudioDevices.SelectedIndex >= 0 && comboAudioDevices.SelectedIndex < _audioDevices.Count
+                ? _audioDevices[comboAudioDevices.SelectedIndex].Id
+                : null;
+
             comboAudioDevices.Items.Clear();
             _audioDevices = ScreenTask.Core.Audio.WasapiAudioCaptureService.GetAudioDevices();
-            foreach (var dev in _audioDevices)
+
+            int selectedIndex = 0;
+            for (int i = 0; i < _audioDevices.Count; i++)
             {
-                comboAudioDevices.Items.Add(dev.Name);
+                comboAudioDevices.Items.Add(_audioDevices[i].Name);
+                if (previousDevId != null && _audioDevices[i].Id == previousDevId)
+                {
+                    selectedIndex = i;
+                }
             }
+
             if (comboAudioDevices.Items.Count > 0)
             {
-                comboAudioDevices.SelectedIndex = 0;
+                comboAudioDevices.SelectedIndex = selectedIndex;
             }
+
             comboAudioDevices.Enabled = cbAudio.Checked;
+            btnRefreshAudio.Enabled = cbAudio.Checked;
             pbAudioMeter.Enabled = cbAudio.Checked;
             btnTestAudio.Enabled = cbAudio.Checked;
             btnAudioDiag.Enabled = cbAudio.Checked;
+        }
+
+        private void btnRefreshAudio_Click(object? sender, EventArgs e)
+        {
+            PopulateAudioDevices();
+            Log("Refreshed audio input and output devices.");
         }
 
         private void qualitySlider_Scroll(object? sender, EventArgs e)
@@ -469,6 +584,10 @@ namespace ScreenTask
             _broadcaster.SetQuality(qualitySlider.Value);
             _currentSettings.ImageQuality = qualitySlider.Value;
             lblQuality.Text = $"Quality: {qualitySlider.Value}%";
+            if (_webServer.IsRunning)
+            {
+                Log($"Stream quality set to: {qualitySlider.Value}%");
+            }
         }
 
         private void comboFps_SelectedIndexChanged(object? sender, EventArgs e)
@@ -482,6 +601,10 @@ namespace ScreenTask
                 _ => 30
             };
             _currentSettings.TargetFps = _captureEngine.TargetFps;
+            if (_webServer.IsRunning)
+            {
+                Log($"Framerate adjusted to: {_captureEngine.TargetFps} FPS");
+            }
         }
 
         private void Log(string text)
@@ -571,6 +694,7 @@ namespace ScreenTask
                     cbCaptureMouse.Checked = _currentSettings.IsShowMouseEnabled;
                     cbAudio.Checked = _currentSettings.IsAudioEnabled;
                     comboAudioDevices.Enabled = cbAudio.Checked;
+                    btnRefreshAudio.Enabled = cbAudio.Checked;
                     pbAudioMeter.Enabled = cbAudio.Checked;
                     btnTestAudio.Enabled = cbAudio.Checked;
                     btnAudioDiag.Enabled = cbAudio.Checked;
@@ -643,6 +767,8 @@ namespace ScreenTask
         private void frmMain_FormClosing(object? sender, FormClosingEventArgs e)
         {
             SaveSettings();
+            _deviceChangeTimer.Stop();
+            _deviceChangeTimer.Dispose();
             _statsTimer.Stop();
             _ = _webServer.StopAsync();
             _ = _captureEngine.StopAsync();
