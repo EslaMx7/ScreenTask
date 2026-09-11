@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Net;
 using System.Net.Http;
@@ -83,6 +84,33 @@ namespace ScreenTask.Tests.Integration
             var js = await res.Content.ReadAsStringAsync();
             Assert.Contains("screenCanvas", js);
             Assert.Contains("simulated-fullscreen", js);
+
+            // Verify JavaScript has valid syntax via node if installed
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "node",
+                    Arguments = "-c -",
+                    RedirectStandardInput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using var proc = Process.Start(psi);
+                if (proc != null)
+                {
+                    await proc.StandardInput.WriteAsync(js);
+                    proc.StandardInput.Close();
+                    var err = await proc.StandardError.ReadToEndAsync();
+                    await proc.WaitForExitAsync();
+                    Assert.True(proc.ExitCode == 0, $"viewer.js has syntax error: {err}");
+                }
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // Node.js not installed on test runner; skip node syntax check
+            }
         }
 
         [Fact]

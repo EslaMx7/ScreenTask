@@ -757,6 +757,12 @@
           return false;
         }
       }
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+
   // Toast notifications helper
   function showToast(message) {
     let container = document.getElementById('toastContainer');
