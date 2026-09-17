@@ -45,24 +45,29 @@ namespace ScreenTask.UI
             StartMonitoringSelectedDevice();
         }
 
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+        }
+
         private void InitializeCustomComponents()
         {
-            Text = "ScreenTask – Audio Setup & Diagnostics";
+            Text = "ScreenTask 2.0 – Audio Setup & Testing";
             Size = new Size(460, 540);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            BackColor = Color.FromArgb(15, 23, 42); // Slate 900
-            ForeColor = Color.White;
+            BackColor = SystemColors.Control;
+            ForeColor = SystemColors.ControlText;
             Font = new Font("Segoe UI", 9f, FontStyle.Regular);
 
             // Title
             var lblTitle = new Label
             {
-                Text = "🎙 Audio Diagnostics (Zoom Style)",
+                Text = "🎙 Audio Setup & Testing",
                 Font = new Font("Segoe UI", 12f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(129, 140, 248), // Indigo
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(20, 16),
                 Size = new Size(400, 26)
             };
@@ -70,9 +75,9 @@ namespace ScreenTask.UI
 
             var lblDesc = new Label
             {
-                Text = "Test your microphone and speakers to ensure viewers hear you crystal clear.",
+                Text = "Select and test your microphone or speakers to ensure your stream has clear audio.",
                 Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.FromArgb(148, 163, 184), // Slate 400
+                ForeColor = SystemColors.GrayText,
                 Location = new Point(22, 44),
                 Size = new Size(400, 22)
             };
@@ -81,9 +86,9 @@ namespace ScreenTask.UI
             // Device Picker Group
             var gbDevice = new GroupBox
             {
-                Text = "Active Audio Source",
+                Text = "Audio Device Selection",
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(129, 140, 248),
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(20, 72),
                 Size = new Size(405, 80)
             };
@@ -92,7 +97,7 @@ namespace ScreenTask.UI
             {
                 Text = "Device:",
                 Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.White,
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(12, 28),
                 Size = new Size(50, 20)
             };
@@ -116,18 +121,18 @@ namespace ScreenTask.UI
             // Live Input Meter Group
             var gbMic = new GroupBox
             {
-                Text = "Microphone & Sound Level",
+                Text = "Microphone & Audio Level",
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(129, 140, 248),
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(20, 162),
                 Size = new Size(405, 120)
             };
 
             var lblMeter = new Label
             {
-                Text = "Input Level:",
+                Text = "Volume:",
                 Font = new Font("Segoe UI", 8.5f),
-                ForeColor = Color.White,
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(12, 28),
                 Size = new Size(75, 20)
             };
@@ -145,9 +150,9 @@ namespace ScreenTask.UI
 
             lblLevelText = new Label
             {
-                Text = "Speak into your mic: 0%",
+                Text = "Speak into your microphone: 0%",
                 Font = new Font("Segoe UI", 8f),
-                ForeColor = Color.FromArgb(148, 163, 184),
+                ForeColor = SystemColors.GrayText,
                 Location = new Point(90, 48),
                 Size = new Size(300, 18)
             };
@@ -155,29 +160,23 @@ namespace ScreenTask.UI
 
             btnTestMic = new Button
             {
-                Text = "🎤 Test Mic (3s Loopback)",
+                Text = "🎤 Test Mic (3s Playback)",
                 Location = new Point(90, 72),
                 Size = new Size(180, 32),
-                BackColor = Color.FromArgb(30, 41, 59),
-                ForeColor = Color.FromArgb(129, 140, 248),
-                FlatStyle = FlatStyle.Flat,
+                UseVisualStyleBackColor = true,
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold)
             };
-            btnTestMic.FlatAppearance.BorderColor = Color.FromArgb(71, 85, 105);
             btnTestMic.Click += btnTestMic_Click;
             gbMic.Controls.Add(btnTestMic);
 
             btnTestSpeaker = new Button
             {
-                Text = "🔊 Test Sound",
+                Text = "🔊 Test Speakers",
                 Location = new Point(280, 72),
                 Size = new Size(110, 32),
-                BackColor = Color.FromArgb(30, 41, 59),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
+                UseVisualStyleBackColor = true,
                 Font = new Font("Segoe UI", 8.5f)
             };
-            btnTestSpeaker.FlatAppearance.BorderColor = Color.FromArgb(71, 85, 105);
             btnTestSpeaker.Click += btnTestSpeaker_Click;
             gbMic.Controls.Add(btnTestSpeaker);
 
@@ -186,18 +185,18 @@ namespace ScreenTask.UI
             // Diagnostic Box
             var gbDiag = new GroupBox
             {
-                Text = "Format & Stream Diagnostics",
+                Text = "Audio Device Information",
                 Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
-                ForeColor = Color.FromArgb(129, 140, 248),
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(20, 292),
                 Size = new Size(405, 130)
             };
 
             lblDiagnostics = new Label
             {
-                Text = "Detecting audio device parameters...",
+                Text = "Checking audio device details...",
                 Font = new Font("Consolas", 8.5f),
-                ForeColor = Color.FromArgb(226, 232, 240),
+                ForeColor = SystemColors.ControlText,
                 Location = new Point(15, 25),
                 Size = new Size(375, 95)
             };
@@ -207,16 +206,13 @@ namespace ScreenTask.UI
             // Bottom Buttons
             btnApply = new Button
             {
-                Text = "Select This Device",
+                Text = "Use Selected Device",
                 DialogResult = DialogResult.OK,
                 Location = new Point(175, 440),
                 Size = new Size(150, 38),
-                BackColor = Color.FromArgb(79, 70, 229), // Indigo
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
+                UseVisualStyleBackColor = true,
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold)
             };
-            btnApply.FlatAppearance.BorderSize = 0;
             btnApply.Click += (s, e) =>
             {
                 _isApplying = true;
@@ -241,12 +237,9 @@ namespace ScreenTask.UI
                 DialogResult = DialogResult.Cancel,
                 Location = new Point(335, 440),
                 Size = new Size(90, 38),
-                BackColor = Color.FromArgb(30, 41, 59),
-                ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat,
+                UseVisualStyleBackColor = true,
                 Font = new Font("Segoe UI", 9f)
             };
-            btnClose.FlatAppearance.BorderColor = Color.FromArgb(71, 85, 105);
             btnClose.Click += (s, e) => Close();
             Controls.Add(btnClose);
 
@@ -256,8 +249,7 @@ namespace ScreenTask.UI
             {
                 int val = Math.Clamp((int)(_audioService.CurrentPeakLevel * 100), 0, 100);
                 pbInputLevel.Value = val;
-                lblLevelText.Text = $"Audio Input Level: {val}% {(val > 5 ? "● ACTIVE VOICE DETECTED" : "(silent)")}";
-                lblLevelText.ForeColor = val > 5 ? Color.FromArgb(34, 197, 94) : Color.FromArgb(148, 163, 184);
+                lblLevelText.Text = $"Audio Input Level: {val}% {(val > 5 ? "● Voice Detected" : "(silent)")}";
             };
             _meterTimer.Start();
 
@@ -331,15 +323,15 @@ namespace ScreenTask.UI
             if (fmt != null)
             {
                 lblDiagnostics.Text =
-                    $"Device Type: {(desc.IsInput ? "Microphone (Input Voice)" : "Speakers / Loopback (Output Sound)")}\n" +
+                    $"Device Type: {(desc.IsInput ? "Microphone (Voice Input)" : "Speakers (Computer Sound)")}\n" +
                     $"Sample Rate: {fmt.SampleRate:N0} Hz\n" +
                     $"Channels:    {fmt.Channels} ({(fmt.Channels == 1 ? "Mono" : "Stereo")})\n" +
-                    $"Bit Depth:   {fmt.BitsPerSample}-bit ({(fmt.Encoding == WaveFormatEncoding.IeeeFloat ? "IEEE Float" : "PCM Integer")})\n" +
-                    $"Status:      Active & Ready for Web Streaming";
+                    $"Quality:     {fmt.BitsPerSample}-bit High Definition\n" +
+                    $"Status:      Ready for Streaming";
             }
             else
             {
-                lblDiagnostics.Text = $"Device: {desc.Name}\nStatus: Active";
+                lblDiagnostics.Text = $"Device: {desc.Name}\nStatus: Ready";
             }
         }
 
@@ -348,7 +340,6 @@ namespace ScreenTask.UI
             if (_isRecordingMicTest) return;
 
             btnTestMic.Enabled = false;
-            btnTestMic.BackColor = Color.FromArgb(239, 68, 68); // Red
             btnTestMic.Text = "🎙 Speak Now (3s)...";
             _isRecordingMicTest = true;
 
@@ -361,13 +352,10 @@ namespace ScreenTask.UI
             }
 
             _isRecordingMicTest = false;
-            btnTestMic.BackColor = Color.FromArgb(34, 197, 94); // Green
             btnTestMic.Text = "▶ Playing Back...";
 
             await Task.Delay(3500);
 
-            btnTestMic.BackColor = Color.FromArgb(30, 41, 59);
-            btnTestMic.ForeColor = Color.FromArgb(129, 140, 248);
             btnTestMic.Text = "🎤 Test Mic Again";
             btnTestMic.Enabled = true;
         }

@@ -25,6 +25,8 @@ namespace ScreenTask.Core.Capture
 
         public StreamBroadcaster Broadcaster => _broadcaster;
         public WasapiAudioCaptureService AudioService => _audioService;
+        public event Action<Bitmap>? PreviewFrameAvailable;
+        private long _lastPreviewTicks;
 
         public ScreenCaptureEngine(StreamBroadcaster broadcaster)
         {
@@ -143,6 +145,13 @@ namespace ScreenTask.Core.Capture
                     using var frame = CurrentSource.CaptureFrame(CaptureMouse);
                     if (frame != null)
                     {
+                        long now = Stopwatch.GetTimestamp();
+                        if (PreviewFrameAvailable != null && Stopwatch.GetElapsedTime(_lastPreviewTicks, now).TotalMilliseconds >= 160)
+                        {
+                            _lastPreviewTicks = now;
+                            try { PreviewFrameAvailable(frame); } catch { }
+                        }
+
                         await _broadcaster.BroadcastBitmapAsync(frame);
                     }
                 }

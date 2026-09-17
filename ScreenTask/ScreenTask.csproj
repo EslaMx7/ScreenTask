@@ -17,7 +17,7 @@
     <Copyright>Copyright © 2014-2026 Eslam Hamouda</Copyright>
     <LangVersion>13.0</LangVersion>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <NoWarn>CA1416</NoWarn>
+    <NoWarn>$(NoWarn);CA1416;WFO1000</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

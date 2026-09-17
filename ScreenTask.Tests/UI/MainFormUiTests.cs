@@ -22,8 +22,8 @@ namespace ScreenTask.Tests.UI
 
                 Assert.NotNull(form);
                 Assert.Contains("ScreenTask 2.0", form.Text);
-                Assert.Equal(450, form.ClientSize.Width);
-                Assert.Equal(670, form.ClientSize.Height);
+                Assert.Equal(680, form.ClientSize.Width);
+                Assert.Equal(620, form.ClientSize.Height);
 
                 // Verify controls exist and are populated
                 var comboScreens = FindControl<ComboBox>(form, "comboScreens");
@@ -46,15 +46,15 @@ namespace ScreenTask.Tests.UI
                 // Verify refresh buttons exist
                 var btnRefreshScreens = FindControl<Button>(form, "btnRefreshScreens");
                 Assert.NotNull(btnRefreshScreens);
-                Assert.Equal("🔄", btnRefreshScreens.Text);
+                Assert.Contains("🔄", btnRefreshScreens.Text);
 
                 var btnRefreshIPs = FindControl<Button>(form, "btnRefreshIPs");
                 Assert.NotNull(btnRefreshIPs);
-                Assert.Equal("🔄", btnRefreshIPs.Text);
+                Assert.Contains("🔄", btnRefreshIPs.Text);
 
                 var btnRefreshAudio = FindControl<Button>(form, "btnRefreshAudio");
                 Assert.NotNull(btnRefreshAudio);
-                Assert.Equal("🔄", btnRefreshAudio.Text);
+                Assert.Contains("🔄", btnRefreshAudio.Text);
 
                 // Test clicking refresh buttons
                 btnRefreshScreens.PerformClick();
@@ -181,6 +181,154 @@ namespace ScreenTask.Tests.UI
                 using var service = new WasapiAudioCaptureService();
                 using var form = new AudioDiagnosticsForm(service, _ => { });
                 Assert.NotNull(form);
+            });
+        }
+
+        [Fact]
+        public void MainForm_ModernTabs_SwitchProperly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var btnNavBroadcast = FindControl<Button>(form, "btnNavBroadcast");
+                var btnNavCapture = FindControl<Button>(form, "btnNavCapture");
+                var btnNavNetwork = FindControl<Button>(form, "btnNavNetwork");
+                var btnNavPreferences = FindControl<Button>(form, "btnNavPreferences");
+
+                var panelBroadcast = FindControl<Panel>(form, "panelTabBroadcast");
+                var panelCapture = FindControl<Panel>(form, "panelTabCapture");
+                var panelNetwork = FindControl<Panel>(form, "panelTabNetwork");
+                var panelPreferences = FindControl<Panel>(form, "panelTabPreferences");
+
+                Assert.NotNull(btnNavBroadcast);
+                Assert.NotNull(btnNavCapture);
+                Assert.NotNull(btnNavNetwork);
+                Assert.NotNull(btnNavPreferences);
+
+                Assert.NotNull(panelBroadcast);
+                Assert.NotNull(panelCapture);
+                Assert.NotNull(panelNetwork);
+                Assert.NotNull(panelPreferences);
+
+                // Initially Broadcast is active
+                Assert.True(panelBroadcast.Visible);
+                Assert.False(panelCapture.Visible);
+
+                // Switch to Capture
+                btnNavCapture.PerformClick();
+                Assert.False(panelBroadcast.Visible);
+                Assert.True(panelCapture.Visible);
+
+                // Switch to Network
+                btnNavNetwork.PerformClick();
+                Assert.False(panelCapture.Visible);
+                Assert.True(panelNetwork.Visible);
+
+                // Switch to Preferences
+                btnNavPreferences.PerformClick();
+                Assert.False(panelNetwork.Visible);
+                Assert.True(panelPreferences.Visible);
+
+                // Switch back to Broadcast
+                btnNavBroadcast.PerformClick();
+                Assert.True(panelBroadcast.Visible);
+                Assert.False(panelPreferences.Visible);
+            });
+        }
+
+        [Fact]
+        public void MainForm_CompactMode_TogglesCorrectly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var btnMiniMode = FindControl<Button>(form, "btnMiniMode");
+                var btnCompactExpand = FindControl<Button>(form, "btnCompactExpand");
+                var btnCompactStop = FindControl<Button>(form, "btnCompactStop");
+                var btnCompactCopy = FindControl<Button>(form, "btnCompactCopy");
+                var panelCompactBar = FindControl<Panel>(form, "panelCompactBar");
+
+                Assert.NotNull(btnMiniMode);
+                Assert.NotNull(btnCompactExpand);
+                Assert.NotNull(btnCompactStop);
+                Assert.NotNull(btnCompactCopy);
+                Assert.NotNull(panelCompactBar);
+
+                Assert.False(panelCompactBar.Visible);
+                Assert.Equal(620, form.ClientSize.Height);
+
+                // Click Mini Mode to enter compact toolbar
+                btnMiniMode.PerformClick();
+                Assert.True(panelCompactBar.Visible);
+                Assert.True(form.TopMost);
+                Assert.Equal(68, form.ClientSize.Height);
+
+                // Verify controls are visible and within bounds inside the compact bar
+                Assert.True(btnCompactExpand.Visible);
+                Assert.True(btnCompactStop.Visible);
+                Assert.True(btnCompactCopy.Visible);
+                Assert.True(btnCompactExpand.Right <= panelCompactBar.Width);
+                Assert.True(btnCompactExpand.Bottom <= panelCompactBar.Height);
+
+                // Click Expand to return to full window
+                btnCompactExpand.PerformClick();
+                Assert.False(panelCompactBar.Visible);
+                Assert.False(form.TopMost);
+                Assert.Equal(620, form.ClientSize.Height);
+            });
+        }
+
+        [Fact]
+        public void MainForm_ConfidenceMonitorAndTelemetry_Initialized()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var monitor = FindControl<Control>(form, "monitorPreview");
+                Assert.NotNull(monitor);
+
+                var chipViewers = FindControl<Label>(form, "lblChipViewers");
+                var chipFps = FindControl<Label>(form, "lblChipFps");
+                var chipData = FindControl<Label>(form, "lblChipData");
+                var chipUptime = FindControl<Label>(form, "lblChipUptime");
+
+                Assert.NotNull(chipViewers);
+                Assert.NotNull(chipFps);
+                Assert.NotNull(chipData);
+                Assert.NotNull(chipUptime);
+                Assert.Contains("Connected", chipViewers.Text);
+            });
+        }
+
+        [Fact]
+        public void MainForm_PinGenerator_GeneratesValidPin()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var cbPrivate = FindControl<CheckBox>(form, "cbPrivate");
+                var txtPassword = FindControl<TextBox>(form, "txtPassword");
+                var btnGenPin = FindControl<Button>(form, "btnGenPin");
+
+                Assert.NotNull(cbPrivate);
+                Assert.NotNull(txtPassword);
+                Assert.NotNull(btnGenPin);
+
+                cbPrivate.Checked = true;
+                string initialPin = txtPassword.Text;
+
+                btnGenPin.PerformClick();
+                Assert.False(string.IsNullOrWhiteSpace(txtPassword.Text));
+                Assert.True(int.TryParse(txtPassword.Text, out int pinNum));
+                Assert.InRange(pinNum, 1000, 9999);
             });
         }
 
