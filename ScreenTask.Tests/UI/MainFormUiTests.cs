@@ -208,35 +208,42 @@ namespace ScreenTask.Tests.UI
 
                 var sideNav = FindControl<FluentSideNav>(form, "sideNav");
                 var panelBroadcast = FindControl<Panel>(form, "panelTabBroadcast");
+                var panelClients = FindControl<Panel>(form, "panelTabClients");
                 var panelCapture = FindControl<Panel>(form, "panelTabCapture");
                 var panelNetwork = FindControl<Panel>(form, "panelTabNetwork");
                 var panelPreferences = FindControl<Panel>(form, "panelTabPreferences");
 
                 Assert.NotNull(sideNav);
                 Assert.NotNull(panelBroadcast);
+                Assert.NotNull(panelClients);
                 Assert.NotNull(panelCapture);
                 Assert.NotNull(panelNetwork);
                 Assert.NotNull(panelPreferences);
 
-                // Verify items are populated
-                Assert.Equal(4, sideNav.Items.Count);
+                // Verify items are populated (5 tabs)
+                Assert.Equal(5, sideNav.Items.Count);
 
                 // Initially Broadcast is active
                 Assert.True(panelBroadcast.Visible);
-                Assert.False(panelCapture.Visible);
+                Assert.False(panelClients.Visible);
 
-                // Switch to Capture
+                // Switch to Connected Viewers & QR
                 sideNav.SelectedIndex = 1;
                 Assert.False(panelBroadcast.Visible);
+                Assert.True(panelClients.Visible);
+
+                // Switch to Capture
+                sideNav.SelectedIndex = 2;
+                Assert.False(panelClients.Visible);
                 Assert.True(panelCapture.Visible);
 
                 // Switch to Network
-                sideNav.SelectedIndex = 2;
+                sideNav.SelectedIndex = 3;
                 Assert.False(panelCapture.Visible);
                 Assert.True(panelNetwork.Visible);
 
                 // Switch to Preferences
-                sideNav.SelectedIndex = 3;
+                sideNav.SelectedIndex = 4;
                 Assert.False(panelNetwork.Visible);
                 Assert.True(panelPreferences.Visible);
 
@@ -244,6 +251,97 @@ namespace ScreenTask.Tests.UI
                 sideNav.SelectedIndex = 0;
                 Assert.True(panelBroadcast.Visible);
                 Assert.False(panelPreferences.Visible);
+            });
+        }
+
+        [Fact]
+        public void MainForm_ConnectedViewersAndPairingTab_InitializesAndInteractsProperly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var sideNav = FindControl<FluentSideNav>(form, "sideNav");
+                Assert.NotNull(sideNav);
+
+                // Switch to Connected Viewers & QR tab
+                sideNav.SelectedIndex = 1;
+
+                var panelClients = FindControl<Panel>(form, "panelTabClients");
+                Assert.NotNull(panelClients);
+                Assert.True(panelClients.Visible);
+
+                // 1. Top Metric Gauges
+                var cardMetricViewers = FindControl<Control>(form, "cardMetricViewers");
+                var cardMetricLatency = FindControl<Control>(form, "cardMetricLatency");
+                var cardMetricSync = FindControl<Control>(form, "cardMetricSync");
+                var pbViewerCapacity = FindControl<ProgressBar>(form, "pbViewerCapacity");
+                var lblMetricViewersVal = FindControl<Label>(form, "lblMetricViewersVal");
+
+                Assert.NotNull(cardMetricViewers);
+                Assert.NotNull(cardMetricLatency);
+                Assert.NotNull(cardMetricSync);
+                Assert.NotNull(pbViewerCapacity);
+                Assert.NotNull(lblMetricViewersVal);
+                Assert.Contains("4", lblMetricViewersVal.Text);
+                Assert.Equal(4, pbViewerCapacity.Value);
+                Assert.Equal(32, pbViewerCapacity.Maximum);
+
+                // 2. Announcement Dispatcher
+                var txtAnnouncement = FindControl<TextBox>(form, "txtAnnouncement");
+                var btnSendAnnouncement = FindControl<Button>(form, "btnSendAnnouncement");
+                var lblAnnouncementStatus = FindControl<Label>(form, "lblAnnouncementStatus");
+
+                Assert.NotNull(txtAnnouncement);
+                Assert.NotNull(btnSendAnnouncement);
+                Assert.NotNull(lblAnnouncementStatus);
+
+                txtAnnouncement.Text = "Attention viewers: Stream quality optimized!";
+                btnSendAnnouncement.PerformClick();
+                Assert.Contains("Dispatched", lblAnnouncementStatus.Text);
+                Assert.Equal(string.Empty, txtAnnouncement.Text);
+
+                // 3. Pairing Pass & QR Code
+                var picPairingQr = FindControl<PictureBox>(form, "picPairingQr");
+                var txtPairingUrl = FindControl<TextBox>(form, "txtPairingUrl");
+                var btnPairingCopy = FindControl<Button>(form, "btnPairingCopy");
+                var btnPairingRegen = FindControl<Button>(form, "btnPairingRegen");
+                var lblPairingPin = FindControl<Label>(form, "lblPairingPin");
+
+                Assert.NotNull(picPairingQr);
+                Assert.NotNull(picPairingQr.Image);
+                Assert.NotNull(txtPairingUrl);
+                Assert.NotNull(btnPairingCopy);
+                Assert.NotNull(btnPairingRegen);
+                Assert.NotNull(lblPairingPin);
+                Assert.StartsWith("http", txtPairingUrl.Text);
+
+                // Regenerate PIN test
+                btnPairingRegen.PerformClick();
+                Assert.Contains("PIN", lblPairingPin.Text);
+
+                // 4. Client Session Cards Mute & Kick Controls
+                var btnMuteClient1 = FindControl<Button>(form, "btnMuteClient1");
+                var btnKickClient1 = FindControl<Button>(form, "btnKickClient1");
+                var panelClientItem1 = FindControl<Panel>(form, "panelClientItem1");
+
+                Assert.NotNull(btnMuteClient1);
+                Assert.NotNull(btnKickClient1);
+                Assert.NotNull(panelClientItem1);
+
+                // Test Mute toggle
+                Assert.Contains("Mute", btnMuteClient1.Text);
+                btnMuteClient1.PerformClick();
+                Assert.Contains("Unmute", btnMuteClient1.Text);
+                btnMuteClient1.PerformClick();
+                Assert.Contains("Mute", btnMuteClient1.Text);
+
+                // Test Kick client
+                btnKickClient1.PerformClick();
+                Assert.False(panelClientItem1.Visible);
+                Assert.Contains("3", lblMetricViewersVal.Text);
+                Assert.Equal(3, pbViewerCapacity.Value);
             });
         }
 

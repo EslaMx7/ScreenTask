@@ -35,10 +35,88 @@ namespace ScreenTask
 
             // Tab Panels
             this.panelTabBroadcast = new System.Windows.Forms.Panel();
+            this.panelTabClients = new System.Windows.Forms.Panel();
             this.panelTabCapture = new System.Windows.Forms.Panel();
             this.panelTabNetwork = new System.Windows.Forms.Panel();
             this.panelTabPreferences = new System.Windows.Forms.Panel();
             this.panelCompactBar = new System.Windows.Forms.Panel();
+
+            // TAB 2: Connected Viewers & QR Code Pairing
+            this.cardMetricViewers = new ScreenTask.UI.Controls.FluentCard();
+            this.lblIconMetricViewers = new System.Windows.Forms.Label();
+            this.lblTitleMetricViewers = new System.Windows.Forms.Label();
+            this.lblMetricViewersVal = new System.Windows.Forms.Label();
+            this.pbViewerCapacity = new System.Windows.Forms.ProgressBar();
+
+            this.cardMetricLatency = new ScreenTask.UI.Controls.FluentCard();
+            this.lblIconMetricLatency = new System.Windows.Forms.Label();
+            this.lblTitleMetricLatency = new System.Windows.Forms.Label();
+            this.lblMetricLatencyVal = new System.Windows.Forms.Label();
+            this.lblMetricLatencySub = new System.Windows.Forms.Label();
+
+            this.cardMetricSync = new ScreenTask.UI.Controls.FluentCard();
+            this.lblIconMetricSync = new System.Windows.Forms.Label();
+            this.lblTitleMetricSync = new System.Windows.Forms.Label();
+            this.lblMetricSyncVal = new System.Windows.Forms.Label();
+            this.lblMetricSyncSub = new System.Windows.Forms.Label();
+
+            this.cardFleetTerminal = new ScreenTask.UI.Controls.FluentCard();
+            this.lblFleetHeader = new System.Windows.Forms.Label();
+            this.panelSessionList = new System.Windows.Forms.Panel();
+
+            this.panelClientItem1 = new System.Windows.Forms.Panel();
+            this.lblClient1Title = new System.Windows.Forms.Label();
+            this.lblClient1Badge = new System.Windows.Forms.Label();
+            this.lblClient1Details = new System.Windows.Forms.Label();
+            this.lblClient1Metrics = new System.Windows.Forms.Label();
+            this.btnMuteClient1 = new ScreenTask.UI.Controls.FluentButton();
+            this.btnKickClient1 = new ScreenTask.UI.Controls.FluentButton();
+
+            this.panelClientItem2 = new System.Windows.Forms.Panel();
+            this.lblClient2Title = new System.Windows.Forms.Label();
+            this.lblClient2Badge = new System.Windows.Forms.Label();
+            this.lblClient2Details = new System.Windows.Forms.Label();
+            this.lblClient2Metrics = new System.Windows.Forms.Label();
+            this.btnMuteClient2 = new ScreenTask.UI.Controls.FluentButton();
+            this.btnKickClient2 = new ScreenTask.UI.Controls.FluentButton();
+
+            this.panelClientItem3 = new System.Windows.Forms.Panel();
+            this.lblClient3Title = new System.Windows.Forms.Label();
+            this.lblClient3Badge = new System.Windows.Forms.Label();
+            this.lblClient3Details = new System.Windows.Forms.Label();
+            this.lblClient3Metrics = new System.Windows.Forms.Label();
+            this.btnMuteClient3 = new ScreenTask.UI.Controls.FluentButton();
+            this.btnKickClient3 = new ScreenTask.UI.Controls.FluentButton();
+
+            this.panelClientItem4 = new System.Windows.Forms.Panel();
+            this.lblClient4Title = new System.Windows.Forms.Label();
+            this.lblClient4Badge = new System.Windows.Forms.Label();
+            this.lblClient4Details = new System.Windows.Forms.Label();
+            this.lblClient4Metrics = new System.Windows.Forms.Label();
+            this.btnMuteClient4 = new ScreenTask.UI.Controls.FluentButton();
+            this.btnKickClient4 = new ScreenTask.UI.Controls.FluentButton();
+
+            this.lblAnnouncement = new System.Windows.Forms.Label();
+            this.txtAnnouncement = new System.Windows.Forms.TextBox();
+            this.btnSendAnnouncement = new ScreenTask.UI.Controls.FluentButton();
+            this.lblAnnouncementStatus = new System.Windows.Forms.Label();
+
+            this.cardPairingPass = new ScreenTask.UI.Controls.FluentCard();
+            this.picPairingQr = new System.Windows.Forms.PictureBox();
+            this.lblPairingUrlTitle = new System.Windows.Forms.Label();
+            this.txtPairingUrl = new System.Windows.Forms.TextBox();
+            this.btnPairingCopy = new ScreenTask.UI.Controls.FluentButton();
+            this.lblPairingPin = new System.Windows.Forms.Label();
+            this.btnPairingRegen = new ScreenTask.UI.Controls.FluentButton();
+            this.lblZeroConf = new System.Windows.Forms.Label();
+
+            this.panelSpotlight = new System.Windows.Forms.Panel();
+            this.lblSpotlightTitle = new System.Windows.Forms.Label();
+            this.lblSpotlight1 = new System.Windows.Forms.Label();
+            this.lblSpotlight2 = new System.Windows.Forms.Label();
+            this.lblSpotlight3 = new System.Windows.Forms.Label();
+            this.lblSpotlight4 = new System.Windows.Forms.Label();
+            this.lblSpotlight5 = new System.Windows.Forms.Label();
 
             // TAB 1: Broadcast Controls
             this.cardPreview = new ScreenTask.UI.Controls.FluentCard();
@@ -151,10 +229,23 @@ namespace ScreenTask
 
             this.panelSideNav.SuspendLayout();
             this.panelTabBroadcast.SuspendLayout();
+            this.panelTabClients.SuspendLayout();
             this.panelTabCapture.SuspendLayout();
             this.panelTabNetwork.SuspendLayout();
             this.panelTabPreferences.SuspendLayout();
             this.panelCompactBar.SuspendLayout();
+            this.cardMetricViewers.SuspendLayout();
+            this.cardMetricLatency.SuspendLayout();
+            this.cardMetricSync.SuspendLayout();
+            this.cardFleetTerminal.SuspendLayout();
+            this.panelSessionList.SuspendLayout();
+            this.panelClientItem1.SuspendLayout();
+            this.panelClientItem2.SuspendLayout();
+            this.panelClientItem3.SuspendLayout();
+            this.panelClientItem4.SuspendLayout();
+            this.cardPairingPass.SuspendLayout();
+            this.panelSpotlight.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.picPairingQr)).BeginInit();
             this.cardPreview.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.cardUrl.SuspendLayout();
@@ -263,12 +354,13 @@ namespace ScreenTask
             // sideNav
             // 
             this.sideNav.AddItem("Broadcast", "📡");
+            this.sideNav.AddItem("Connected Viewers & QR", "👥");
             this.sideNav.AddItem("Screen & Audio", "🎥");
             this.sideNav.AddItem("Network & PIN", "🛡️");
             this.sideNav.AddItem("Settings & Logs", "⚙️");
             this.sideNav.Location = new System.Drawing.Point(8, 64);
             this.sideNav.Name = "sideNav";
-            this.sideNav.Size = new System.Drawing.Size(156, 172);
+            this.sideNav.Size = new System.Drawing.Size(156, 218);
             this.sideNav.TabIndex = 0;
 
             // 
@@ -688,6 +780,598 @@ namespace ScreenTask
             this.lblChipUptime.Name = "lblChipUptime";
             this.lblChipUptime.Size = new System.Drawing.Size(135, 24);
             this.lblChipUptime.Text = "00:00:00";
+
+            // 
+            // panelTabClients (TAB 2: Connected Viewers & QR Code Pairing)
+            // 
+            this.panelTabClients.Controls.Add(this.cardMetricViewers);
+            this.panelTabClients.Controls.Add(this.cardMetricLatency);
+            this.panelTabClients.Controls.Add(this.cardMetricSync);
+            this.panelTabClients.Controls.Add(this.cardFleetTerminal);
+            this.panelTabClients.Controls.Add(this.cardPairingPass);
+            this.panelTabClients.Location = new System.Drawing.Point(196, 44);
+            this.panelTabClients.Name = "panelTabClients";
+            this.panelTabClients.Size = new System.Drawing.Size(652, 540);
+            this.panelTabClients.Visible = false;
+
+            // 
+            // cardMetricViewers
+            // 
+            this.cardMetricViewers.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricViewers.Controls.Add(this.lblIconMetricViewers);
+            this.cardMetricViewers.Controls.Add(this.lblTitleMetricViewers);
+            this.cardMetricViewers.Controls.Add(this.lblMetricViewersVal);
+            this.cardMetricViewers.Controls.Add(this.pbViewerCapacity);
+            this.cardMetricViewers.Location = new System.Drawing.Point(0, 0);
+            this.cardMetricViewers.Name = "cardMetricViewers";
+            this.cardMetricViewers.Size = new System.Drawing.Size(212, 72);
+            this.cardMetricViewers.Title = "LAN Viewers";
+
+            // lblIconMetricViewers
+            this.lblIconMetricViewers.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblIconMetricViewers.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblIconMetricViewers.Location = new System.Drawing.Point(8, 8);
+            this.lblIconMetricViewers.Name = "lblIconMetricViewers";
+            this.lblIconMetricViewers.Size = new System.Drawing.Size(24, 22);
+            this.lblIconMetricViewers.Text = "👥";
+
+            // lblTitleMetricViewers
+            this.lblTitleMetricViewers.AutoSize = true;
+            this.lblTitleMetricViewers.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblTitleMetricViewers.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblTitleMetricViewers.Location = new System.Drawing.Point(34, 10);
+            this.lblTitleMetricViewers.Name = "lblTitleMetricViewers";
+            this.lblTitleMetricViewers.Size = new System.Drawing.Size(120, 12);
+            this.lblTitleMetricViewers.Text = "LAN Viewers Concurrency";
+
+            // lblMetricViewersVal
+            this.lblMetricViewersVal.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lblMetricViewersVal.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblMetricViewersVal.Location = new System.Drawing.Point(8, 30);
+            this.lblMetricViewersVal.Name = "lblMetricViewersVal";
+            this.lblMetricViewersVal.Size = new System.Drawing.Size(195, 20);
+            this.lblMetricViewersVal.Text = "4 / 32 Active";
+
+            // pbViewerCapacity
+            this.pbViewerCapacity.Location = new System.Drawing.Point(8, 54);
+            this.pbViewerCapacity.Maximum = 32;
+            this.pbViewerCapacity.Minimum = 0;
+            this.pbViewerCapacity.Name = "pbViewerCapacity";
+            this.pbViewerCapacity.Size = new System.Drawing.Size(195, 8);
+            this.pbViewerCapacity.Value = 4;
+
+            // 
+            // cardMetricLatency
+            // 
+            this.cardMetricLatency.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricLatency.Controls.Add(this.lblIconMetricLatency);
+            this.cardMetricLatency.Controls.Add(this.lblTitleMetricLatency);
+            this.cardMetricLatency.Controls.Add(this.lblMetricLatencyVal);
+            this.cardMetricLatency.Controls.Add(this.lblMetricLatencySub);
+            this.cardMetricLatency.Location = new System.Drawing.Point(220, 0);
+            this.cardMetricLatency.Name = "cardMetricLatency";
+            this.cardMetricLatency.Size = new System.Drawing.Size(212, 72);
+            this.cardMetricLatency.Title = "Fleet Latency";
+
+            // lblIconMetricLatency
+            this.lblIconMetricLatency.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblIconMetricLatency.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblIconMetricLatency.Location = new System.Drawing.Point(8, 8);
+            this.lblIconMetricLatency.Name = "lblIconMetricLatency";
+            this.lblIconMetricLatency.Size = new System.Drawing.Size(24, 22);
+            this.lblIconMetricLatency.Text = "⚡";
+
+            // lblTitleMetricLatency
+            this.lblTitleMetricLatency.AutoSize = true;
+            this.lblTitleMetricLatency.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblTitleMetricLatency.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblTitleMetricLatency.Location = new System.Drawing.Point(34, 10);
+            this.lblTitleMetricLatency.Name = "lblTitleMetricLatency";
+            this.lblTitleMetricLatency.Size = new System.Drawing.Size(115, 12);
+            this.lblTitleMetricLatency.Text = "Fleet Latency & Drop";
+
+            // lblMetricLatencyVal
+            this.lblMetricLatencyVal.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lblMetricLatencyVal.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblMetricLatencyVal.Location = new System.Drawing.Point(8, 30);
+            this.lblMetricLatencyVal.Name = "lblMetricLatencyVal";
+            this.lblMetricLatencyVal.Size = new System.Drawing.Size(195, 20);
+            this.lblMetricLatencyVal.Text = "31.4 ms Avg";
+
+            // lblMetricLatencySub
+            this.lblMetricLatencySub.AutoSize = true;
+            this.lblMetricLatencySub.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblMetricLatencySub.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblMetricLatencySub.Location = new System.Drawing.Point(8, 52);
+            this.lblMetricLatencySub.Name = "lblMetricLatencySub";
+            this.lblMetricLatencySub.Size = new System.Drawing.Size(160, 12);
+            this.lblMetricLatencySub.Text = "<50ms pipeline • 0.0% drop";
+
+            // 
+            // cardMetricSync
+            // 
+            this.cardMetricSync.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricSync.Controls.Add(this.lblIconMetricSync);
+            this.cardMetricSync.Controls.Add(this.lblTitleMetricSync);
+            this.cardMetricSync.Controls.Add(this.lblMetricSyncVal);
+            this.cardMetricSync.Controls.Add(this.lblMetricSyncSub);
+            this.cardMetricSync.Location = new System.Drawing.Point(440, 0);
+            this.cardMetricSync.Name = "cardMetricSync";
+            this.cardMetricSync.Size = new System.Drawing.Size(212, 72);
+            this.cardMetricSync.Title = "Lip-Sync Lock";
+
+            // lblIconMetricSync
+            this.lblIconMetricSync.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.lblIconMetricSync.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblIconMetricSync.Location = new System.Drawing.Point(8, 8);
+            this.lblIconMetricSync.Name = "lblIconMetricSync";
+            this.lblIconMetricSync.Size = new System.Drawing.Size(24, 22);
+            this.lblIconMetricSync.Text = "🔒";
+
+            // lblTitleMetricSync
+            this.lblTitleMetricSync.AutoSize = true;
+            this.lblTitleMetricSync.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblTitleMetricSync.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblTitleMetricSync.Location = new System.Drawing.Point(34, 10);
+            this.lblTitleMetricSync.Name = "lblTitleMetricSync";
+            this.lblTitleMetricSync.Size = new System.Drawing.Size(115, 12);
+            this.lblTitleMetricSync.Text = "A/V Synchronization";
+
+            // lblMetricSyncVal
+            this.lblMetricSyncVal.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lblMetricSyncVal.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblMetricSyncVal.Location = new System.Drawing.Point(8, 30);
+            this.lblMetricSyncVal.Name = "lblMetricSyncVal";
+            this.lblMetricSyncVal.Size = new System.Drawing.Size(195, 20);
+            this.lblMetricSyncVal.Text = "100% Locked";
+
+            // lblMetricSyncSub
+            this.lblMetricSyncSub.AutoSize = true;
+            this.lblMetricSyncSub.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblMetricSyncSub.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblMetricSyncSub.Location = new System.Drawing.Point(8, 52);
+            this.lblMetricSyncSub.Name = "lblMetricSyncSub";
+            this.lblMetricSyncSub.Size = new System.Drawing.Size(166, 12);
+            this.lblMetricSyncSub.Text = "WASAPI + Display (0 drop, ±0.0ms)";
+
+            // 
+            // cardFleetTerminal (Left Column: Fleet Management Terminal)
+            // 
+            this.cardFleetTerminal.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardFleetTerminal.Controls.Add(this.lblFleetHeader);
+            this.cardFleetTerminal.Controls.Add(this.panelSessionList);
+            this.cardFleetTerminal.Controls.Add(this.lblAnnouncement);
+            this.cardFleetTerminal.Controls.Add(this.txtAnnouncement);
+            this.cardFleetTerminal.Controls.Add(this.btnSendAnnouncement);
+            this.cardFleetTerminal.Controls.Add(this.lblAnnouncementStatus);
+            this.cardFleetTerminal.Location = new System.Drawing.Point(0, 80);
+            this.cardFleetTerminal.Name = "cardFleetTerminal";
+            this.cardFleetTerminal.Size = new System.Drawing.Size(395, 458);
+            this.cardFleetTerminal.Title = "Fleet Management Terminal";
+
+            // lblFleetHeader
+            this.lblFleetHeader.AutoSize = true;
+            this.lblFleetHeader.Font = new System.Drawing.Font("Segoe UI", 7.5F, System.Drawing.FontStyle.Bold);
+            this.lblFleetHeader.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblFleetHeader.Location = new System.Drawing.Point(10, 26);
+            this.lblFleetHeader.Name = "lblFleetHeader";
+            this.lblFleetHeader.Size = new System.Drawing.Size(182, 12);
+            this.lblFleetHeader.Text = "Live Client Sessions (4 Connected):";
+
+            // panelSessionList
+            this.panelSessionList.AutoScroll = true;
+            this.panelSessionList.BackColor = System.Drawing.SystemColors.Control;
+            this.panelSessionList.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelSessionList.Controls.Add(this.panelClientItem1);
+            this.panelSessionList.Controls.Add(this.panelClientItem2);
+            this.panelSessionList.Controls.Add(this.panelClientItem3);
+            this.panelSessionList.Controls.Add(this.panelClientItem4);
+            this.panelSessionList.Location = new System.Drawing.Point(10, 44);
+            this.panelSessionList.Name = "panelSessionList";
+            this.panelSessionList.Size = new System.Drawing.Size(375, 320);
+
+            // panelClientItem1 (iPhone 15 Pro)
+            this.panelClientItem1.BackColor = System.Drawing.SystemColors.Window;
+            this.panelClientItem1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelClientItem1.Controls.Add(this.lblClient1Title);
+            this.panelClientItem1.Controls.Add(this.lblClient1Badge);
+            this.panelClientItem1.Controls.Add(this.lblClient1Details);
+            this.panelClientItem1.Controls.Add(this.lblClient1Metrics);
+            this.panelClientItem1.Controls.Add(this.btnMuteClient1);
+            this.panelClientItem1.Controls.Add(this.btnKickClient1);
+            this.panelClientItem1.Location = new System.Drawing.Point(4, 4);
+            this.panelClientItem1.Name = "panelClientItem1";
+            this.panelClientItem1.Size = new System.Drawing.Size(346, 72);
+
+            this.lblClient1Title.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.lblClient1Title.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient1Title.Location = new System.Drawing.Point(6, 4);
+            this.lblClient1Title.Name = "lblClient1Title";
+            this.lblClient1Title.Size = new System.Drawing.Size(160, 16);
+            this.lblClient1Title.Text = "📱 iPhone 15 Pro";
+
+            this.lblClient1Badge.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient1Badge.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.lblClient1Badge.Location = new System.Drawing.Point(170, 4);
+            this.lblClient1Badge.Name = "lblClient1Badge";
+            this.lblClient1Badge.Size = new System.Drawing.Size(120, 16);
+            this.lblClient1Badge.Text = "Touch Zoom 2.4x";
+            this.lblClient1Badge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            this.lblClient1Details.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient1Details.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblClient1Details.Location = new System.Drawing.Point(6, 22);
+            this.lblClient1Details.Name = "lblClient1Details";
+            this.lblClient1Details.Size = new System.Drawing.Size(330, 15);
+            this.lblClient1Details.Text = "192.168.1.182 • Mobile Safari 17.4";
+
+            this.lblClient1Metrics.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient1Metrics.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient1Metrics.Location = new System.Drawing.Point(6, 44);
+            this.lblClient1Metrics.Name = "lblClient1Metrics";
+            this.lblClient1Metrics.Size = new System.Drawing.Size(185, 20);
+            this.lblClient1Metrics.Text = "RTT: 24 ms • Up: 14m 22s";
+
+            this.btnMuteClient1.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnMuteClient1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnMuteClient1.Location = new System.Drawing.Point(198, 42);
+            this.btnMuteClient1.Name = "btnMuteClient1";
+            this.btnMuteClient1.Size = new System.Drawing.Size(70, 24);
+            this.btnMuteClient1.Text = "🔊 Mute";
+            this.btnMuteClient1.UseVisualStyleBackColor = true;
+
+            this.btnKickClient1.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnKickClient1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKickClient1.Location = new System.Drawing.Point(272, 42);
+            this.btnKickClient1.Name = "btnKickClient1";
+            this.btnKickClient1.Size = new System.Drawing.Size(64, 24);
+            this.btnKickClient1.Text = "✕ Kick";
+            this.btnKickClient1.UseVisualStyleBackColor = true;
+
+            // panelClientItem2 (MacBook Pro 16")
+            this.panelClientItem2.BackColor = System.Drawing.SystemColors.Window;
+            this.panelClientItem2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelClientItem2.Controls.Add(this.lblClient2Title);
+            this.panelClientItem2.Controls.Add(this.lblClient2Badge);
+            this.panelClientItem2.Controls.Add(this.lblClient2Details);
+            this.panelClientItem2.Controls.Add(this.lblClient2Metrics);
+            this.panelClientItem2.Controls.Add(this.btnMuteClient2);
+            this.panelClientItem2.Controls.Add(this.btnKickClient2);
+            this.panelClientItem2.Location = new System.Drawing.Point(4, 80);
+            this.panelClientItem2.Name = "panelClientItem2";
+            this.panelClientItem2.Size = new System.Drawing.Size(346, 72);
+
+            this.lblClient2Title.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.lblClient2Title.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient2Title.Location = new System.Drawing.Point(6, 4);
+            this.lblClient2Title.Name = "lblClient2Title";
+            this.lblClient2Title.Size = new System.Drawing.Size(160, 16);
+            this.lblClient2Title.Text = "💻 MacBook Pro 16\"";
+
+            this.lblClient2Badge.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient2Badge.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.lblClient2Badge.Location = new System.Drawing.Point(170, 4);
+            this.lblClient2Badge.Name = "lblClient2Badge";
+            this.lblClient2Badge.Size = new System.Drawing.Size(120, 16);
+            this.lblClient2Badge.Text = "Fullscreen (1080p)";
+            this.lblClient2Badge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            this.lblClient2Details.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient2Details.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblClient2Details.Location = new System.Drawing.Point(6, 22);
+            this.lblClient2Details.Name = "lblClient2Details";
+            this.lblClient2Details.Size = new System.Drawing.Size(330, 15);
+            this.lblClient2Details.Text = "192.168.1.105 • Chrome 125.0";
+
+            this.lblClient2Metrics.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient2Metrics.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient2Metrics.Location = new System.Drawing.Point(6, 44);
+            this.lblClient2Metrics.Name = "lblClient2Metrics";
+            this.lblClient2Metrics.Size = new System.Drawing.Size(185, 20);
+            this.lblClient2Metrics.Text = "RTT: 18 ms • Up: 38m 05s";
+
+            this.btnMuteClient2.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnMuteClient2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnMuteClient2.Location = new System.Drawing.Point(198, 42);
+            this.btnMuteClient2.Name = "btnMuteClient2";
+            this.btnMuteClient2.Size = new System.Drawing.Size(70, 24);
+            this.btnMuteClient2.Text = "🔊 Mute";
+            this.btnMuteClient2.UseVisualStyleBackColor = true;
+
+            this.btnKickClient2.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnKickClient2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKickClient2.Location = new System.Drawing.Point(272, 42);
+            this.btnKickClient2.Name = "btnKickClient2";
+            this.btnKickClient2.Size = new System.Drawing.Size(64, 24);
+            this.btnKickClient2.Text = "✕ Kick";
+            this.btnKickClient2.UseVisualStyleBackColor = true;
+
+            // panelClientItem3 (iPad Air 5th Gen)
+            this.panelClientItem3.BackColor = System.Drawing.SystemColors.Window;
+            this.panelClientItem3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelClientItem3.Controls.Add(this.lblClient3Title);
+            this.panelClientItem3.Controls.Add(this.lblClient3Badge);
+            this.panelClientItem3.Controls.Add(this.lblClient3Details);
+            this.panelClientItem3.Controls.Add(this.lblClient3Metrics);
+            this.panelClientItem3.Controls.Add(this.btnMuteClient3);
+            this.panelClientItem3.Controls.Add(this.btnKickClient3);
+            this.panelClientItem3.Location = new System.Drawing.Point(4, 156);
+            this.panelClientItem3.Name = "panelClientItem3";
+            this.panelClientItem3.Size = new System.Drawing.Size(346, 72);
+
+            this.lblClient3Title.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.lblClient3Title.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient3Title.Location = new System.Drawing.Point(6, 4);
+            this.lblClient3Title.Name = "lblClient3Title";
+            this.lblClient3Title.Size = new System.Drawing.Size(160, 16);
+            this.lblClient3Title.Text = "📱 iPad Air 5th Gen";
+
+            this.lblClient3Badge.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient3Badge.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.lblClient3Badge.Location = new System.Drawing.Point(170, 4);
+            this.lblClient3Badge.Name = "lblClient3Badge";
+            this.lblClient3Badge.Size = new System.Drawing.Size(120, 16);
+            this.lblClient3Badge.Text = "Touch Zoom 1.0x";
+            this.lblClient3Badge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            this.lblClient3Details.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient3Details.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblClient3Details.Location = new System.Drawing.Point(6, 22);
+            this.lblClient3Details.Name = "lblClient3Details";
+            this.lblClient3Details.Size = new System.Drawing.Size(330, 15);
+            this.lblClient3Details.Text = "192.168.1.144 • Safari 17.2";
+
+            this.lblClient3Metrics.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient3Metrics.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient3Metrics.Location = new System.Drawing.Point(6, 44);
+            this.lblClient3Metrics.Name = "lblClient3Metrics";
+            this.lblClient3Metrics.Size = new System.Drawing.Size(185, 20);
+            this.lblClient3Metrics.Text = "RTT: 31 ms • Up: 09m 14s";
+
+            this.btnMuteClient3.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnMuteClient3.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnMuteClient3.Location = new System.Drawing.Point(198, 42);
+            this.btnMuteClient3.Name = "btnMuteClient3";
+            this.btnMuteClient3.Size = new System.Drawing.Size(70, 24);
+            this.btnMuteClient3.Text = "🔊 Mute";
+            this.btnMuteClient3.UseVisualStyleBackColor = true;
+
+            this.btnKickClient3.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnKickClient3.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKickClient3.Location = new System.Drawing.Point(272, 42);
+            this.btnKickClient3.Name = "btnKickClient3";
+            this.btnKickClient3.Size = new System.Drawing.Size(64, 24);
+            this.btnKickClient3.Text = "✕ Kick";
+            this.btnKickClient3.UseVisualStyleBackColor = true;
+
+            // panelClientItem4 (Surface Pro 9)
+            this.panelClientItem4.BackColor = System.Drawing.SystemColors.Window;
+            this.panelClientItem4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelClientItem4.Controls.Add(this.lblClient4Title);
+            this.panelClientItem4.Controls.Add(this.lblClient4Badge);
+            this.panelClientItem4.Controls.Add(this.lblClient4Details);
+            this.panelClientItem4.Controls.Add(this.lblClient4Metrics);
+            this.panelClientItem4.Controls.Add(this.btnMuteClient4);
+            this.panelClientItem4.Controls.Add(this.btnKickClient4);
+            this.panelClientItem4.Location = new System.Drawing.Point(4, 232);
+            this.panelClientItem4.Name = "panelClientItem4";
+            this.panelClientItem4.Size = new System.Drawing.Size(346, 72);
+
+            this.lblClient4Title.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.lblClient4Title.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient4Title.Location = new System.Drawing.Point(6, 4);
+            this.lblClient4Title.Name = "lblClient4Title";
+            this.lblClient4Title.Size = new System.Drawing.Size(160, 16);
+            this.lblClient4Title.Text = "💻 Surface Pro 9";
+
+            this.lblClient4Badge.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient4Badge.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.lblClient4Badge.Location = new System.Drawing.Point(170, 4);
+            this.lblClient4Badge.Name = "lblClient4Badge";
+            this.lblClient4Badge.Size = new System.Drawing.Size(120, 16);
+            this.lblClient4Badge.Text = "Desktop Window";
+            this.lblClient4Badge.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            this.lblClient4Details.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient4Details.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblClient4Details.Location = new System.Drawing.Point(6, 22);
+            this.lblClient4Details.Name = "lblClient4Details";
+            this.lblClient4Details.Size = new System.Drawing.Size(330, 15);
+            this.lblClient4Details.Text = "192.168.1.166 • Edge 124.0";
+
+            this.lblClient4Metrics.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblClient4Metrics.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblClient4Metrics.Location = new System.Drawing.Point(6, 44);
+            this.lblClient4Metrics.Name = "lblClient4Metrics";
+            this.lblClient4Metrics.Size = new System.Drawing.Size(185, 20);
+            this.lblClient4Metrics.Text = "RTT: 28 ms • Up: 03m 50s";
+
+            this.btnMuteClient4.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnMuteClient4.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnMuteClient4.Location = new System.Drawing.Point(198, 42);
+            this.btnMuteClient4.Name = "btnMuteClient4";
+            this.btnMuteClient4.Size = new System.Drawing.Size(70, 24);
+            this.btnMuteClient4.Text = "🔊 Mute";
+            this.btnMuteClient4.UseVisualStyleBackColor = true;
+
+            this.btnKickClient4.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnKickClient4.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnKickClient4.Location = new System.Drawing.Point(272, 42);
+            this.btnKickClient4.Name = "btnKickClient4";
+            this.btnKickClient4.Size = new System.Drawing.Size(64, 24);
+            this.btnKickClient4.Text = "✕ Kick";
+            this.btnKickClient4.UseVisualStyleBackColor = true;
+
+            // lblAnnouncement
+            this.lblAnnouncement.AutoSize = true;
+            this.lblAnnouncement.Font = new System.Drawing.Font("Segoe UI", 7.5F, System.Drawing.FontStyle.Bold);
+            this.lblAnnouncement.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblAnnouncement.Location = new System.Drawing.Point(10, 370);
+            this.lblAnnouncement.Name = "lblAnnouncement";
+            this.lblAnnouncement.Size = new System.Drawing.Size(262, 12);
+            this.lblAnnouncement.Text = "📢 Send Broadcast Announcement to All Connected Viewers:";
+
+            // txtAnnouncement
+            this.txtAnnouncement.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.txtAnnouncement.Location = new System.Drawing.Point(10, 388);
+            this.txtAnnouncement.Name = "txtAnnouncement";
+            this.txtAnnouncement.PlaceholderText = "Send on-screen broadcast message...";
+            this.txtAnnouncement.Size = new System.Drawing.Size(280, 23);
+
+            // btnSendAnnouncement
+            this.btnSendAnnouncement.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.btnSendAnnouncement.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnSendAnnouncement.Location = new System.Drawing.Point(296, 386);
+            this.btnSendAnnouncement.Name = "btnSendAnnouncement";
+            this.btnSendAnnouncement.Size = new System.Drawing.Size(88, 27);
+            this.btnSendAnnouncement.Text = "📢 Send";
+            this.btnSendAnnouncement.UseVisualStyleBackColor = true;
+
+            // lblAnnouncementStatus
+            this.lblAnnouncementStatus.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblAnnouncementStatus.ForeColor = System.Drawing.SystemColors.Highlight;
+            this.lblAnnouncementStatus.Location = new System.Drawing.Point(10, 416);
+            this.lblAnnouncementStatus.Name = "lblAnnouncementStatus";
+            this.lblAnnouncementStatus.Size = new System.Drawing.Size(375, 16);
+            this.lblAnnouncementStatus.Text = "";
+
+            // 
+            // cardPairingPass (Right Column: Zero-Install Pairing Pass)
+            // 
+            this.cardPairingPass.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardPairingPass.Controls.Add(this.picPairingQr);
+            this.cardPairingPass.Controls.Add(this.lblPairingUrlTitle);
+            this.cardPairingPass.Controls.Add(this.txtPairingUrl);
+            this.cardPairingPass.Controls.Add(this.btnPairingCopy);
+            this.cardPairingPass.Controls.Add(this.lblPairingPin);
+            this.cardPairingPass.Controls.Add(this.btnPairingRegen);
+            this.cardPairingPass.Controls.Add(this.lblZeroConf);
+            this.cardPairingPass.Controls.Add(this.panelSpotlight);
+            this.cardPairingPass.Location = new System.Drawing.Point(403, 80);
+            this.cardPairingPass.Name = "cardPairingPass";
+            this.cardPairingPass.Size = new System.Drawing.Size(249, 458);
+            this.cardPairingPass.Title = "Zero-Install Pairing Pass";
+
+            // picPairingQr
+            this.picPairingQr.BackColor = System.Drawing.Color.White;
+            this.picPairingQr.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picPairingQr.Location = new System.Drawing.Point(44, 24);
+            this.picPairingQr.Name = "picPairingQr";
+            this.picPairingQr.Size = new System.Drawing.Size(160, 160);
+            this.picPairingQr.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+
+            // lblPairingUrlTitle
+            this.lblPairingUrlTitle.AutoSize = true;
+            this.lblPairingUrlTitle.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblPairingUrlTitle.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblPairingUrlTitle.Location = new System.Drawing.Point(10, 188);
+            this.lblPairingUrlTitle.Name = "lblPairingUrlTitle";
+            this.lblPairingUrlTitle.Size = new System.Drawing.Size(81, 12);
+            this.lblPairingUrlTitle.Text = "Direct Stream URL:";
+
+            // txtPairingUrl
+            this.txtPairingUrl.BackColor = System.Drawing.SystemColors.Window;
+            this.txtPairingUrl.Font = new System.Drawing.Font("Consolas", 8F);
+            this.txtPairingUrl.Location = new System.Drawing.Point(10, 204);
+            this.txtPairingUrl.Name = "txtPairingUrl";
+            this.txtPairingUrl.ReadOnly = true;
+            this.txtPairingUrl.Size = new System.Drawing.Size(158, 20);
+            this.txtPairingUrl.Text = "http://192.168.1.145:8080";
+
+            // btnPairingCopy
+            this.btnPairingCopy.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnPairingCopy.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnPairingCopy.Location = new System.Drawing.Point(172, 202);
+            this.btnPairingCopy.Name = "btnPairingCopy";
+            this.btnPairingCopy.Size = new System.Drawing.Size(66, 25);
+            this.btnPairingCopy.Text = "📋 Copy";
+            this.btnPairingCopy.UseVisualStyleBackColor = true;
+
+            // lblPairingPin
+            this.lblPairingPin.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblPairingPin.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblPairingPin.Location = new System.Drawing.Point(10, 230);
+            this.lblPairingPin.Name = "lblPairingPin";
+            this.lblPairingPin.Size = new System.Drawing.Size(140, 24);
+            this.lblPairingPin.Text = "PIN Code: 8492";
+
+            // btnPairingRegen
+            this.btnPairingRegen.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.btnPairingRegen.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnPairingRegen.Location = new System.Drawing.Point(152, 229);
+            this.btnPairingRegen.Name = "btnPairingRegen";
+            this.btnPairingRegen.Size = new System.Drawing.Size(86, 25);
+            this.btnPairingRegen.Text = "🔄 New PIN";
+            this.btnPairingRegen.UseVisualStyleBackColor = true;
+
+            // lblZeroConf
+            this.lblZeroConf.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblZeroConf.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblZeroConf.Location = new System.Drawing.Point(10, 256);
+            this.lblZeroConf.Name = "lblZeroConf";
+            this.lblZeroConf.Size = new System.Drawing.Size(228, 30);
+            this.lblZeroConf.Text = "📡 ZeroConf/mDNS: screentask.local\nAdapter: Wi-Fi (192.168.1.145:8080)";
+
+            // panelSpotlight
+            this.panelSpotlight.BackColor = System.Drawing.SystemColors.Window;
+            this.panelSpotlight.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelSpotlight.Controls.Add(this.lblSpotlightTitle);
+            this.panelSpotlight.Controls.Add(this.lblSpotlight1);
+            this.panelSpotlight.Controls.Add(this.lblSpotlight2);
+            this.panelSpotlight.Controls.Add(this.lblSpotlight3);
+            this.panelSpotlight.Controls.Add(this.lblSpotlight4);
+            this.panelSpotlight.Controls.Add(this.lblSpotlight5);
+            this.panelSpotlight.Location = new System.Drawing.Point(10, 290);
+            this.panelSpotlight.Name = "panelSpotlight";
+            this.panelSpotlight.Size = new System.Drawing.Size(228, 154);
+
+            // lblSpotlightTitle
+            this.lblSpotlightTitle.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.lblSpotlightTitle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblSpotlightTitle.Location = new System.Drawing.Point(8, 6);
+            this.lblSpotlightTitle.Name = "lblSpotlightTitle";
+            this.lblSpotlightTitle.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlightTitle.Text = "✨ Mobile Web Spotlight";
+
+            // lblSpotlight1
+            this.lblSpotlight1.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblSpotlight1.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblSpotlight1.Location = new System.Drawing.Point(8, 26);
+            this.lblSpotlight1.Name = "lblSpotlight1";
+            this.lblSpotlight1.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlight1.Text = "🔍 5x Vector Pinch Zoom & Pan";
+
+            // lblSpotlight2
+            this.lblSpotlight2.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblSpotlight2.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblSpotlight2.Location = new System.Drawing.Point(8, 48);
+            this.lblSpotlight2.Name = "lblSpotlight2";
+            this.lblSpotlight2.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlight2.Text = "🔄 Auto-Fullscreen on Rotation";
+
+            // lblSpotlight3
+            this.lblSpotlight3.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblSpotlight3.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.lblSpotlight3.Location = new System.Drawing.Point(8, 70);
+            this.lblSpotlight3.Name = "lblSpotlight3";
+            this.lblSpotlight3.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlight3.Text = "👆 Double-Tap Cursor Magnify";
+
+            // lblSpotlight4
+            this.lblSpotlight4.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblSpotlight4.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblSpotlight4.Location = new System.Drawing.Point(8, 92);
+            this.lblSpotlight4.Name = "lblSpotlight4";
+            this.lblSpotlight4.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlight4.Text = "⚡ <50ms Dual-WS Pipeline";
+
+            // lblSpotlight5
+            this.lblSpotlight5.Font = new System.Drawing.Font("Segoe UI", 7.5F);
+            this.lblSpotlight5.ForeColor = System.Drawing.SystemColors.GrayText;
+            this.lblSpotlight5.Location = new System.Drawing.Point(8, 114);
+            this.lblSpotlight5.Name = "lblSpotlight5";
+            this.lblSpotlight5.Size = new System.Drawing.Size(210, 16);
+            this.lblSpotlight5.Text = "🔒 Zero-Install PWA Pairing";
 
             // 
             // panelTabCapture
@@ -1323,6 +2007,7 @@ namespace ScreenTask
             this.Controls.Add(this.panelTabPreferences);
             this.Controls.Add(this.panelTabNetwork);
             this.Controls.Add(this.panelTabCapture);
+            this.Controls.Add(this.panelTabClients);
             this.Controls.Add(this.panelTabBroadcast);
             this.Controls.Add(this.panelSideNav);
             this.Controls.Add(this.btnMiniMode);
@@ -1346,10 +2031,30 @@ namespace ScreenTask
             this.toolTipMain.SetToolTip(this.btnQr, "Show QR code for phone or tablet");
             this.toolTipMain.SetToolTip(this.btnMiniMode, "Switch to compact mini bar");
             this.toolTipMain.SetToolTip(this.btnQuickMute, "Mute or unmute audio");
+            this.toolTipMain.SetToolTip(this.btnSendAnnouncement, "Send on-screen broadcast message to all connected viewers");
+            this.toolTipMain.SetToolTip(this.btnPairingCopy, "Copy direct stream URL to clipboard");
+            this.toolTipMain.SetToolTip(this.btnPairingRegen, "Generate a new random PIN code");
 
             this.panelSideNav.ResumeLayout(false);
             this.panelSideNav.PerformLayout();
             this.panelTabBroadcast.ResumeLayout(false);
+            this.panelTabClients.ResumeLayout(false);
+            this.cardMetricViewers.ResumeLayout(false);
+            this.cardMetricLatency.ResumeLayout(false);
+            this.cardMetricLatency.PerformLayout();
+            this.cardMetricSync.ResumeLayout(false);
+            this.cardMetricSync.PerformLayout();
+            this.cardFleetTerminal.ResumeLayout(false);
+            this.cardFleetTerminal.PerformLayout();
+            this.panelSessionList.ResumeLayout(false);
+            this.panelClientItem1.ResumeLayout(false);
+            this.panelClientItem2.ResumeLayout(false);
+            this.panelClientItem3.ResumeLayout(false);
+            this.panelClientItem4.ResumeLayout(false);
+            this.cardPairingPass.ResumeLayout(false);
+            this.cardPairingPass.PerformLayout();
+            this.panelSpotlight.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.picPairingQr)).EndInit();
             this.panelTabCapture.ResumeLayout(false);
             this.panelTabNetwork.ResumeLayout(false);
             this.panelTabPreferences.ResumeLayout(false);
@@ -1404,6 +2109,7 @@ namespace ScreenTask
 
         // Tab Panels
         private System.Windows.Forms.Panel panelTabBroadcast;
+        private System.Windows.Forms.Panel panelTabClients;
         private System.Windows.Forms.Panel panelTabCapture;
         private System.Windows.Forms.Panel panelTabNetwork;
         private System.Windows.Forms.Panel panelTabPreferences;
@@ -1453,7 +2159,84 @@ namespace ScreenTask
         private System.Windows.Forms.Label lblTitleUptime;
         private System.Windows.Forms.Label lblChipUptime;
 
-        // Tab 2: Capture & Audio Controls
+        // Tab 2: Connected Viewers & QR Code Pairing
+        private ScreenTask.UI.Controls.FluentCard cardMetricViewers;
+        private System.Windows.Forms.Label lblIconMetricViewers;
+        private System.Windows.Forms.Label lblTitleMetricViewers;
+        private System.Windows.Forms.Label lblMetricViewersVal;
+        private System.Windows.Forms.ProgressBar pbViewerCapacity;
+
+        private ScreenTask.UI.Controls.FluentCard cardMetricLatency;
+        private System.Windows.Forms.Label lblIconMetricLatency;
+        private System.Windows.Forms.Label lblTitleMetricLatency;
+        private System.Windows.Forms.Label lblMetricLatencyVal;
+        private System.Windows.Forms.Label lblMetricLatencySub;
+
+        private ScreenTask.UI.Controls.FluentCard cardMetricSync;
+        private System.Windows.Forms.Label lblIconMetricSync;
+        private System.Windows.Forms.Label lblTitleMetricSync;
+        private System.Windows.Forms.Label lblMetricSyncVal;
+        private System.Windows.Forms.Label lblMetricSyncSub;
+
+        private ScreenTask.UI.Controls.FluentCard cardFleetTerminal;
+        private System.Windows.Forms.Label lblFleetHeader;
+        private System.Windows.Forms.Panel panelSessionList;
+
+        private System.Windows.Forms.Panel panelClientItem1;
+        private System.Windows.Forms.Label lblClient1Title;
+        private System.Windows.Forms.Label lblClient1Badge;
+        private System.Windows.Forms.Label lblClient1Details;
+        private System.Windows.Forms.Label lblClient1Metrics;
+        private ScreenTask.UI.Controls.FluentButton btnMuteClient1;
+        private ScreenTask.UI.Controls.FluentButton btnKickClient1;
+
+        private System.Windows.Forms.Panel panelClientItem2;
+        private System.Windows.Forms.Label lblClient2Title;
+        private System.Windows.Forms.Label lblClient2Badge;
+        private System.Windows.Forms.Label lblClient2Details;
+        private System.Windows.Forms.Label lblClient2Metrics;
+        private ScreenTask.UI.Controls.FluentButton btnMuteClient2;
+        private ScreenTask.UI.Controls.FluentButton btnKickClient2;
+
+        private System.Windows.Forms.Panel panelClientItem3;
+        private System.Windows.Forms.Label lblClient3Title;
+        private System.Windows.Forms.Label lblClient3Badge;
+        private System.Windows.Forms.Label lblClient3Details;
+        private System.Windows.Forms.Label lblClient3Metrics;
+        private ScreenTask.UI.Controls.FluentButton btnMuteClient3;
+        private ScreenTask.UI.Controls.FluentButton btnKickClient3;
+
+        private System.Windows.Forms.Panel panelClientItem4;
+        private System.Windows.Forms.Label lblClient4Title;
+        private System.Windows.Forms.Label lblClient4Badge;
+        private System.Windows.Forms.Label lblClient4Details;
+        private System.Windows.Forms.Label lblClient4Metrics;
+        private ScreenTask.UI.Controls.FluentButton btnMuteClient4;
+        private ScreenTask.UI.Controls.FluentButton btnKickClient4;
+
+        private System.Windows.Forms.Label lblAnnouncement;
+        private System.Windows.Forms.TextBox txtAnnouncement;
+        private ScreenTask.UI.Controls.FluentButton btnSendAnnouncement;
+        private System.Windows.Forms.Label lblAnnouncementStatus;
+
+        private ScreenTask.UI.Controls.FluentCard cardPairingPass;
+        private System.Windows.Forms.PictureBox picPairingQr;
+        private System.Windows.Forms.Label lblPairingUrlTitle;
+        private System.Windows.Forms.TextBox txtPairingUrl;
+        private ScreenTask.UI.Controls.FluentButton btnPairingCopy;
+        private System.Windows.Forms.Label lblPairingPin;
+        private ScreenTask.UI.Controls.FluentButton btnPairingRegen;
+        private System.Windows.Forms.Label lblZeroConf;
+
+        private System.Windows.Forms.Panel panelSpotlight;
+        private System.Windows.Forms.Label lblSpotlightTitle;
+        private System.Windows.Forms.Label lblSpotlight1;
+        private System.Windows.Forms.Label lblSpotlight2;
+        private System.Windows.Forms.Label lblSpotlight3;
+        private System.Windows.Forms.Label lblSpotlight4;
+        private System.Windows.Forms.Label lblSpotlight5;
+
+        // Tab 3: Capture & Audio Controls
         private ScreenTask.UI.Controls.FluentCard cardVideoSource;
         private System.Windows.Forms.Label label7;
         private ScreenTask.UI.Controls.FluentComboBox comboScreens;

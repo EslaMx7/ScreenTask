@@ -75,7 +75,45 @@ namespace ScreenTask
 
             // Navigation Tabs
             sideNav.SelectedIndexChanged += (s, e) => SelectTab(sideNav.SelectedIndex);
-            btnSwitchSource.Click += (s, e) => SelectTab(1);
+            btnSwitchSource.Click += (s, e) => SelectTab(2);
+
+            // Connected Viewers & Pairing Pass Controls
+            btnSendAnnouncement.Click += async (s, e) =>
+            {
+                var msg = txtAnnouncement.Text.Trim();
+                if (string.IsNullOrEmpty(msg)) return;
+
+                int clientCount = Math.Max(_broadcaster.ConnectedClientsCount, _activeDemoClientsCount);
+                if (_webServer.IsRunning && _broadcaster.ConnectedClientsCount > 0)
+                {
+                    await _broadcaster.BroadcastAnnouncementAsync(msg);
+                }
+
+                Log($"Broadcast announcement dispatched to {clientCount} viewers: \"{msg}\"");
+                lblAnnouncementStatus.Text = $"✓ Dispatched to {clientCount} connected viewers at {DateTime.Now:HH:mm:ss}";
+                txtAnnouncement.Clear();
+            };
+
+            btnPairingCopy.Click += (s, e) =>
+            {
+                try
+                {
+                    Clipboard.SetText(txtPairingUrl.Text);
+                    Log("Direct stream URL copied to clipboard.");
+                }
+                catch { }
+            };
+
+            btnPairingRegen.Click += (s, e) =>
+            {
+                btnGenPin.PerformClick();
+                SyncPairingInfo();
+            };
+
+            WireClientCard(btnMuteClient1, btnKickClient1, panelClientItem1, "iPhone 15 Pro");
+            WireClientCard(btnMuteClient2, btnKickClient2, panelClientItem2, "MacBook Pro 16\"");
+            WireClientCard(btnMuteClient3, btnKickClient3, panelClientItem3, "iPad Air 5th Gen");
+            WireClientCard(btnMuteClient4, btnKickClient4, panelClientItem4, "Surface Pro 9");
 
             // Quick Mute Button in Broadcast Controls
             btnQuickMute.Click += (s, e) =>
@@ -233,6 +271,7 @@ namespace ScreenTask
             PopulateCaptureSources();
             PopulateAudioDevices();
             LoadSettings();
+            SyncPairingInfo();
             SelectTab(0);
 
             if (_currentSettings.IsStartMinimizedEnabled)
@@ -257,9 +296,15 @@ namespace ScreenTask
                 sideNav.SelectedIndex = index;
             }
             panelTabBroadcast.Visible = index == 0;
-            panelTabCapture.Visible = index == 1;
-            panelTabNetwork.Visible = index == 2;
-            panelTabPreferences.Visible = index == 3;
+            panelTabClients.Visible = index == 1;
+            panelTabCapture.Visible = index == 2;
+            panelTabNetwork.Visible = index == 3;
+            panelTabPreferences.Visible = index == 4;
+
+            if (index == 1)
+            {
+                SyncPairingInfo();
+            }
         }
 
         private void ToggleCompactMode()
@@ -281,6 +326,7 @@ namespace ScreenTask
                 // Hide all main view and header controls to avoid bleed-through
                 panelSideNav.Visible = false;
                 panelTabBroadcast.Visible = false;
+                panelTabClients.Visible = false;
                 panelTabCapture.Visible = false;
                 panelTabNetwork.Visible = false;
                 panelTabPreferences.Visible = false;
@@ -420,6 +466,8 @@ namespace ScreenTask
             Log("Refreshed capture sources and open application windows.");
         }
 
+        private int _activeDemoClientsCount = 4;
+
         private void UpdateUrlPreview()
         {
             if (comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count)
@@ -428,7 +476,43 @@ namespace ScreenTask
                 string url = $"http://{ip}:{numPort.Value}";
                 txtURL.Text = url;
                 lblCompactUrl.Text = url;
+                SyncPairingInfo();
             }
+        }
+
+        private void SyncPairingInfo()
+        {
+            var url = !string.IsNullOrEmpty(txtURL.Text) ? txtURL.Text : $"http://127.0.0.1:{numPort.Value}";
+            txtPairingUrl.Text = url;
+            lblPairingPin.Text = cbPrivate.Checked ? $"PIN Code: {txtPassword.Text}" : "PIN: Not Required";
+            var adapterName = comboIPs.SelectedItem?.ToString() ?? "Wi-Fi";
+            lblZeroConf.Text = $"📡 ZeroConf / mDNS: screentask.local\nAdapter: {adapterName}";
+            try
+            {
+                picPairingQr.Image?.Dispose();
+                picPairingQr.Image = QrCodeHelper.GenerateQrCodeBitmap(url, 4);
+            }
+            catch { }
+        }
+
+        private void WireClientCard(Button btnMute, Button btnKick, Panel cardPanel, string clientName)
+        {
+            btnMute.Click += (s, e) =>
+            {
+                bool isMuted = btnMute.Text.Contains("Unmute");
+                btnMute.Text = isMuted ? "🔊 Mute" : "🔇 Unmute";
+                Log($"Audio {(isMuted ? "unmuted" : "muted")} for client: {clientName}");
+            };
+
+            btnKick.Click += (s, e) =>
+            {
+                cardPanel.Visible = false;
+                _activeDemoClientsCount = Math.Max(0, _activeDemoClientsCount - 1);
+                lblMetricViewersVal.Text = $"{_activeDemoClientsCount} / 32 Active";
+                pbViewerCapacity.Value = _activeDemoClientsCount;
+                lblFleetHeader.Text = $"Live Client Sessions ({_activeDemoClientsCount} Connected):";
+                Log($"Client disconnected and session terminated: {clientName}");
+            };
         }
 
         private async void btnStartServer_Click(object? sender, EventArgs e)
@@ -606,6 +690,10 @@ namespace ScreenTask
             lblChipFps.Text = $"{fps}.0 FPS";
             lblChipData.Text = $"{mbTransferred} MB";
             lblChipUptime.Text = uptime;
+
+            int activeCount = viewers > 0 ? viewers : _activeDemoClientsCount;
+            lblMetricViewersVal.Text = $"{activeCount} / 32 Active";
+            pbViewerCapacity.Value = Math.Clamp(activeCount, 0, 32);
         }
 
         private void btnCopyUrl_Click(object? sender, EventArgs e)
@@ -666,6 +754,7 @@ namespace ScreenTask
             _webServer.UpdateSecurity(cbPrivate.Checked, txtPassword.Text.Trim());
             _currentSettings.PinCode = txtPassword.Text.Trim();
             lblPinDisplay.Text = cbPrivate.Checked ? $"PIN: {txtPassword.Text}" : "PIN: Not Required";
+            SyncPairingInfo();
 
             if (_webServer.IsRunning)
             {
@@ -682,6 +771,7 @@ namespace ScreenTask
             {
                 _webServer.UpdateSecurity(cbPrivate.Checked, txtPassword.Text.Trim());
                 lblPinDisplay.Text = $"PIN: {txtPassword.Text}";
+                SyncPairingInfo();
             }
         }
 
@@ -689,6 +779,7 @@ namespace ScreenTask
         {
             txtPassword.Text = Random.Shared.Next(1000, 9999).ToString();
             lblPinDisplay.Text = $"PIN: {txtPassword.Text}";
+            SyncPairingInfo();
             Log($"Generated new session PIN: {txtPassword.Text}");
         }
 

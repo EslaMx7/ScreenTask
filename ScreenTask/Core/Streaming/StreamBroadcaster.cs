@@ -124,6 +124,55 @@ namespace ScreenTask.Core.Streaming
             _audioClients.Clear();
         }
 
+        public async Task KickClientAsync(string id, WebSocketCloseStatus closeStatus = WebSocketCloseStatus.NormalClosure, string reason = "Kicked by host")
+        {
+            if (_videoClients.TryRemove(id, out var videoEntry))
+            {
+                try
+                {
+                    if (videoEntry.Socket.State == WebSocketState.Open)
+                    {
+                        await videoEntry.Socket.CloseAsync(closeStatus, reason, CancellationToken.None);
+                    }
+                }
+                catch { }
+                videoEntry.Lock.Dispose();
+            }
+
+            if (_audioClients.TryRemove(id, out var audioEntry))
+            {
+                try
+                {
+                    if (audioEntry.Socket.State == WebSocketState.Open)
+                    {
+                        await audioEntry.Socket.CloseAsync(closeStatus, reason, CancellationToken.None);
+                    }
+                }
+                catch { }
+                audioEntry.Lock.Dispose();
+            }
+        }
+
+        public async Task BroadcastAnnouncementAsync(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message) || _videoClients.IsEmpty) return;
+
+            var msgBytes = System.Text.Encoding.UTF8.GetBytes(message);
+            var packet = new byte[msgBytes.Length + 1];
+            packet[0] = 0x04; // Broadcast announcement packet type
+            Buffer.BlockCopy(msgBytes, 0, packet, 1, msgBytes.Length);
+
+            Interlocked.Add(ref _totalBytesTransferred, packet.Length * _videoClients.Count);
+
+            var sendTasks = new List<Task>();
+            foreach (var kvp in _videoClients)
+            {
+                sendTasks.Add(SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: false));
+            }
+
+            await Task.WhenAll(sendTasks);
+        }
+
         public byte[] GetLatestSnapshot()
         {
             lock (_snapshotLock)

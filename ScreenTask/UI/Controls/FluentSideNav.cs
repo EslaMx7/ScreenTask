@@ -215,15 +215,15 @@ namespace ScreenTask.UI.Controls
                 // Draw Icon
                 if (!string.IsNullOrEmpty(item.Icon))
                 {
-                    var iconRect = new Rectangle(itemRect.X + 8, itemRect.Y, 26, _itemHeight);
-                    using var iconFont = new Font("Segoe UI", 10F, FontStyle.Regular);
+                    var iconRect = new Rectangle(itemRect.X + 6, itemRect.Y, 22, _itemHeight);
+                    using var iconFont = new Font("Segoe UI", 9.5F, FontStyle.Regular);
                     TextRenderer.DrawText(g, item.Icon, iconFont, iconRect, SystemColors.ControlText,
                         TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter);
                 }
 
                 // Draw Text Label
-                var textRect = new Rectangle(itemRect.X + 38, itemRect.Y, itemRect.Width - 42, _itemHeight);
-                using var textFont = new Font(Font.FontFamily, 9F, isSelected ? FontStyle.Bold : FontStyle.Regular);
+                var textRect = new Rectangle(itemRect.X + 32, itemRect.Y, itemRect.Width - 34, _itemHeight);
+                using var textFont = new Font(Font.FontFamily, 8.5F, isSelected ? FontStyle.Bold : FontStyle.Regular);
                 TextRenderer.DrawText(g, item.Text, textFont, textRect, SystemColors.ControlText,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }

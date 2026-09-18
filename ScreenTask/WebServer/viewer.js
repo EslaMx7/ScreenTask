@@ -369,6 +369,15 @@
       else if (packetType === 0x03 && data.length >= 9) {
         parseAudioFormat(event.data);
       }
+      // 0x04 = Broadcast Announcement Message
+      else if (packetType === 0x04) {
+        try {
+          const textBytes = data.subarray(1);
+          const decoder = new TextDecoder('utf-8');
+          const announcement = decoder.decode(textBytes);
+          showToast(`📢 ${announcement}`);
+        } catch (err) {}
+      }
     };
 
     wsVideo.onclose = (e) => {
