@@ -22,8 +22,11 @@ namespace ScreenTask.Tests.UI
 
                 Assert.NotNull(form);
                 Assert.Contains("ScreenTask 2.0", form.Text);
-                Assert.Equal(680, form.ClientSize.Width);
+                Assert.Equal(860, form.ClientSize.Width);
                 Assert.Equal(620, form.ClientSize.Height);
+
+                var panelSideNav = FindControl<Panel>(form, "panelSideNav");
+                Assert.NotNull(panelSideNav);
 
                 // Verify controls exist and are populated
                 var comboScreens = FindControl<ComboBox>(form, "comboScreens");

@@ -37,7 +37,7 @@ namespace ScreenTask
         private bool _isCompactMode = false;
         private bool _isExitingExplicitly = false;
         private int _currentTabIndex = 0;
-        private Size _fullModeClientSize = new Size(680, 620);
+        private Size _fullModeClientSize = new Size(860, 620);
 
         public frmMain()
         {
@@ -260,10 +260,25 @@ namespace ScreenTask
             panelTabNetwork.Visible = index == 2;
             panelTabPreferences.Visible = index == 3;
 
-            btnNavBroadcast.Font = new Font(btnNavBroadcast.Font.FontFamily, 8f, index == 0 ? FontStyle.Bold : FontStyle.Regular);
-            btnNavCapture.Font = new Font(btnNavCapture.Font.FontFamily, 8f, index == 1 ? FontStyle.Bold : FontStyle.Regular);
-            btnNavNetwork.Font = new Font(btnNavNetwork.Font.FontFamily, 8f, index == 2 ? FontStyle.Bold : FontStyle.Regular);
-            btnNavPreferences.Font = new Font(btnNavPreferences.Font.FontFamily, 8f, index == 3 ? FontStyle.Bold : FontStyle.Regular);
+            UpdateNavButton(btnNavBroadcast, index == 0);
+            UpdateNavButton(btnNavCapture, index == 1);
+            UpdateNavButton(btnNavNetwork, index == 2);
+            UpdateNavButton(btnNavPreferences, index == 3);
+        }
+
+        private static void UpdateNavButton(Button btn, bool isSelected)
+        {
+            btn.Font = new Font(btn.Font.FontFamily, 9f, isSelected ? FontStyle.Bold : FontStyle.Regular);
+            if (isSelected)
+            {
+                btn.BackColor = SystemColors.ControlLight;
+                btn.UseVisualStyleBackColor = false;
+            }
+            else
+            {
+                btn.BackColor = SystemColors.Control;
+                btn.UseVisualStyleBackColor = true;
+            }
         }
 
         private void ToggleCompactMode()
@@ -283,17 +298,13 @@ namespace ScreenTask
                 int compactHeight = Math.Max(68, (int)Math.Round(68f * dpiScale));
 
                 // Hide all main view and header controls to avoid bleed-through
-                panelNav.Visible = false;
+                panelSideNav.Visible = false;
                 panelTabBroadcast.Visible = false;
                 panelTabCapture.Visible = false;
                 panelTabNetwork.Visible = false;
                 panelTabPreferences.Visible = false;
                 lblMe.Visible = false;
-                picAppIcon.Visible = false;
-                lblAppTitle.Visible = false;
-                lblFluentBadge.Visible = false;
                 lblStatusBadge.Visible = false;
-                lblAppSubtitle.Visible = false;
                 btnMiniMode.Visible = false;
 
                 // Configure and show compact bar filling the entire client area
@@ -311,19 +322,15 @@ namespace ScreenTask
                 panelCompactBar.Visible = false;
 
                 // Restore full view size
-                this.ClientSize = _fullModeClientSize.Height > 100 ? _fullModeClientSize : new Size(680, 620);
+                this.ClientSize = _fullModeClientSize.Height > 100 ? _fullModeClientSize : new Size(860, 620);
                 this.TopMost = false;
 
                 // Restore header & navigation controls
-                picAppIcon.Visible = true;
-                lblAppTitle.Visible = true;
-                lblFluentBadge.Visible = true;
                 lblStatusBadge.Visible = true;
-                lblAppSubtitle.Visible = true;
                 btnMiniMode.Visible = true;
                 btnMiniMode.Text = "🗖 Mini Bar";
 
-                panelNav.Visible = true;
+                panelSideNav.Visible = true;
                 lblMe.Visible = true;
 
                 // Restore the currently active tab panel

@@ -28,9 +28,8 @@ namespace ScreenTask
             this.lblStatusBadge = new System.Windows.Forms.Label();
             this.btnMiniMode = new ScreenTask.UI.Controls.FluentButton();
 
-            // Navigation Bar
-            this.panelNav = new System.Windows.Forms.Panel();
-            this.panelNavPill = new System.Windows.Forms.Panel();
+            // Side Navigation
+            this.panelSideNav = new System.Windows.Forms.Panel();
             this.btnNavBroadcast = new ScreenTask.UI.Controls.FluentButton();
             this.btnNavCapture = new ScreenTask.UI.Controls.FluentButton();
             this.btnNavNetwork = new ScreenTask.UI.Controls.FluentButton();
@@ -153,8 +152,7 @@ namespace ScreenTask
             this.toolTipMain = new System.Windows.Forms.ToolTip(this.components);
             this.trayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 
-            this.panelNav.SuspendLayout();
-            this.panelNavPill.SuspendLayout();
+            this.panelSideNav.SuspendLayout();
             this.panelTabBroadcast.SuspendLayout();
             this.panelTabCapture.SuspendLayout();
             this.panelTabNetwork.SuspendLayout();
@@ -182,9 +180,9 @@ namespace ScreenTask
             // picAppIcon
             // 
             this.picAppIcon.BackColor = System.Drawing.Color.Transparent;
-            this.picAppIcon.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.picAppIcon.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.picAppIcon.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.picAppIcon.Location = new System.Drawing.Point(14, 10);
+            this.picAppIcon.Location = new System.Drawing.Point(10, 10);
             this.picAppIcon.Name = "picAppIcon";
             this.picAppIcon.Size = new System.Drawing.Size(26, 26);
             this.picAppIcon.Text = "📡";
@@ -194,11 +192,11 @@ namespace ScreenTask
             // lblAppTitle
             // 
             this.lblAppTitle.AutoSize = true;
-            this.lblAppTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblAppTitle.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold);
             this.lblAppTitle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblAppTitle.Location = new System.Drawing.Point(46, 12);
+            this.lblAppTitle.Location = new System.Drawing.Point(38, 12);
             this.lblAppTitle.Name = "lblAppTitle";
-            this.lblAppTitle.Size = new System.Drawing.Size(123, 21);
+            this.lblAppTitle.Size = new System.Drawing.Size(120, 21);
             this.lblAppTitle.Text = "ScreenTask 2.0";
 
             // 
@@ -208,7 +206,7 @@ namespace ScreenTask
             this.lblFluentBadge.BackColor = System.Drawing.Color.Transparent;
             this.lblFluentBadge.Font = new System.Drawing.Font("Consolas", 7F, System.Drawing.FontStyle.Bold);
             this.lblFluentBadge.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblFluentBadge.Location = new System.Drawing.Point(173, 17);
+            this.lblFluentBadge.Location = new System.Drawing.Point(38, 34);
             this.lblFluentBadge.Name = "lblFluentBadge";
             this.lblFluentBadge.Padding = new System.Windows.Forms.Padding(4, 1, 4, 1);
             this.lblFluentBadge.Size = new System.Drawing.Size(53, 14);
@@ -221,9 +219,9 @@ namespace ScreenTask
             this.lblAppSubtitle.AutoSize = true;
             this.lblAppSubtitle.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblAppSubtitle.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblAppSubtitle.Location = new System.Drawing.Point(235, 18);
+            this.lblAppSubtitle.Location = new System.Drawing.Point(10, 38);
             this.lblAppSubtitle.Name = "lblAppSubtitle";
-            this.lblAppSubtitle.Size = new System.Drawing.Size(120, 12);
+            this.lblAppSubtitle.Size = new System.Drawing.Size(142, 12);
             this.lblAppSubtitle.Text = "Instant Local Screen Sharing";
 
             // 
@@ -233,7 +231,7 @@ namespace ScreenTask
             this.lblStatusBadge.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lblStatusBadge.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
             this.lblStatusBadge.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblStatusBadge.Location = new System.Drawing.Point(425, 11);
+            this.lblStatusBadge.Location = new System.Drawing.Point(604, 12);
             this.lblStatusBadge.Name = "lblStatusBadge";
             this.lblStatusBadge.Size = new System.Drawing.Size(145, 25);
             this.lblStatusBadge.Text = "● Ready to Stream";
@@ -244,88 +242,92 @@ namespace ScreenTask
             // 
             this.btnMiniMode.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnMiniMode.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnMiniMode.Location = new System.Drawing.Point(580, 11);
+            this.btnMiniMode.Location = new System.Drawing.Point(758, 12);
             this.btnMiniMode.Name = "btnMiniMode";
-            this.btnMiniMode.Size = new System.Drawing.Size(86, 25);
+            this.btnMiniMode.Size = new System.Drawing.Size(90, 25);
             this.btnMiniMode.Text = "🗖 Mini Bar";
             this.btnMiniMode.UseVisualStyleBackColor = true;
 
             // 
-            // panelNav
+            // panelSideNav
             // 
-            this.panelNav.BackColor = System.Drawing.SystemColors.Control;
-            this.panelNav.Controls.Add(this.panelNavPill);
-            this.panelNav.Controls.Add(this.btnQuickMute);
-            this.panelNav.Location = new System.Drawing.Point(14, 44);
-            this.panelNav.Name = "panelNav";
-            this.panelNav.Size = new System.Drawing.Size(652, 38);
-
-            // 
-            // panelNavPill
-            // 
-            this.panelNavPill.BackColor = System.Drawing.SystemColors.Control;
-            this.panelNavPill.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelNavPill.Controls.Add(this.btnNavBroadcast);
-            this.panelNavPill.Controls.Add(this.btnNavCapture);
-            this.panelNavPill.Controls.Add(this.btnNavNetwork);
-            this.panelNavPill.Controls.Add(this.btnNavPreferences);
-            this.panelNavPill.Location = new System.Drawing.Point(0, 2);
-            this.panelNavPill.Name = "panelNavPill";
-            this.panelNavPill.Size = new System.Drawing.Size(536, 34);
+            this.panelSideNav.BackColor = System.Drawing.SystemColors.Control;
+            this.panelSideNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelSideNav.Controls.Add(this.picAppIcon);
+            this.panelSideNav.Controls.Add(this.lblAppTitle);
+            this.panelSideNav.Controls.Add(this.lblFluentBadge);
+            this.panelSideNav.Controls.Add(this.lblAppSubtitle);
+            this.panelSideNav.Controls.Add(this.btnNavBroadcast);
+            this.panelSideNav.Controls.Add(this.btnNavCapture);
+            this.panelSideNav.Controls.Add(this.btnNavNetwork);
+            this.panelSideNav.Controls.Add(this.btnNavPreferences);
+            this.panelSideNav.Controls.Add(this.btnQuickMute);
+            this.panelSideNav.Location = new System.Drawing.Point(12, 12);
+            this.panelSideNav.Name = "panelSideNav";
+            this.panelSideNav.Size = new System.Drawing.Size(174, 574);
 
             // 
             // btnNavBroadcast
             // 
-            this.btnNavBroadcast.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.btnNavBroadcast.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnNavBroadcast.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavBroadcast.Location = new System.Drawing.Point(2, 2);
+            this.btnNavBroadcast.Location = new System.Drawing.Point(8, 66);
             this.btnNavBroadcast.Name = "btnNavBroadcast";
-            this.btnNavBroadcast.Size = new System.Drawing.Size(120, 28);
-            this.btnNavBroadcast.Text = "📡 Broadcast";
+            this.btnNavBroadcast.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnNavBroadcast.Size = new System.Drawing.Size(156, 38);
+            this.btnNavBroadcast.Text = "📡  Broadcast";
+            this.btnNavBroadcast.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavBroadcast.UseVisualStyleBackColor = true;
 
             // 
             // btnNavCapture
             // 
-            this.btnNavCapture.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnNavCapture.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnNavCapture.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavCapture.Location = new System.Drawing.Point(125, 2);
+            this.btnNavCapture.Location = new System.Drawing.Point(8, 110);
             this.btnNavCapture.Name = "btnNavCapture";
-            this.btnNavCapture.Size = new System.Drawing.Size(135, 28);
-            this.btnNavCapture.Text = "🎥 Screen & Audio";
+            this.btnNavCapture.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnNavCapture.Size = new System.Drawing.Size(156, 38);
+            this.btnNavCapture.Text = "🎥  Screen & Audio";
+            this.btnNavCapture.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavCapture.UseVisualStyleBackColor = true;
 
             // 
             // btnNavNetwork
             // 
-            this.btnNavNetwork.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnNavNetwork.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnNavNetwork.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavNetwork.Location = new System.Drawing.Point(263, 2);
+            this.btnNavNetwork.Location = new System.Drawing.Point(8, 154);
             this.btnNavNetwork.Name = "btnNavNetwork";
-            this.btnNavNetwork.Size = new System.Drawing.Size(145, 28);
-            this.btnNavNetwork.Text = "🛡️ Network & Security";
+            this.btnNavNetwork.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnNavNetwork.Size = new System.Drawing.Size(156, 38);
+            this.btnNavNetwork.Text = "🛡️  Network & PIN";
+            this.btnNavNetwork.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavNetwork.UseVisualStyleBackColor = true;
 
             // 
             // btnNavPreferences
             // 
-            this.btnNavPreferences.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnNavPreferences.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnNavPreferences.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavPreferences.Location = new System.Drawing.Point(411, 2);
+            this.btnNavPreferences.Location = new System.Drawing.Point(8, 198);
             this.btnNavPreferences.Name = "btnNavPreferences";
-            this.btnNavPreferences.Size = new System.Drawing.Size(120, 28);
-            this.btnNavPreferences.Text = "⚙️ Settings & Logs";
+            this.btnNavPreferences.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnNavPreferences.Size = new System.Drawing.Size(156, 38);
+            this.btnNavPreferences.Text = "⚙️  Settings & Logs";
+            this.btnNavPreferences.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnNavPreferences.UseVisualStyleBackColor = true;
 
             // 
             // btnQuickMute
             // 
-            this.btnQuickMute.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.btnQuickMute.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnQuickMute.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnQuickMute.Location = new System.Drawing.Point(544, 3);
+            this.btnQuickMute.Location = new System.Drawing.Point(8, 526);
             this.btnQuickMute.Name = "btnQuickMute";
-            this.btnQuickMute.Size = new System.Drawing.Size(108, 32);
+            this.btnQuickMute.Size = new System.Drawing.Size(156, 36);
             this.btnQuickMute.Text = "🔇 Audio Off";
+            this.btnQuickMute.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnQuickMute.UseVisualStyleBackColor = true;
 
             // 
@@ -338,7 +340,7 @@ namespace ScreenTask
             this.panelTabBroadcast.Controls.Add(this.cardChipFps);
             this.panelTabBroadcast.Controls.Add(this.cardChipData);
             this.panelTabBroadcast.Controls.Add(this.cardChipUptime);
-            this.panelTabBroadcast.Location = new System.Drawing.Point(14, 86);
+            this.panelTabBroadcast.Location = new System.Drawing.Point(196, 44);
             this.panelTabBroadcast.Name = "panelTabBroadcast";
             this.panelTabBroadcast.Size = new System.Drawing.Size(652, 504);
 
@@ -739,7 +741,7 @@ namespace ScreenTask
             this.panelTabCapture.Controls.Add(this.cardVideoSource);
             this.panelTabCapture.Controls.Add(this.cardAudio);
             this.panelTabCapture.Controls.Add(this.groupBox1);
-            this.panelTabCapture.Location = new System.Drawing.Point(14, 86);
+            this.panelTabCapture.Location = new System.Drawing.Point(196, 44);
             this.panelTabCapture.Name = "panelTabCapture";
             this.panelTabCapture.Size = new System.Drawing.Size(652, 504);
             this.panelTabCapture.Visible = false;
@@ -970,7 +972,7 @@ namespace ScreenTask
             // 
             this.panelTabNetwork.Controls.Add(this.cardNetwork);
             this.panelTabNetwork.Controls.Add(this.gbOptions);
-            this.panelTabNetwork.Location = new System.Drawing.Point(14, 86);
+            this.panelTabNetwork.Location = new System.Drawing.Point(196, 44);
             this.panelTabNetwork.Name = "panelTabNetwork";
             this.panelTabNetwork.Size = new System.Drawing.Size(652, 504);
             this.panelTabNetwork.Visible = false;
@@ -1150,7 +1152,7 @@ namespace ScreenTask
             // 
             this.panelTabPreferences.Controls.Add(this.groupBox2);
             this.panelTabPreferences.Controls.Add(this.cardLogs);
-            this.panelTabPreferences.Location = new System.Drawing.Point(14, 86);
+            this.panelTabPreferences.Location = new System.Drawing.Point(196, 44);
             this.panelTabPreferences.Name = "panelTabPreferences";
             this.panelTabPreferences.Size = new System.Drawing.Size(652, 504);
             this.panelTabPreferences.Visible = false;
@@ -1263,7 +1265,7 @@ namespace ScreenTask
             this.panelCompactBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelCompactBar.Location = new System.Drawing.Point(0, 0);
             this.panelCompactBar.Name = "panelCompactBar";
-            this.panelCompactBar.Size = new System.Drawing.Size(680, 68);
+            this.panelCompactBar.Size = new System.Drawing.Size(860, 68);
             this.panelCompactBar.Visible = false;
 
             // 
@@ -1340,7 +1342,7 @@ namespace ScreenTask
             // 
             this.lblMe.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblMe.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblMe.Location = new System.Drawing.Point(14, 596);
+            this.lblMe.Location = new System.Drawing.Point(196, 594);
             this.lblMe.Name = "lblMe";
             this.lblMe.Size = new System.Drawing.Size(652, 18);
             this.lblMe.Text = "ScreenTask 2.0 • Free & Open Source under GPLv3 • © Eslam Hamouda 2014 - 2026 • screentask.eslamx.com";
@@ -1361,20 +1363,16 @@ namespace ScreenTask
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(680, 620);
+            this.ClientSize = new System.Drawing.Size(860, 620);
             this.Controls.Add(this.panelCompactBar);
             this.Controls.Add(this.lblMe);
             this.Controls.Add(this.panelTabPreferences);
             this.Controls.Add(this.panelTabNetwork);
             this.Controls.Add(this.panelTabCapture);
             this.Controls.Add(this.panelTabBroadcast);
-            this.Controls.Add(this.panelNav);
+            this.Controls.Add(this.panelSideNav);
             this.Controls.Add(this.btnMiniMode);
             this.Controls.Add(this.lblStatusBadge);
-            this.Controls.Add(this.lblAppSubtitle);
-            this.Controls.Add(this.lblFluentBadge);
-            this.Controls.Add(this.lblAppTitle);
-            this.Controls.Add(this.picAppIcon);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -1395,8 +1393,8 @@ namespace ScreenTask
             this.toolTipMain.SetToolTip(this.btnMiniMode, "Switch to compact mini bar");
             this.toolTipMain.SetToolTip(this.btnQuickMute, "Mute or unmute audio");
 
-            this.panelNav.ResumeLayout(false);
-            this.panelNavPill.ResumeLayout(false);
+            this.panelSideNav.ResumeLayout(false);
+            this.panelSideNav.PerformLayout();
             this.panelTabBroadcast.ResumeLayout(false);
             this.panelTabCapture.ResumeLayout(false);
             this.panelTabNetwork.ResumeLayout(false);
@@ -1446,9 +1444,8 @@ namespace ScreenTask
         private System.Windows.Forms.Label lblStatusBadge;
         private ScreenTask.UI.Controls.FluentButton btnMiniMode;
 
-        // Navigation Bar
-        private System.Windows.Forms.Panel panelNav;
-        private System.Windows.Forms.Panel panelNavPill;
+        // Side Navigation
+        private System.Windows.Forms.Panel panelSideNav;
         private ScreenTask.UI.Controls.FluentButton btnNavBroadcast;
         private ScreenTask.UI.Controls.FluentButton btnNavCapture;
         private ScreenTask.UI.Controls.FluentButton btnNavNetwork;

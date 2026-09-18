@@ -89,21 +89,25 @@ The desktop user interface was completely redesigned from the ground up to achie
 2. **Solid Container Framing**: All container cards (`FluentCard`) and navigation pills utilize crisp single-line solid borders (`BorderStyle.FixedSingle`) to establish visual separation and clarity without artificial drop shadows or gradients.
 3. **No Owner-Drawn Button Artifacts**: Buttons use standard OS rendering (`FlatStyle.Standard`, `UseVisualStyleBackColor = true`), eliminating artificial dark fills and non-standard borders.
 
-### Tabbed Visual Structure
+### Vertical Side Navigation Structure
 
 ```
-+-------------------------------------------------------------------------+
-| [Icon] ScreenTask 2.0  [v2.0.0]        Instant Local Screen Sharing    |
-|        ● Ready to Stream / ● Live Broadcasting          [🗖 Mini Bar]   |
-+-------------------------------------------------------------------------+
-|  [📡 Broadcast]   [🎥 Screen & Audio]   [🌐 Network & PIN]   [⚙️ Settings] |
-+-------------------------------------------------------------------------+
-|                                                                         |
-|  [ Tab Content Panel with FixedSingle Solid Border Containers ]        |
-|                                                                         |
-+-------------------------------------------------------------------------+
-| ScreenTask 2.0 • Free & Open Source under GPLv3 • © Eslam Hamouda       |
-+-------------------------------------------------------------------------+
++------------------+-------------------------------------------------------------+
+| [Icon] ScreenTask|                                 ● Ready to Stream   [🗖 Mini Bar] |
+|        Local Share|                                                             |
++------------------+-------------------------------------------------------------+
+| [📡 Broadcast]   |                                                             |
+|                  |  Active View Content (Broadcast / Screen & Audio / etc.)    |
+| [🎥 Screen/Audio]|                                                             |
+|                  |  - Live Confidence Monitor & Start/Stop Controls            |
+| [🛡️ Network/PIN] |  - Stream URL & Pairing                                     |
+|                  |  - Metric Chips                                             |
+| [⚙️ Settings/Log]|                                                             |
+| ---------------- |                                                             |
+| [🔇 Audio Off]   |                                                             |
++------------------+-------------------------------------------------------------+
+| ScreenTask 2.0 • Free & Open Source under GPLv3 • © Eslam Hamouda              |
++--------------------------------------------------------------------------------+
 ```
 
 #### Tab 1: Live Broadcast & Preview
@@ -219,7 +223,7 @@ ScreenTask.Tests/
 | **HTML5/CSS3 Web Viewer 2.0**| ✅ Completed | Canvas rendering, Web Audio player, pinch-zoom, HUD overlay. |
 | **Zero-Disk In-Memory Compression** | ✅ Completed | Replaced physical JPEG file writing with `ArrayPool<byte>` memory buffers. |
 | **Display & Window Capture** | ✅ Completed | GDI32 `BitBlt` for screens and User32 `PrintWindow` for windows. |
-| **Tabbed WinForms Interface** | ✅ Completed | Clean 4-tab organization (Broadcast, Screen & Audio, Network, Settings). |
+| **Vertical Side Navigation** | ✅ Completed | Native vertical sidebar with branding, active indicators, and bottom-pinned mute. |
 | **Compact Mini Bar Overlay** | ✅ Completed | Height-collapsible floating bar with live metrics and instant restore. |
 | **Native Windows Theming** | ✅ Completed | Replaced custom colors with native system colors and solid borders. |
 | **Terminology Harmonization**| ✅ Completed | Removed developer jargon across all controls, forms, dialogs, and tooltips. |
