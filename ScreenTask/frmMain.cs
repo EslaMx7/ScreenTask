@@ -74,13 +74,10 @@ namespace ScreenTask
             this.Resize += frmMain_Resize;
 
             // Navigation Tabs
-            btnNavBroadcast.Click += (s, e) => SelectTab(0);
-            btnNavCapture.Click += (s, e) => SelectTab(1);
-            btnNavNetwork.Click += (s, e) => SelectTab(2);
-            btnNavPreferences.Click += (s, e) => SelectTab(3);
+            sideNav.SelectedIndexChanged += (s, e) => SelectTab(sideNav.SelectedIndex);
             btnSwitchSource.Click += (s, e) => SelectTab(1);
 
-            // Quick Mute Button in Nav Bar
+            // Quick Mute Button in Broadcast Controls
             btnQuickMute.Click += (s, e) =>
             {
                 cbAudio.Checked = !cbAudio.Checked;
@@ -255,30 +252,14 @@ namespace ScreenTask
         private void SelectTab(int index)
         {
             _currentTabIndex = index;
+            if (sideNav.SelectedIndex != index)
+            {
+                sideNav.SelectedIndex = index;
+            }
             panelTabBroadcast.Visible = index == 0;
             panelTabCapture.Visible = index == 1;
             panelTabNetwork.Visible = index == 2;
             panelTabPreferences.Visible = index == 3;
-
-            UpdateNavButton(btnNavBroadcast, index == 0);
-            UpdateNavButton(btnNavCapture, index == 1);
-            UpdateNavButton(btnNavNetwork, index == 2);
-            UpdateNavButton(btnNavPreferences, index == 3);
-        }
-
-        private static void UpdateNavButton(Button btn, bool isSelected)
-        {
-            btn.Font = new Font(btn.Font.FontFamily, 9f, isSelected ? FontStyle.Bold : FontStyle.Regular);
-            if (isSelected)
-            {
-                btn.BackColor = SystemColors.ControlLight;
-                btn.UseVisualStyleBackColor = false;
-            }
-            else
-            {
-                btn.BackColor = SystemColors.Control;
-                btn.UseVisualStyleBackColor = true;
-            }
         }
 
         private void ToggleCompactMode()
@@ -750,7 +731,7 @@ namespace ScreenTask
             btnTestAudio.Enabled = cbAudio.Checked;
             btnAudioDiag.Enabled = cbAudio.Checked;
 
-            btnQuickMute.Text = cbAudio.Checked ? "🔊 Audio On" : "🔇 Audio Off";
+            btnQuickMute.Text = cbAudio.Checked ? "🔇 Mute Audio" : "🔊 Unmute Audio";
             monitorPreview.AudioInfoText = cbAudio.Checked ? "Audio: Active" : "Audio: Muted";
 
             if (!cbAudio.Checked)

@@ -30,10 +30,7 @@ namespace ScreenTask
 
             // Side Navigation
             this.panelSideNav = new System.Windows.Forms.Panel();
-            this.btnNavBroadcast = new ScreenTask.UI.Controls.FluentButton();
-            this.btnNavCapture = new ScreenTask.UI.Controls.FluentButton();
-            this.btnNavNetwork = new ScreenTask.UI.Controls.FluentButton();
-            this.btnNavPreferences = new ScreenTask.UI.Controls.FluentButton();
+            this.sideNav = new ScreenTask.UI.Controls.FluentSideNav();
             this.btnQuickMute = new ScreenTask.UI.Controls.FluentButton();
 
             // Tab Panels
@@ -257,78 +254,22 @@ namespace ScreenTask
             this.panelSideNav.Controls.Add(this.lblAppTitle);
             this.panelSideNav.Controls.Add(this.lblFluentBadge);
             this.panelSideNav.Controls.Add(this.lblAppSubtitle);
-            this.panelSideNav.Controls.Add(this.btnNavBroadcast);
-            this.panelSideNav.Controls.Add(this.btnNavCapture);
-            this.panelSideNav.Controls.Add(this.btnNavNetwork);
-            this.panelSideNav.Controls.Add(this.btnNavPreferences);
-            this.panelSideNav.Controls.Add(this.btnQuickMute);
+            this.panelSideNav.Controls.Add(this.sideNav);
             this.panelSideNav.Location = new System.Drawing.Point(12, 12);
             this.panelSideNav.Name = "panelSideNav";
             this.panelSideNav.Size = new System.Drawing.Size(174, 574);
 
             // 
-            // btnNavBroadcast
+            // sideNav
             // 
-            this.btnNavBroadcast.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnNavBroadcast.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavBroadcast.Location = new System.Drawing.Point(8, 66);
-            this.btnNavBroadcast.Name = "btnNavBroadcast";
-            this.btnNavBroadcast.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
-            this.btnNavBroadcast.Size = new System.Drawing.Size(156, 38);
-            this.btnNavBroadcast.Text = "📡  Broadcast";
-            this.btnNavBroadcast.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavBroadcast.UseVisualStyleBackColor = true;
-
-            // 
-            // btnNavCapture
-            // 
-            this.btnNavCapture.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.btnNavCapture.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavCapture.Location = new System.Drawing.Point(8, 110);
-            this.btnNavCapture.Name = "btnNavCapture";
-            this.btnNavCapture.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
-            this.btnNavCapture.Size = new System.Drawing.Size(156, 38);
-            this.btnNavCapture.Text = "🎥  Screen & Audio";
-            this.btnNavCapture.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavCapture.UseVisualStyleBackColor = true;
-
-            // 
-            // btnNavNetwork
-            // 
-            this.btnNavNetwork.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.btnNavNetwork.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavNetwork.Location = new System.Drawing.Point(8, 154);
-            this.btnNavNetwork.Name = "btnNavNetwork";
-            this.btnNavNetwork.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
-            this.btnNavNetwork.Size = new System.Drawing.Size(156, 38);
-            this.btnNavNetwork.Text = "🛡️  Network & PIN";
-            this.btnNavNetwork.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavNetwork.UseVisualStyleBackColor = true;
-
-            // 
-            // btnNavPreferences
-            // 
-            this.btnNavPreferences.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.btnNavPreferences.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnNavPreferences.Location = new System.Drawing.Point(8, 198);
-            this.btnNavPreferences.Name = "btnNavPreferences";
-            this.btnNavPreferences.Padding = new System.Windows.Forms.Padding(8, 0, 0, 0);
-            this.btnNavPreferences.Size = new System.Drawing.Size(156, 38);
-            this.btnNavPreferences.Text = "⚙️  Settings & Logs";
-            this.btnNavPreferences.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnNavPreferences.UseVisualStyleBackColor = true;
-
-            // 
-            // btnQuickMute
-            // 
-            this.btnQuickMute.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.btnQuickMute.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnQuickMute.Location = new System.Drawing.Point(8, 526);
-            this.btnQuickMute.Name = "btnQuickMute";
-            this.btnQuickMute.Size = new System.Drawing.Size(156, 36);
-            this.btnQuickMute.Text = "🔇 Audio Off";
-            this.btnQuickMute.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.btnQuickMute.UseVisualStyleBackColor = true;
+            this.sideNav.AddItem("Broadcast", "📡");
+            this.sideNav.AddItem("Screen & Audio", "🎥");
+            this.sideNav.AddItem("Network & PIN", "🛡️");
+            this.sideNav.AddItem("Settings & Logs", "⚙️");
+            this.sideNav.Location = new System.Drawing.Point(8, 64);
+            this.sideNav.Name = "sideNav";
+            this.sideNav.Size = new System.Drawing.Size(156, 172);
+            this.sideNav.TabIndex = 0;
 
             // 
             // panelTabBroadcast
@@ -398,6 +339,7 @@ namespace ScreenTask
             this.groupBox3.CardBackColor = System.Drawing.SystemColors.Control;
             this.groupBox3.Controls.Add(this.lblBroadcastDesc);
             this.groupBox3.Controls.Add(this.btnStartServer);
+            this.groupBox3.Controls.Add(this.btnQuickMute);
             this.groupBox3.Controls.Add(this.lblAudioMeterText);
             this.groupBox3.Controls.Add(this.pbAudioMeter);
             this.groupBox3.Controls.Add(this.lblLiveStats);
@@ -411,21 +353,33 @@ namespace ScreenTask
             // 
             this.lblBroadcastDesc.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblBroadcastDesc.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblBroadcastDesc.Location = new System.Drawing.Point(12, 32);
+            this.lblBroadcastDesc.Location = new System.Drawing.Point(12, 28);
             this.lblBroadcastDesc.Name = "lblBroadcastDesc";
-            this.lblBroadcastDesc.Size = new System.Drawing.Size(234, 30);
+            this.lblBroadcastDesc.Size = new System.Drawing.Size(234, 28);
             this.lblBroadcastDesc.Text = "Share your screen with any phone, tablet, or browser on your local network.";
 
             // 
             // btnStartServer
             // 
-            this.btnStartServer.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.btnStartServer.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnStartServer.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnStartServer.Location = new System.Drawing.Point(12, 66);
+            this.btnStartServer.Location = new System.Drawing.Point(12, 58);
             this.btnStartServer.Name = "btnStartServer";
-            this.btnStartServer.Size = new System.Drawing.Size(234, 46);
+            this.btnStartServer.Size = new System.Drawing.Size(234, 40);
             this.btnStartServer.Text = "▶  START BROADCAST";
             this.btnStartServer.UseVisualStyleBackColor = true;
+
+            // 
+            // btnQuickMute
+            // 
+            this.btnQuickMute.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.btnQuickMute.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnQuickMute.Location = new System.Drawing.Point(12, 102);
+            this.btnQuickMute.Name = "btnQuickMute";
+            this.btnQuickMute.Size = new System.Drawing.Size(234, 30);
+            this.btnQuickMute.Text = "🔊 Unmute Audio";
+            this.btnQuickMute.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnQuickMute.UseVisualStyleBackColor = true;
 
             // 
             // lblAudioMeterText
@@ -433,7 +387,7 @@ namespace ScreenTask
             this.lblAudioMeterText.AutoSize = true;
             this.lblAudioMeterText.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblAudioMeterText.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblAudioMeterText.Location = new System.Drawing.Point(12, 122);
+            this.lblAudioMeterText.Location = new System.Drawing.Point(12, 136);
             this.lblAudioMeterText.Name = "lblAudioMeterText";
             this.lblAudioMeterText.Size = new System.Drawing.Size(95, 12);
             this.lblAudioMeterText.Text = "Sound Volume Level:";
@@ -442,9 +396,9 @@ namespace ScreenTask
             // pbAudioMeter
             // 
             this.pbAudioMeter.Enabled = false;
-            this.pbAudioMeter.Location = new System.Drawing.Point(12, 140);
+            this.pbAudioMeter.Location = new System.Drawing.Point(12, 153);
             this.pbAudioMeter.Name = "pbAudioMeter";
-            this.pbAudioMeter.Size = new System.Drawing.Size(234, 12);
+            this.pbAudioMeter.Size = new System.Drawing.Size(234, 10);
             this.pbAudioMeter.Value = 0;
 
             // 
@@ -452,9 +406,9 @@ namespace ScreenTask
             // 
             this.lblLiveStats.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblLiveStats.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblLiveStats.Location = new System.Drawing.Point(12, 162);
+            this.lblLiveStats.Location = new System.Drawing.Point(12, 168);
             this.lblLiveStats.Name = "lblLiveStats";
-            this.lblLiveStats.Size = new System.Drawing.Size(234, 50);
+            this.lblLiveStats.Size = new System.Drawing.Size(234, 46);
             this.lblLiveStats.Text = "⚡ Stopped • Ready to broadcast";
             this.lblLiveStats.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
@@ -1446,11 +1400,7 @@ namespace ScreenTask
 
         // Side Navigation
         private System.Windows.Forms.Panel panelSideNav;
-        private ScreenTask.UI.Controls.FluentButton btnNavBroadcast;
-        private ScreenTask.UI.Controls.FluentButton btnNavCapture;
-        private ScreenTask.UI.Controls.FluentButton btnNavNetwork;
-        private ScreenTask.UI.Controls.FluentButton btnNavPreferences;
-        private ScreenTask.UI.Controls.FluentButton btnQuickMute;
+        private ScreenTask.UI.Controls.FluentSideNav sideNav;
 
         // Tab Panels
         private System.Windows.Forms.Panel panelTabBroadcast;
@@ -1468,6 +1418,7 @@ namespace ScreenTask
         private ScreenTask.UI.Controls.FluentCard groupBox3;
         private System.Windows.Forms.Label lblBroadcastDesc;
         private ScreenTask.UI.Controls.FluentButton btnStartServer;
+        private ScreenTask.UI.Controls.FluentButton btnQuickMute;
         private System.Windows.Forms.Label lblAudioMeterText;
         private ScreenTask.UI.Controls.FluentAudioMeter pbAudioMeter;
         private System.Windows.Forms.Label lblLiveStats;

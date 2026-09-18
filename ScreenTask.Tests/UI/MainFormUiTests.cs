@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using ScreenTask;
 using ScreenTask.Core.Audio;
 using ScreenTask.UI;
+using ScreenTask.UI.Controls;
 using Xunit;
 
 namespace ScreenTask.Tests.UI
@@ -135,6 +136,7 @@ namespace ScreenTask.Tests.UI
             RunInSta(() =>
             {
                 using var form = new frmMain();
+                form.Show();
 
                 var cbAudio = FindControl<CheckBox>(form, "cbAudio");
                 var comboAudioDevices = FindControl<ComboBox>(form, "comboAudioDevices");
@@ -143,6 +145,7 @@ namespace ScreenTask.Tests.UI
                 var pbAudioMeter = FindControl<ProgressBar>(form, "pbAudioMeter");
                 var cbPrivate = FindControl<CheckBox>(form, "cbPrivate");
                 var txtPassword = FindControl<TextBox>(form, "txtPassword");
+                var btnQuickMute = FindControl<Button>(form, "btnQuickMute");
 
                 Assert.NotNull(cbAudio);
                 Assert.NotNull(comboAudioDevices);
@@ -151,6 +154,7 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(pbAudioMeter);
                 Assert.NotNull(cbPrivate);
                 Assert.NotNull(txtPassword);
+                Assert.NotNull(btnQuickMute);
 
                 // Initially if cbAudio is unchecked, devices and test are disabled
                 cbAudio.Checked = false;
@@ -158,6 +162,7 @@ namespace ScreenTask.Tests.UI
                 Assert.False(btnTestAudio.Enabled);
                 Assert.False(btnAudioDiag.Enabled);
                 Assert.False(pbAudioMeter.Enabled);
+                Assert.Contains("Unmute", btnQuickMute.Text);
 
                 // Toggle cbAudio
                 cbAudio.Checked = true;
@@ -165,6 +170,12 @@ namespace ScreenTask.Tests.UI
                 Assert.True(btnTestAudio.Enabled);
                 Assert.True(btnAudioDiag.Enabled);
                 Assert.True(pbAudioMeter.Enabled);
+                Assert.Contains("Mute", btnQuickMute.Text);
+
+                // Clicking btnQuickMute toggles audio
+                btnQuickMute.PerformClick();
+                Assert.False(cbAudio.Checked);
+                Assert.Contains("Unmute", btnQuickMute.Text);
 
                 // Toggle cbPrivate
                 cbPrivate.Checked = false;
@@ -195,47 +206,42 @@ namespace ScreenTask.Tests.UI
                 using var form = new frmMain();
                 form.Show();
 
-                var btnNavBroadcast = FindControl<Button>(form, "btnNavBroadcast");
-                var btnNavCapture = FindControl<Button>(form, "btnNavCapture");
-                var btnNavNetwork = FindControl<Button>(form, "btnNavNetwork");
-                var btnNavPreferences = FindControl<Button>(form, "btnNavPreferences");
-
+                var sideNav = FindControl<FluentSideNav>(form, "sideNav");
                 var panelBroadcast = FindControl<Panel>(form, "panelTabBroadcast");
                 var panelCapture = FindControl<Panel>(form, "panelTabCapture");
                 var panelNetwork = FindControl<Panel>(form, "panelTabNetwork");
                 var panelPreferences = FindControl<Panel>(form, "panelTabPreferences");
 
-                Assert.NotNull(btnNavBroadcast);
-                Assert.NotNull(btnNavCapture);
-                Assert.NotNull(btnNavNetwork);
-                Assert.NotNull(btnNavPreferences);
-
+                Assert.NotNull(sideNav);
                 Assert.NotNull(panelBroadcast);
                 Assert.NotNull(panelCapture);
                 Assert.NotNull(panelNetwork);
                 Assert.NotNull(panelPreferences);
+
+                // Verify items are populated
+                Assert.Equal(4, sideNav.Items.Count);
 
                 // Initially Broadcast is active
                 Assert.True(panelBroadcast.Visible);
                 Assert.False(panelCapture.Visible);
 
                 // Switch to Capture
-                btnNavCapture.PerformClick();
+                sideNav.SelectedIndex = 1;
                 Assert.False(panelBroadcast.Visible);
                 Assert.True(panelCapture.Visible);
 
                 // Switch to Network
-                btnNavNetwork.PerformClick();
+                sideNav.SelectedIndex = 2;
                 Assert.False(panelCapture.Visible);
                 Assert.True(panelNetwork.Visible);
 
                 // Switch to Preferences
-                btnNavPreferences.PerformClick();
+                sideNav.SelectedIndex = 3;
                 Assert.False(panelNetwork.Visible);
                 Assert.True(panelPreferences.Visible);
 
                 // Switch back to Broadcast
-                btnNavBroadcast.PerformClick();
+                sideNav.SelectedIndex = 0;
                 Assert.True(panelBroadcast.Visible);
                 Assert.False(panelPreferences.Visible);
             });
