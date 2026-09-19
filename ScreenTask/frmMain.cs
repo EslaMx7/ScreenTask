@@ -166,7 +166,11 @@ namespace ScreenTask
             this.Resize += frmMain_Resize;
 
             // Navigation Tabs
-            sideNav.SelectedIndexChanged += (s, e) => SelectTab(sideNav.SelectedIndex);
+            btnNavBroadcast.Click += (s, e) => SelectTab(0);
+            btnNavClients.Click += (s, e) => SelectTab(1);
+            btnNavCapture.Click += (s, e) => SelectTab(2);
+            btnNavNetwork.Click += (s, e) => SelectTab(3);
+            btnNavPrefs.Click += (s, e) => SelectTab(4);
             btnSwitchSource.Click += (s, e) => SelectTab(2);
 
             // Connected Viewers & Pairing Pass Controls
@@ -383,13 +387,13 @@ namespace ScreenTask
             Log("ScreenTask 2.0 initialized. Ready.");
         }
 
-        private void SelectTab(int index)
+        public int SelectedTabIndex => _currentTabIndex;
+
+        public void SelectTab(int index)
         {
             _currentTabIndex = index;
-            if (sideNav.SelectedIndex != index)
-            {
-                sideNav.SelectedIndex = index;
-            }
+            UpdateNavButtons(index);
+
             viewBroadcast.Visible = index == 0;
             viewClients.Visible = index == 1;
             viewCapture.Visible = index == 2;
@@ -406,6 +410,16 @@ namespace ScreenTask
             else if (index == 2) viewCapture.BringToFront();
             else if (index == 3) viewNetwork.BringToFront();
             else if (index == 4) viewPreferences.BringToFront();
+        }
+
+        private void UpdateNavButtons(int activeIndex)
+        {
+            Button[] navButtons = [btnNavBroadcast, btnNavClients, btnNavCapture, btnNavNetwork, btnNavPrefs];
+            for (int i = 0; i < navButtons.Length; i++)
+            {
+                bool isActive = (i == activeIndex);
+                navButtons[i].Font = new Font("Segoe UI", 8.25F, isActive ? FontStyle.Bold : FontStyle.Regular);
+            }
         }
 
         private void ToggleCompactMode()

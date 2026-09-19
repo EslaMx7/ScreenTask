@@ -248,9 +248,7 @@ ScreenTask.Tests/
   * `NetworkSettingsView.cs` & `.Designer.cs` - Network adapter enumeration, port binding, and PIN session security.
   * `PreferencesView.cs` & `.Designer.cs` - Startup preferences, tray minimization, and activity log.
 * `ScreenTask/UI/MiniBarForm.cs` & `.Designer.cs` - Standalone floating compact bar form with dragging support.
-* `ScreenTask/Core/Streaming/ViewerSession.cs` - Thread-safe session tracking model and zero-dependency user agent parser.
-* `ScreenTask/UI/Controls/SideNavControl.cs` - Clean, responsive WinForms vertical navigation control with active state indicators.
-* `ScreenTask/UI/Controls/MonitorPreviewControl.cs` - Live stream confidence monitor with `● LIVE` / `● IDLE` OSD badge.
+* `ScreenTask/UI/Controls/MonitorPreviewControl.cs` & `.Designer.cs` - Composite UserControl confidence monitor (native PictureBox + Labels with zero custom GDI+ drawing).
 * `ScreenTask/UI/QrCodeForm.cs` - Secondary dialog for instant smartphone pairing via QR code camera scan.
 * `ScreenTask/UI/AudioDiagnosticsForm.cs` - Secondary dialog for microphone testing and device diagnostics.
 * `ScreenTask/WebServer/viewer.js` - Client-side WebSocket receiver, Canvas renderer, Web Audio player, and telemetry reporter.

@@ -29,7 +29,11 @@ namespace ScreenTask
 
             // Side Navigation
             this.panelSideNav = new System.Windows.Forms.Panel();
-            this.sideNav = new ScreenTask.UI.Controls.SideNavControl();
+            this.btnNavBroadcast = new System.Windows.Forms.Button();
+            this.btnNavClients = new System.Windows.Forms.Button();
+            this.btnNavCapture = new System.Windows.Forms.Button();
+            this.btnNavNetwork = new System.Windows.Forms.Button();
+            this.btnNavPrefs = new System.Windows.Forms.Button();
 
             // Central Content Container hosting the 5 Page Views
             this.panelContentContainer = new System.Windows.Forms.Panel();
@@ -115,23 +119,79 @@ namespace ScreenTask
             this.panelSideNav.Controls.Add(this.picAppIcon);
             this.panelSideNav.Controls.Add(this.lblAppTitle);
             this.panelSideNav.Controls.Add(this.lblAppSubtitle);
-            this.panelSideNav.Controls.Add(this.sideNav);
+            this.panelSideNav.Controls.Add(this.btnNavBroadcast);
+            this.panelSideNav.Controls.Add(this.btnNavClients);
+            this.panelSideNav.Controls.Add(this.btnNavCapture);
+            this.panelSideNav.Controls.Add(this.btnNavNetwork);
+            this.panelSideNav.Controls.Add(this.btnNavPrefs);
             this.panelSideNav.Location = new System.Drawing.Point(12, 12);
             this.panelSideNav.Name = "panelSideNav";
             this.panelSideNav.Size = new System.Drawing.Size(174, 574);
-
             // 
-            // sideNav
+            // btnNavBroadcast
             // 
-            this.sideNav.AddItem("Broadcast", "📡");
-            this.sideNav.AddItem("Connected Viewers & QR", "👥");
-            this.sideNav.AddItem("Screen & Audio", "🎥");
-            this.sideNav.AddItem("Network & PIN", "🛡️");
-            this.sideNav.AddItem("Settings & Logs", "⚙️");
-            this.sideNav.Location = new System.Drawing.Point(8, 64);
-            this.sideNav.Name = "sideNav";
-            this.sideNav.Size = new System.Drawing.Size(156, 218);
-            this.sideNav.TabIndex = 0;
+            this.btnNavBroadcast.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold);
+            this.btnNavBroadcast.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnNavBroadcast.Location = new System.Drawing.Point(8, 64);
+            this.btnNavBroadcast.Name = "btnNavBroadcast";
+            this.btnNavBroadcast.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+            this.btnNavBroadcast.Size = new System.Drawing.Size(156, 38);
+            this.btnNavBroadcast.TabIndex = 0;
+            this.btnNavBroadcast.Text = "📡 Broadcast";
+            this.btnNavBroadcast.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavBroadcast.UseVisualStyleBackColor = true;
+            // 
+            // btnNavClients
+            // 
+            this.btnNavClients.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.btnNavClients.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnNavClients.Location = new System.Drawing.Point(8, 106);
+            this.btnNavClients.Name = "btnNavClients";
+            this.btnNavClients.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+            this.btnNavClients.Size = new System.Drawing.Size(156, 38);
+            this.btnNavClients.TabIndex = 1;
+            this.btnNavClients.Text = "👥 Viewers & QR";
+            this.btnNavClients.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavClients.UseVisualStyleBackColor = true;
+            // 
+            // btnNavCapture
+            // 
+            this.btnNavCapture.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.btnNavCapture.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnNavCapture.Location = new System.Drawing.Point(8, 148);
+            this.btnNavCapture.Name = "btnNavCapture";
+            this.btnNavCapture.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+            this.btnNavCapture.Size = new System.Drawing.Size(156, 38);
+            this.btnNavCapture.TabIndex = 2;
+            this.btnNavCapture.Text = "🎥 Screen & Audio";
+            this.btnNavCapture.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavCapture.UseVisualStyleBackColor = true;
+            // 
+            // btnNavNetwork
+            // 
+            this.btnNavNetwork.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.btnNavNetwork.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnNavNetwork.Location = new System.Drawing.Point(8, 190);
+            this.btnNavNetwork.Name = "btnNavNetwork";
+            this.btnNavNetwork.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+            this.btnNavNetwork.Size = new System.Drawing.Size(156, 38);
+            this.btnNavNetwork.TabIndex = 3;
+            this.btnNavNetwork.Text = "🛡️ Network & PIN";
+            this.btnNavNetwork.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavNetwork.UseVisualStyleBackColor = true;
+            // 
+            // btnNavPrefs
+            // 
+            this.btnNavPrefs.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.btnNavPrefs.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.btnNavPrefs.Location = new System.Drawing.Point(8, 232);
+            this.btnNavPrefs.Name = "btnNavPrefs";
+            this.btnNavPrefs.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
+            this.btnNavPrefs.Size = new System.Drawing.Size(156, 38);
+            this.btnNavPrefs.TabIndex = 4;
+            this.btnNavPrefs.Text = "⚙️ Settings & Logs";
+            this.btnNavPrefs.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnNavPrefs.UseVisualStyleBackColor = true;
 
             // 
             // panelContentContainer
@@ -256,7 +316,11 @@ namespace ScreenTask
 
         // Side Navigation
         private System.Windows.Forms.Panel panelSideNav;
-        private ScreenTask.UI.Controls.SideNavControl sideNav;
+        internal System.Windows.Forms.Button btnNavBroadcast;
+        internal System.Windows.Forms.Button btnNavClients;
+        internal System.Windows.Forms.Button btnNavCapture;
+        internal System.Windows.Forms.Button btnNavNetwork;
+        internal System.Windows.Forms.Button btnNavPrefs;
 
         // Content Container & Views
         private System.Windows.Forms.Panel panelContentContainer;

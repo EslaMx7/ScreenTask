@@ -208,51 +208,62 @@ namespace ScreenTask.Tests.UI
                 using var form = new frmMain();
                 form.Show();
 
-                var sideNav = FindControl<SideNavControl>(form, "sideNav");
+                var btnNavBroadcast = FindControl<Button>(form, "btnNavBroadcast");
+                var btnNavClients = FindControl<Button>(form, "btnNavClients");
+                var btnNavCapture = FindControl<Button>(form, "btnNavCapture");
+                var btnNavNetwork = FindControl<Button>(form, "btnNavNetwork");
+                var btnNavPrefs = FindControl<Button>(form, "btnNavPrefs");
                 var panelBroadcast = FindControl<Control>(form, "viewBroadcast");
                 var panelClients = FindControl<Control>(form, "viewClients");
                 var panelCapture = FindControl<Control>(form, "viewCapture");
                 var panelNetwork = FindControl<Control>(form, "viewNetwork");
                 var panelPreferences = FindControl<Control>(form, "viewPreferences");
 
-                Assert.NotNull(sideNav);
+                Assert.NotNull(btnNavBroadcast);
+                Assert.NotNull(btnNavClients);
+                Assert.NotNull(btnNavCapture);
+                Assert.NotNull(btnNavNetwork);
+                Assert.NotNull(btnNavPrefs);
                 Assert.NotNull(panelBroadcast);
                 Assert.NotNull(panelClients);
                 Assert.NotNull(panelCapture);
                 Assert.NotNull(panelNetwork);
                 Assert.NotNull(panelPreferences);
 
-                // Verify items are populated (5 tabs)
-                Assert.Equal(5, sideNav.Items.Count);
-
                 // Initially Broadcast is active
                 Assert.True(panelBroadcast.Visible);
                 Assert.False(panelClients.Visible);
+                Assert.Equal(0, form.SelectedTabIndex);
 
                 // Switch to Connected Viewers & QR
-                sideNav.SelectedIndex = 1;
+                btnNavClients.PerformClick();
                 Assert.False(panelBroadcast.Visible);
                 Assert.True(panelClients.Visible);
+                Assert.Equal(1, form.SelectedTabIndex);
 
                 // Switch to Capture
-                sideNav.SelectedIndex = 2;
+                btnNavCapture.PerformClick();
                 Assert.False(panelClients.Visible);
                 Assert.True(panelCapture.Visible);
+                Assert.Equal(2, form.SelectedTabIndex);
 
                 // Switch to Network
-                sideNav.SelectedIndex = 3;
+                btnNavNetwork.PerformClick();
                 Assert.False(panelCapture.Visible);
                 Assert.True(panelNetwork.Visible);
+                Assert.Equal(3, form.SelectedTabIndex);
 
                 // Switch to Preferences
-                sideNav.SelectedIndex = 4;
+                btnNavPrefs.PerformClick();
                 Assert.False(panelNetwork.Visible);
                 Assert.True(panelPreferences.Visible);
+                Assert.Equal(4, form.SelectedTabIndex);
 
                 // Switch back to Broadcast
-                sideNav.SelectedIndex = 0;
+                btnNavBroadcast.PerformClick();
                 Assert.True(panelBroadcast.Visible);
                 Assert.False(panelPreferences.Visible);
+                Assert.Equal(0, form.SelectedTabIndex);
             });
         }
 
@@ -264,11 +275,11 @@ namespace ScreenTask.Tests.UI
                 using var form = new frmMain();
                 form.Show();
 
-                var sideNav = FindControl<SideNavControl>(form, "sideNav");
-                Assert.NotNull(sideNav);
+                var btnNavClients = FindControl<Button>(form, "btnNavClients");
+                Assert.NotNull(btnNavClients);
 
                 // Switch to Connected Viewers & QR tab
-                sideNav.SelectedIndex = 1;
+                btnNavClients.PerformClick();
 
                 var panelClients = FindControl<Control>(form, "viewClients");
                 Assert.NotNull(panelClients);

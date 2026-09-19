@@ -19,7 +19,7 @@ supporting iOS Safari, Android Chrome, and desktop browsers.
     * `Streaming/` - In-memory JPEG encoding, frame-dropping protection, WebSocket broadcaster, and `ViewerSession` fleet telemetry.
   * `UI/` - Windows Forms views, controls, and dialogs.
     * `Views/` - Decoupled `UserControl` views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`, `PreferencesView`).
-    * `Controls/` - Custom controls (`SideNavControl`, `MonitorPreviewControl`).
+    * `Controls/` - Custom composite UserControls (`MonitorPreviewControl`).
     * `MiniBarForm.cs` - Dedicated floating compact toolbar form.
     * Dialogs (`QrCodeForm`, `AudioDiagnosticsForm`).
   * `WebServer/` - Embedded ASP.NET Core server, REST endpoints, and static web viewer assets.
