@@ -163,9 +163,13 @@ namespace ScreenTask.WebServer
                 }
 
                 var clientId = Guid.NewGuid().ToString("N");
-                _broadcaster.AddVideoClient(clientId, webSocket);
+                var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+                if (remoteIp == "::1" || remoteIp == "0.0.0.1") remoteIp = "127.0.0.1";
+                var userAgent = context.Request.Headers.UserAgent.ToString();
 
-                var buffer = new byte[1024];
+                _broadcaster.AddVideoClient(clientId, webSocket, remoteIp, userAgent);
+
+                var buffer = new byte[2048];
                 try
                 {
                     while (webSocket.State == WebSocketState.Open && !_cts!.Token.IsCancellationRequested)
@@ -175,6 +179,30 @@ namespace ScreenTask.WebServer
                         {
                             await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", CancellationToken.None);
                             break;
+                        }
+                        else if (result.MessageType == WebSocketMessageType.Text && result.Count > 0)
+                        {
+                            var jsonStr = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                            try
+                            {
+                                using var doc = JsonDocument.Parse(jsonStr);
+                                var root = doc.RootElement;
+                                if (root.TryGetProperty("type", out var typeProp))
+                                {
+                                    var type = typeProp.GetString();
+                                    if (type == "ping" && root.TryGetProperty("t", out var tProp))
+                                    {
+                                        await _broadcaster.SendPongAsync(clientId, tProp.GetDouble());
+                                    }
+                                    else if (type == "telemetry")
+                                    {
+                                        double rtt = root.TryGetProperty("rtt", out var rProp) ? rProp.GetDouble() : 0.0;
+                                        string viewMode = root.TryGetProperty("mode", out var mProp) ? (mProp.GetString() ?? "") : "";
+                                        _broadcaster.UpdateTelemetry(clientId, rtt, viewMode);
+                                    }
+                                }
+                            }
+                            catch { }
                         }
                     }
                 }

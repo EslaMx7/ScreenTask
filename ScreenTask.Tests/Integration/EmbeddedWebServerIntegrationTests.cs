@@ -154,6 +154,13 @@ namespace ScreenTask.Tests.Integration
             await ws.ConnectAsync(uri, cts.Token);
             Assert.Equal(WebSocketState.Open, ws.State);
 
+            // Wait until the server registers the connected client
+            var waitStart = Environment.TickCount64;
+            while (_broadcaster.ConnectedClientsCount == 0 && Environment.TickCount64 - waitStart < 2000)
+            {
+                await Task.Delay(10);
+            }
+
             // Broadcast a dummy test bitmap
             using var bmp = new Bitmap(64, 64);
             using (var g = Graphics.FromImage(bmp))
@@ -240,6 +247,13 @@ namespace ScreenTask.Tests.Integration
             using var ws = new ClientWebSocket();
             await ws.ConnectAsync(new Uri($"ws://127.0.0.1:{_testPort}/stream/ws"), CancellationToken.None);
             Assert.Equal(WebSocketState.Open, ws.State);
+
+            // Wait until the server registers the connected client
+            var waitStart = Environment.TickCount64;
+            while (_broadcaster.ConnectedClientsCount == 0 && Environment.TickCount64 - waitStart < 2000)
+            {
+                await Task.Delay(10);
+            }
 
             // Dynamically enable PIN while client is connected
             _server.UpdateSecurity(true, "9999");

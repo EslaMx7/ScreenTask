@@ -13,10 +13,13 @@ namespace ScreenTask.Core.Streaming
     {
         private readonly ConcurrentDictionary<string, (WebSocket Socket, SemaphoreSlim Lock)> _videoClients = new();
         private readonly ConcurrentDictionary<string, (WebSocket Socket, SemaphoreSlim Lock)> _audioClients = new();
+        private readonly ConcurrentDictionary<string, ViewerSession> _sessions = new();
         private readonly ImageCodecInfo _jpegEncoder;
         private EncoderParameters _encoderParams;
         private long _frameCounter;
         private long _totalBytesTransferred;
+        private long _totalFramesSent;
+        private long _totalFramesDropped;
         private int _currentFps;
         private int _fpsCounter;
         private long _lastFpsTimestamp;
@@ -25,9 +28,48 @@ namespace ScreenTask.Core.Streaming
         private byte[]? _latestAudioFormatPacket;
         private readonly object _audioFormatLock = new();
 
+        public event Action<ViewerSession>? SessionConnected;
+        public event Action<string>? SessionDisconnected;
+        public event Action<ViewerSession>? SessionUpdated;
+
         public int ConnectedClientsCount => Math.Max(_videoClients.Count, _audioClients.Count);
         public int CurrentFps => _currentFps;
         public long TotalBytesTransferred => Interlocked.Read(ref _totalBytesTransferred);
+        public long TotalFramesSent => Interlocked.Read(ref _totalFramesSent);
+        public long TotalFramesDropped => Interlocked.Read(ref _totalFramesDropped);
+
+        public double FrameDropPercentage
+        {
+            get
+            {
+                long sent = TotalFramesSent;
+                long dropped = TotalFramesDropped;
+                long total = sent + dropped;
+                return total == 0 ? 0.0 : (double)dropped / total * 100.0;
+            }
+        }
+
+        public IReadOnlyCollection<ViewerSession> ConnectedSessions => _sessions.Values.ToArray();
+
+        public double AverageFleetLatencyMs
+        {
+            get
+            {
+                var sessions = _sessions.Values.ToArray();
+                if (sessions.Length == 0) return 0.0;
+                double sum = 0.0;
+                int count = 0;
+                foreach (var s in sessions)
+                {
+                    if (s.RttMs > 0)
+                    {
+                        sum += s.RttMs;
+                        count++;
+                    }
+                }
+                return count > 0 ? sum / count : 0.0;
+            }
+        }
 
         public StreamBroadcaster(int initialQuality = 75)
         {
@@ -48,10 +90,25 @@ namespace ScreenTask.Core.Streaming
             return p;
         }
 
-        public void AddVideoClient(string id, WebSocket socket)
+        public void AddVideoClient(string id, WebSocket socket, string remoteIp = "127.0.0.1", string? userAgent = null)
         {
             var clientLock = new SemaphoreSlim(1, 1);
             _videoClients[id] = (socket, clientLock);
+
+            var (device, icon, browser) = UserAgentParser.Parse(userAgent);
+            var session = new ViewerSession
+            {
+                Id = id,
+                RemoteIp = remoteIp,
+                UserAgent = userAgent ?? "",
+                DeviceName = device,
+                DeviceIcon = icon,
+                BrowserName = browser,
+                ConnectedAt = DateTime.UtcNow
+            };
+
+            _sessions[id] = session;
+            SessionConnected?.Invoke(session);
         }
 
         public void RemoveVideoClient(string id)
@@ -59,6 +116,30 @@ namespace ScreenTask.Core.Streaming
             if (_videoClients.TryRemove(id, out var entry))
             {
                 entry.Lock.Dispose();
+            }
+            if (_sessions.TryRemove(id, out _))
+            {
+                SessionDisconnected?.Invoke(id);
+            }
+        }
+
+        public void UpdateTelemetry(string id, double rttMs, string? viewMode)
+        {
+            if (_sessions.TryGetValue(id, out var session))
+            {
+                if (rttMs > 0) session.RttMs = rttMs;
+                if (!string.IsNullOrWhiteSpace(viewMode)) session.ViewMode = viewMode;
+                session.LastTelemetryTime = DateTime.UtcNow;
+                SessionUpdated?.Invoke(session);
+            }
+        }
+
+        public void SetClientAudioMuted(string id, bool isMuted)
+        {
+            if (_sessions.TryGetValue(id, out var session))
+            {
+                session.IsAudioMuted = isMuted;
+                SessionUpdated?.Invoke(session);
             }
         }
 
@@ -122,6 +203,12 @@ namespace ScreenTask.Core.Streaming
             await Task.WhenAll(kickTasks);
             _videoClients.Clear();
             _audioClients.Clear();
+            var sessionIds = _sessions.Keys.ToArray();
+            _sessions.Clear();
+            foreach (var id in sessionIds)
+            {
+                SessionDisconnected?.Invoke(id);
+            }
         }
 
         public async Task KickClientAsync(string id, WebSocketCloseStatus closeStatus = WebSocketCloseStatus.NormalClosure, string reason = "Kicked by host")
@@ -151,11 +238,16 @@ namespace ScreenTask.Core.Streaming
                 catch { }
                 audioEntry.Lock.Dispose();
             }
+
+            if (_sessions.TryRemove(id, out _))
+            {
+                SessionDisconnected?.Invoke(id);
+            }
         }
 
-        public async Task BroadcastAnnouncementAsync(string message)
+        public async Task<int> BroadcastAnnouncementAsync(string message)
         {
-            if (string.IsNullOrWhiteSpace(message) || _videoClients.IsEmpty) return;
+            if (string.IsNullOrWhiteSpace(message) || _videoClients.IsEmpty) return 0;
 
             var msgBytes = System.Text.Encoding.UTF8.GetBytes(message);
             var packet = new byte[msgBytes.Length + 1];
@@ -171,6 +263,31 @@ namespace ScreenTask.Core.Streaming
             }
 
             await Task.WhenAll(sendTasks);
+            return sendTasks.Count;
+        }
+
+        public async Task SendPongAsync(string clientId, double timestamp)
+        {
+            if (_videoClients.TryGetValue(clientId, out var entry))
+            {
+                if (entry.Socket.State != WebSocketState.Open) return;
+                var pongBytes = System.Text.Encoding.UTF8.GetBytes($"{{\"type\":\"pong\",\"t\":{timestamp}}}");
+                if (await entry.Lock.WaitAsync(50))
+                {
+                    try
+                    {
+                        if (entry.Socket.State == WebSocketState.Open)
+                        {
+                            await entry.Socket.SendAsync(new ArraySegment<byte>(pongBytes), WebSocketMessageType.Text, true, CancellationToken.None);
+                        }
+                    }
+                    catch { }
+                    finally
+                    {
+                        entry.Lock.Release();
+                    }
+                }
+            }
         }
 
         public byte[] GetLatestSnapshot()
@@ -244,11 +361,14 @@ namespace ScreenTask.Core.Streaming
 
             Interlocked.Add(ref _totalBytesTransferred, packet.Length * targetClients.Count);
 
-            var sendTasks = new Task[targetClients.Count];
-            int i = 0;
+            var sendTasks = new List<Task>(targetClients.Count);
             foreach (var kvp in targetClients)
             {
-                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: true);
+                if (_sessions.TryGetValue(kvp.Key, out var session) && session.IsAudioMuted)
+                {
+                    continue;
+                }
+                sendTasks.Add(SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: true));
             }
 
             await Task.WhenAll(sendTasks);
@@ -302,7 +422,12 @@ namespace ScreenTask.Core.Streaming
             }
             else
             {
-                if (!clientLock.Wait(0)) return;
+                if (!clientLock.Wait(0))
+                {
+                    Interlocked.Increment(ref _totalFramesDropped);
+                    return;
+                }
+                Interlocked.Increment(ref _totalFramesSent);
             }
 
             try
@@ -353,6 +478,7 @@ namespace ScreenTask.Core.Streaming
                 catch { }
             }
             _audioClients.Clear();
+            _sessions.Clear();
         }
     }
 }

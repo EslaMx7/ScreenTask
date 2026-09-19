@@ -297,6 +297,58 @@
     };
   }
 
+  // Telemetry and Ping/Pong RTT Tracking
+  let telemetryInterval = null;
+  let currentRtt = 15;
+  let telemetryDebounceTimer = null;
+
+  function getViewModeString() {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || isSimulatedFullscreen);
+    if (isFs) {
+      return (canvas && canvas.width > 0) ? `Fullscreen (${canvas.width}x${canvas.height})` : 'Fullscreen';
+    }
+    if (scale > 1.05) {
+      return `Touch Zoom ${scale.toFixed(1)}x`;
+    }
+    return 'Fit to Screen (1.0x)';
+  }
+
+  function sendPing() {
+    if (wsVideo && wsVideo.readyState === WebSocket.OPEN) {
+      try {
+        wsVideo.send(JSON.stringify({ type: 'ping', t: performance.now() }));
+      } catch (e) {}
+    }
+  }
+
+  function sendTelemetry() {
+    if (wsVideo && wsVideo.readyState === WebSocket.OPEN) {
+      try {
+        wsVideo.send(JSON.stringify({
+          type: 'telemetry',
+          rtt: currentRtt,
+          mode: getViewModeString()
+        }));
+      } catch (e) {}
+    }
+  }
+
+  function debouncedSendTelemetry() {
+    clearTimeout(telemetryDebounceTimer);
+    telemetryDebounceTimer = setTimeout(sendTelemetry, 300);
+  }
+
+  function startTelemetryHeartbeat() {
+    clearInterval(telemetryInterval);
+    sendPing();
+    telemetryInterval = setInterval(sendPing, 2500);
+  }
+
+  function stopTelemetryHeartbeat() {
+    clearInterval(telemetryInterval);
+    telemetryInterval = null;
+  }
+
   // Connect WebSockets (Video + Audio)
   function connect() {
     const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -322,9 +374,22 @@
       pinModal.classList.add('hidden');
       // Connect audio channel once video connection succeeds
       connectAudioOnly();
+      startTelemetryHeartbeat();
     };
 
     wsVideo.onmessage = async (event) => {
+      // Handle text messages (ping/pong and telemetry)
+      if (typeof event.data === 'string') {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'pong' && typeof msg.t === 'number') {
+            currentRtt = Math.max(1, Math.round(performance.now() - msg.t));
+            sendTelemetry();
+          }
+        } catch (e) {}
+        return;
+      }
+
       if (!(event.data instanceof ArrayBuffer)) return;
 
       const data = new Uint8Array(event.data);
@@ -382,6 +447,7 @@
 
     wsVideo.onclose = (e) => {
       isConnected = false;
+      stopTelemetryHeartbeat();
       if (wsAudio) {
         try { wsAudio.close(); } catch (err) {}
         wsAudio = null;
@@ -485,9 +551,10 @@
       btnFullscreen.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path></svg>`;
       btnFullscreen.title = "Exit Fullscreen";
     } else {
-      btnFullscreen.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>`;
+      btnFullscreen.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 2 2h3"></path></svg>`;
       btnFullscreen.title = "Toggle Fullscreen";
     }
+    sendTelemetry();
   }
 
   function activateSimulatedFullscreen() {
@@ -581,6 +648,7 @@
       zoomHud.style.display = 'none';
       btnResetZoom.style.display = 'none';
     }
+    debouncedSendTelemetry();
   }
 
   btnResetZoom?.addEventListener('click', () => {
