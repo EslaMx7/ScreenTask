@@ -45,6 +45,15 @@ namespace ScreenTask
         public EmbeddedWebServer WebServer => _webServer;
         public ScreenCaptureEngine CaptureEngine => _captureEngine;
 
+        public StatusStrip StatusStrip => statusStripMain;
+        public ToolStripStatusLabel StatusLabelServer => statusLabelServer;
+        public ToolStripStatusLabel StatusLabelViewers => statusLabelViewers;
+        public ToolStripStatusLabel StatusLabelFps => statusLabelFps;
+        public ToolStripStatusLabel StatusLabelData => statusLabelData;
+        public ToolStripStatusLabel StatusLabelUptime => statusLabelUptime;
+        public ToolStripStatusLabel StatusLabelAudio => statusLabelAudio;
+        public ToolStripStatusLabel StatusLabelCopyright => statusLabelCopyright;
+
         #region View Control Forwarders
         // BroadcastView Forwarders
         internal MonitorPreviewControl monitorPreview => viewBroadcast.monitorPreview;
@@ -309,7 +318,7 @@ namespace ScreenTask
                 }
             };
 
-            lblMe.Click += lblMe_Click;
+            statusLabelCopyright.Click += statusLabelCopyright_Click;
             appNotify.Click += appNotify_Click;
             appNotify.MouseDoubleClick += (s, e) => RestoreFromTray();
         }
@@ -372,6 +381,14 @@ namespace ScreenTask
             SyncPairingInfo();
             UpdateSessionCards();
             SelectTab(0);
+
+            statusLabelServer.Text = "● Ready to stream";
+            statusLabelViewers.Text = "👥 0 viewers";
+            statusLabelFps.Text = "🎞️ 0 FPS";
+            statusLabelData.Text = "📊 0.0 MB";
+            statusLabelUptime.Text = "⏱️ 00:00:00";
+            statusLabelAudio.Text = cbAudio.Checked ? "🔊 Audio: On" : "🔇 Audio: Off";
+            statusLabelCopyright.Text = "© 2014-2026 Eslam Hamouda";
 
             if (_currentSettings.IsStartMinimizedEnabled)
             {
@@ -594,6 +611,7 @@ namespace ScreenTask
             lblFleetHeader.Text = $"Live Client Sessions ({count} Connected):";
 
             lblMetricViewersVal.Text = $"{count} / 32 Active";
+            statusLabelViewers.Text = $"👥 {count} {(count == 1 ? "viewer" : "viewers")}";
             pbViewerCapacity.Value = Math.Clamp(count, 0, 32);
 
             double avgRtt = _broadcaster.AverageFleetLatencyMs;
@@ -852,6 +870,14 @@ namespace ScreenTask
                 lblStatusBadge.Text = "● Live Broadcasting";
                 monitorPreview.IsLive = true;
 
+                // Update StatusStrip
+                statusLabelServer.Text = $"● Live: {streamUrl}";
+                statusLabelViewers.Text = "👥 0 viewers";
+                statusLabelFps.Text = "🎞️ 0 FPS";
+                statusLabelData.Text = "📊 0.0 MB";
+                statusLabelUptime.Text = "⏱️ 00:00:00";
+                statusLabelAudio.Text = cbAudio.Checked ? "🔊 Audio: On" : "🔇 Audio: Off";
+
                 Log($"Stream live at: {streamUrl}");
                 Log($"Broadcasting: {_captureEngine.CurrentSource.DisplayName} at {_captureEngine.TargetFps} FPS (Audio: {(cbAudio.Checked ? "On" : "Off")})");
                 appNotify.ShowBalloonTip(1000, "ScreenTask 2.0 Live", $"Streaming at {streamUrl}", ToolTipIcon.Info);
@@ -910,6 +936,14 @@ namespace ScreenTask
                 lblChipUptime.Text = "00:00:00";
                 UpdateSessionCards();
 
+                // Update StatusStrip
+                statusLabelServer.Text = "● Ready to stream";
+                statusLabelViewers.Text = "👥 0 viewers";
+                statusLabelFps.Text = "🎞️ 0 FPS";
+                statusLabelData.Text = "📊 0.0 MB";
+                statusLabelUptime.Text = "⏱️ 00:00:00";
+                statusLabelAudio.Text = cbAudio.Checked ? "🔊 Audio: On" : "🔇 Audio: Off";
+
                 Log("ScreenTask server stopped.");
                 appNotify.ShowBalloonTip(1000, "ScreenTask", "Server stopped.", ToolTipIcon.Info);
             }
@@ -942,6 +976,14 @@ namespace ScreenTask
             lblChipFps.Text = $"{fps}.0 FPS";
             lblChipData.Text = $"{mbTransferred} MB";
             lblChipUptime.Text = uptime;
+
+            // Update StatusStrip
+            statusLabelServer.Text = $"● Live: {_webServer.ServerUrl}";
+            statusLabelViewers.Text = $"👥 {viewers} {(viewers == 1 ? "viewer" : "viewers")}";
+            statusLabelFps.Text = $"🎞️ {fps} FPS";
+            statusLabelData.Text = $"📊 {mbTransferred} MB";
+            statusLabelUptime.Text = $"⏱️ {uptime}";
+            statusLabelAudio.Text = _captureEngine.AudioEnabled ? "🔊 Audio: On" : "🔇 Audio: Off";
 
             UpdateSessionCards();
         }
@@ -1074,6 +1116,7 @@ namespace ScreenTask
 
             btnQuickMute.Text = cbAudio.Checked ? "🔇 Mute Audio" : "🔊 Unmute Audio";
             monitorPreview.AudioInfoText = cbAudio.Checked ? "Audio: Active" : "Audio: Muted";
+            statusLabelAudio.Text = cbAudio.Checked ? "🔊 Audio: On" : "🔇 Audio: Off";
 
             if (!cbAudio.Checked)
             {
@@ -1221,7 +1264,7 @@ namespace ScreenTask
             txtLog.AppendText($"{DateTime.Now:HH:mm:ss} : {text}\r\n");
         }
 
-        private void lblMe_Click(object? sender, EventArgs e)
+        private void statusLabelCopyright_Click(object? sender, EventArgs e)
         {
             try
             {

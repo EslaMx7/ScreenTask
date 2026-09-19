@@ -44,13 +44,21 @@ namespace ScreenTask
             this.viewPreferences = new ScreenTask.UI.Views.PreferencesView();
 
             // Footer & System Tray
-            this.lblMe = new System.Windows.Forms.Label();
+            this.statusStripMain = new System.Windows.Forms.StatusStrip();
+            this.statusLabelServer = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelViewers = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelFps = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelData = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelUptime = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelAudio = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusLabelCopyright = new System.Windows.Forms.ToolStripStatusLabel();
             this.appNotify = new System.Windows.Forms.NotifyIcon(this.components);
             this.toolTipMain = new System.Windows.Forms.ToolTip(this.components);
             this.trayContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
 
             this.panelSideNav.SuspendLayout();
             this.panelContentContainer.SuspendLayout();
+            this.statusStripMain.SuspendLayout();
             this.SuspendLayout();
 
             // 
@@ -257,16 +265,89 @@ namespace ScreenTask
             this.viewPreferences.Visible = false;
 
             // 
-            // lblMe
+            // statusStripMain
             // 
-            this.lblMe.Font = new System.Drawing.Font("Segoe UI", 7.5F);
-            this.lblMe.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblMe.Location = new System.Drawing.Point(196, 594);
-            this.lblMe.Name = "lblMe";
-            this.lblMe.Size = new System.Drawing.Size(652, 18);
-            this.lblMe.Text = "ScreenTask 2.0 • Free & Open Source under GPLv3 • © Eslam Hamouda 2014 - 2026 • screentask.eslamx.com";
-            this.lblMe.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-
+            this.statusStripMain.BackColor = System.Drawing.SystemColors.Control;
+            this.statusStripMain.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.statusStripMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+                this.statusLabelServer,
+                this.statusLabelViewers,
+                this.statusLabelFps,
+                this.statusLabelData,
+                this.statusLabelUptime,
+                this.statusLabelAudio,
+                this.statusLabelCopyright
+            });
+            this.statusStripMain.Location = new System.Drawing.Point(0, 596);
+            this.statusStripMain.Name = "statusStripMain";
+            this.statusStripMain.ShowItemToolTips = true;
+            this.statusStripMain.Size = new System.Drawing.Size(860, 24);
+            this.statusStripMain.SizingGrip = false;
+            this.statusStripMain.TabIndex = 2;
+            // 
+            // statusLabelServer
+            // 
+            this.statusLabelServer.Name = "statusLabelServer";
+            this.statusLabelServer.Size = new System.Drawing.Size(200, 19);
+            this.statusLabelServer.Spring = true;
+            this.statusLabelServer.Text = "● Ready to stream";
+            this.statusLabelServer.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.statusLabelServer.ToolTipText = "Server and streaming status";
+            // 
+            // statusLabelViewers
+            // 
+            this.statusLabelViewers.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelViewers.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelViewers.Name = "statusLabelViewers";
+            this.statusLabelViewers.Size = new System.Drawing.Size(75, 19);
+            this.statusLabelViewers.Text = "👥 0 viewers";
+            this.statusLabelViewers.ToolTipText = "Connected client sessions";
+            // 
+            // statusLabelFps
+            // 
+            this.statusLabelFps.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelFps.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelFps.Name = "statusLabelFps";
+            this.statusLabelFps.Size = new System.Drawing.Size(55, 19);
+            this.statusLabelFps.Text = "🎞️ 0 FPS";
+            this.statusLabelFps.ToolTipText = "Streaming frame rate";
+            // 
+            // statusLabelData
+            // 
+            this.statusLabelData.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelData.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelData.Name = "statusLabelData";
+            this.statusLabelData.Size = new System.Drawing.Size(65, 19);
+            this.statusLabelData.Text = "📊 0.0 MB";
+            this.statusLabelData.ToolTipText = "Total data transferred";
+            // 
+            // statusLabelUptime
+            // 
+            this.statusLabelUptime.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelUptime.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelUptime.Name = "statusLabelUptime";
+            this.statusLabelUptime.Size = new System.Drawing.Size(70, 19);
+            this.statusLabelUptime.Text = "⏱️ 00:00:00";
+            this.statusLabelUptime.ToolTipText = "Broadcast stream time";
+            // 
+            // statusLabelAudio
+            // 
+            this.statusLabelAudio.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelAudio.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelAudio.Name = "statusLabelAudio";
+            this.statusLabelAudio.Size = new System.Drawing.Size(85, 19);
+            this.statusLabelAudio.Text = "🔇 Audio: Off";
+            this.statusLabelAudio.ToolTipText = "WASAPI system audio capture";
+            // 
+            // statusLabelCopyright
+            // 
+            this.statusLabelCopyright.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Left;
+            this.statusLabelCopyright.BorderStyle = System.Windows.Forms.Border3DStyle.Etched;
+            this.statusLabelCopyright.IsLink = true;
+            this.statusLabelCopyright.Name = "statusLabelCopyright";
+            this.statusLabelCopyright.Size = new System.Drawing.Size(155, 19);
+            this.statusLabelCopyright.Text = "© 2014-2026 Eslam Hamouda";
+            this.statusLabelCopyright.ToolTipText = "ScreenTask 2.0 • Free & Open Source under GPLv3 • screentask.eslamx.com";
             // 
             // appNotify
             // 
@@ -275,7 +356,6 @@ namespace ScreenTask
             this.appNotify.Icon = ((System.Drawing.Icon)(resources.GetObject("appNotify.Icon")));
             this.appNotify.Text = "ScreenTask 2.0";
             this.appNotify.Visible = true;
-
             // 
             // frmMain
             // 
@@ -284,10 +364,10 @@ namespace ScreenTask
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(860, 620);
             this.Controls.Add(this.panelContentContainer);
-            this.Controls.Add(this.lblMe);
             this.Controls.Add(this.panelSideNav);
             this.Controls.Add(this.btnMiniMode);
             this.Controls.Add(this.lblStatusBadge);
+            this.Controls.Add(this.statusStripMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -301,6 +381,8 @@ namespace ScreenTask
             this.panelSideNav.ResumeLayout(false);
             this.panelSideNav.PerformLayout();
             this.panelContentContainer.ResumeLayout(false);
+            this.statusStripMain.ResumeLayout(false);
+            this.statusStripMain.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
         }
@@ -331,7 +413,14 @@ namespace ScreenTask
         internal ScreenTask.UI.Views.PreferencesView viewPreferences;
 
         // Footer & System Tray
-        private System.Windows.Forms.Label lblMe;
+        internal System.Windows.Forms.StatusStrip statusStripMain;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelServer;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelViewers;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelFps;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelData;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelUptime;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelAudio;
+        internal System.Windows.Forms.ToolStripStatusLabel statusLabelCopyright;
         private System.Windows.Forms.NotifyIcon appNotify;
         private System.Windows.Forms.ToolTip toolTipMain;
         private System.Windows.Forms.ContextMenuStrip trayContextMenu;

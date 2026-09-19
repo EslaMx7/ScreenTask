@@ -500,6 +500,55 @@ namespace ScreenTask.Tests.UI
             });
         }
 
+        [Fact]
+        public void MainForm_StatusStrip_DisplaysStatsAndShortCopyright()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var statusStrip = form.StatusStrip;
+                Assert.NotNull(statusStrip);
+                Assert.Equal(DockStyle.Bottom, statusStrip.Dock);
+                Assert.Equal(7, statusStrip.Items.Count);
+
+                Assert.NotNull(form.StatusLabelServer);
+                Assert.True(form.StatusLabelServer.Spring);
+                Assert.Contains("Ready to stream", form.StatusLabelServer.Text);
+
+                Assert.NotNull(form.StatusLabelViewers);
+                Assert.Contains("0 viewers", form.StatusLabelViewers.Text);
+
+                Assert.NotNull(form.StatusLabelFps);
+                Assert.Contains("0 FPS", form.StatusLabelFps.Text);
+
+                Assert.NotNull(form.StatusLabelData);
+                Assert.Contains("0.0 MB", form.StatusLabelData.Text);
+
+                Assert.NotNull(form.StatusLabelUptime);
+                Assert.Contains("00:00:00", form.StatusLabelUptime.Text);
+
+                Assert.NotNull(form.StatusLabelAudio);
+                Assert.Contains("Audio:", form.StatusLabelAudio.Text);
+
+                Assert.NotNull(form.StatusLabelCopyright);
+                Assert.Contains("© 2014-2026 Eslam Hamouda", form.StatusLabelCopyright.Text);
+                Assert.True(form.StatusLabelCopyright.IsLink);
+                Assert.Contains("screentask.eslamx.com", form.StatusLabelCopyright.ToolTipText);
+
+                // Test reactive audio status change
+                var cbAudio = FindControl<CheckBox>(form, "cbAudio");
+                Assert.NotNull(cbAudio);
+
+                cbAudio.Checked = true;
+                Assert.Contains("Audio: On", form.StatusLabelAudio.Text);
+
+                cbAudio.Checked = false;
+                Assert.Contains("Audio: Off", form.StatusLabelAudio.Text);
+            });
+        }
+
         private static void RunInSta(Action action)
         {
             Exception? ex = null;
