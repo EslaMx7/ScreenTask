@@ -23,14 +23,13 @@ namespace ScreenTask
             // Top Header Elements
             this.picAppIcon = new System.Windows.Forms.Label();
             this.lblAppTitle = new System.Windows.Forms.Label();
-            this.lblFluentBadge = new System.Windows.Forms.Label();
             this.lblAppSubtitle = new System.Windows.Forms.Label();
             this.lblStatusBadge = new System.Windows.Forms.Label();
-            this.btnMiniMode = new ScreenTask.UI.Controls.FluentButton();
+            this.btnMiniMode = new System.Windows.Forms.Button();
 
             // Side Navigation
             this.panelSideNav = new System.Windows.Forms.Panel();
-            this.sideNav = new ScreenTask.UI.Controls.FluentSideNav();
+            this.sideNav = new ScreenTask.UI.Controls.SideNavControl();
 
             // Central Content Container hosting the 5 Page Views
             this.panelContentContainer = new System.Windows.Forms.Panel();
@@ -74,20 +73,6 @@ namespace ScreenTask
             this.lblAppTitle.Text = "ScreenTask 2.0";
 
             // 
-            // lblFluentBadge
-            // 
-            this.lblFluentBadge.AutoSize = true;
-            this.lblFluentBadge.BackColor = System.Drawing.Color.Transparent;
-            this.lblFluentBadge.Font = new System.Drawing.Font("Consolas", 7F, System.Drawing.FontStyle.Bold);
-            this.lblFluentBadge.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblFluentBadge.Location = new System.Drawing.Point(38, 34);
-            this.lblFluentBadge.Name = "lblFluentBadge";
-            this.lblFluentBadge.Padding = new System.Windows.Forms.Padding(4, 1, 4, 1);
-            this.lblFluentBadge.Size = new System.Drawing.Size(53, 14);
-            this.lblFluentBadge.Text = "2.0";
-            this.lblFluentBadge.Visible = false;
-
-            // 
             // lblAppSubtitle
             // 
             this.lblAppSubtitle.AutoSize = true;
@@ -129,7 +114,6 @@ namespace ScreenTask
             this.panelSideNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelSideNav.Controls.Add(this.picAppIcon);
             this.panelSideNav.Controls.Add(this.lblAppTitle);
-            this.panelSideNav.Controls.Add(this.lblFluentBadge);
             this.panelSideNav.Controls.Add(this.lblAppSubtitle);
             this.panelSideNav.Controls.Add(this.sideNav);
             this.panelSideNav.Location = new System.Drawing.Point(12, 12);
@@ -266,14 +250,13 @@ namespace ScreenTask
         // Header controls
         private System.Windows.Forms.Label picAppIcon;
         private System.Windows.Forms.Label lblAppTitle;
-        private System.Windows.Forms.Label lblFluentBadge;
         private System.Windows.Forms.Label lblAppSubtitle;
         private System.Windows.Forms.Label lblStatusBadge;
-        private ScreenTask.UI.Controls.FluentButton btnMiniMode;
+        private System.Windows.Forms.Button btnMiniMode;
 
         // Side Navigation
         private System.Windows.Forms.Panel panelSideNav;
-        private ScreenTask.UI.Controls.FluentSideNav sideNav;
+        private ScreenTask.UI.Controls.SideNavControl sideNav;
 
         // Content Container & Views
         private System.Windows.Forms.Panel panelContentContainer;

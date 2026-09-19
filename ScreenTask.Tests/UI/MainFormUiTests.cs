@@ -208,7 +208,7 @@ namespace ScreenTask.Tests.UI
                 using var form = new frmMain();
                 form.Show();
 
-                var sideNav = FindControl<FluentSideNav>(form, "sideNav");
+                var sideNav = FindControl<SideNavControl>(form, "sideNav");
                 var panelBroadcast = FindControl<Control>(form, "viewBroadcast");
                 var panelClients = FindControl<Control>(form, "viewClients");
                 var panelCapture = FindControl<Control>(form, "viewCapture");
@@ -264,7 +264,7 @@ namespace ScreenTask.Tests.UI
                 using var form = new frmMain();
                 form.Show();
 
-                var sideNav = FindControl<FluentSideNav>(form, "sideNav");
+                var sideNav = FindControl<SideNavControl>(form, "sideNav");
                 Assert.NotNull(sideNav);
 
                 // Switch to Connected Viewers & QR tab

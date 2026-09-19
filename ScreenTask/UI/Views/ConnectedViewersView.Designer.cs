@@ -17,36 +17,36 @@ namespace ScreenTask.UI.Views
 
         private void InitializeComponent()
         {
-            this.cardMetricViewers = new ScreenTask.UI.Controls.FluentCard();
+            this.cardMetricViewers = new System.Windows.Forms.Panel();
             this.lblIconMetricViewers = new System.Windows.Forms.Label();
             this.lblTitleMetricViewers = new System.Windows.Forms.Label();
             this.lblMetricViewersVal = new System.Windows.Forms.Label();
             this.pbViewerCapacity = new System.Windows.Forms.ProgressBar();
-            this.cardMetricLatency = new ScreenTask.UI.Controls.FluentCard();
+            this.cardMetricLatency = new System.Windows.Forms.Panel();
             this.lblIconMetricLatency = new System.Windows.Forms.Label();
             this.lblTitleMetricLatency = new System.Windows.Forms.Label();
             this.lblMetricLatencyVal = new System.Windows.Forms.Label();
             this.lblMetricLatencySub = new System.Windows.Forms.Label();
-            this.cardMetricSync = new ScreenTask.UI.Controls.FluentCard();
+            this.cardMetricSync = new System.Windows.Forms.Panel();
             this.lblIconMetricSync = new System.Windows.Forms.Label();
             this.lblTitleMetricSync = new System.Windows.Forms.Label();
             this.lblMetricSyncVal = new System.Windows.Forms.Label();
             this.lblMetricSyncSub = new System.Windows.Forms.Label();
-            this.cardFleetTerminal = new ScreenTask.UI.Controls.FluentCard();
+            this.cardFleetTerminal = new System.Windows.Forms.Panel();
             this.lblFleetHeader = new System.Windows.Forms.Label();
             this.panelSessionList = new System.Windows.Forms.Panel();
             this.lblNoClientsPlaceholder = new System.Windows.Forms.Label();
             this.lblAnnouncement = new System.Windows.Forms.Label();
             this.txtAnnouncement = new System.Windows.Forms.TextBox();
-            this.btnSendAnnouncement = new ScreenTask.UI.Controls.FluentButton();
+            this.btnSendAnnouncement = new System.Windows.Forms.Button();
             this.lblAnnouncementStatus = new System.Windows.Forms.Label();
-            this.cardPairingPass = new ScreenTask.UI.Controls.FluentCard();
+            this.cardPairingPass = new System.Windows.Forms.Panel();
             this.picPairingQr = new System.Windows.Forms.PictureBox();
             this.lblPairingUrlTitle = new System.Windows.Forms.Label();
             this.txtPairingUrl = new System.Windows.Forms.TextBox();
-            this.btnPairingCopy = new ScreenTask.UI.Controls.FluentButton();
+            this.btnPairingCopy = new System.Windows.Forms.Button();
             this.lblPairingPin = new System.Windows.Forms.Label();
-            this.btnPairingRegen = new ScreenTask.UI.Controls.FluentButton();
+            this.btnPairingRegen = new System.Windows.Forms.Button();
             this.lblZeroConf = new System.Windows.Forms.Label();
             this.panelSpotlight = new System.Windows.Forms.Panel();
             this.lblSpotlightTitle = new System.Windows.Forms.Label();
@@ -67,7 +67,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardMetricViewers
             // 
-            this.cardMetricViewers.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricViewers.BackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricViewers.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardMetricViewers.Controls.Add(this.lblIconMetricViewers);
             this.cardMetricViewers.Controls.Add(this.lblTitleMetricViewers);
             this.cardMetricViewers.Controls.Add(this.lblMetricViewersVal);
@@ -119,7 +120,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardMetricLatency
             // 
-            this.cardMetricLatency.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricLatency.BackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricLatency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardMetricLatency.Controls.Add(this.lblIconMetricLatency);
             this.cardMetricLatency.Controls.Add(this.lblTitleMetricLatency);
             this.cardMetricLatency.Controls.Add(this.lblMetricLatencyVal);
@@ -173,7 +175,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardMetricSync
             // 
-            this.cardMetricSync.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricSync.BackColor = System.Drawing.SystemColors.Control;
+            this.cardMetricSync.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardMetricSync.Controls.Add(this.lblIconMetricSync);
             this.cardMetricSync.Controls.Add(this.lblTitleMetricSync);
             this.cardMetricSync.Controls.Add(this.lblMetricSyncVal);
@@ -227,7 +230,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardFleetTerminal
             // 
-            this.cardFleetTerminal.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardFleetTerminal.BackColor = System.Drawing.SystemColors.Control;
+            this.cardFleetTerminal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardFleetTerminal.Controls.Add(this.lblFleetHeader);
             this.cardFleetTerminal.Controls.Add(this.panelSessionList);
             this.cardFleetTerminal.Controls.Add(this.lblAnnouncement);
@@ -238,7 +242,6 @@ namespace ScreenTask.UI.Views
             this.cardFleetTerminal.Name = "cardFleetTerminal";
             this.cardFleetTerminal.Size = new System.Drawing.Size(395, 458);
             this.cardFleetTerminal.TabIndex = 3;
-            this.cardFleetTerminal.Title = "Fleet Management Terminal";
             // 
             // lblFleetHeader
             // 
@@ -317,7 +320,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardPairingPass
             // 
-            this.cardPairingPass.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardPairingPass.BackColor = System.Drawing.SystemColors.Control;
+            this.cardPairingPass.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardPairingPass.Controls.Add(this.picPairingQr);
             this.cardPairingPass.Controls.Add(this.lblPairingUrlTitle);
             this.cardPairingPass.Controls.Add(this.txtPairingUrl);
@@ -330,7 +334,6 @@ namespace ScreenTask.UI.Views
             this.cardPairingPass.Name = "cardPairingPass";
             this.cardPairingPass.Size = new System.Drawing.Size(249, 458);
             this.cardPairingPass.TabIndex = 4;
-            this.cardPairingPass.Title = "Zero-Install Pairing Pass";
             // 
             // picPairingQr
             // 
@@ -511,40 +514,40 @@ namespace ScreenTask.UI.Views
 
         #endregion
 
-        internal ScreenTask.UI.Controls.FluentCard cardMetricViewers;
+        internal System.Windows.Forms.Panel cardMetricViewers;
         internal System.Windows.Forms.Label lblIconMetricViewers;
         internal System.Windows.Forms.Label lblTitleMetricViewers;
         internal System.Windows.Forms.Label lblMetricViewersVal;
         internal System.Windows.Forms.ProgressBar pbViewerCapacity;
 
-        internal ScreenTask.UI.Controls.FluentCard cardMetricLatency;
+        internal System.Windows.Forms.Panel cardMetricLatency;
         internal System.Windows.Forms.Label lblIconMetricLatency;
         internal System.Windows.Forms.Label lblTitleMetricLatency;
         internal System.Windows.Forms.Label lblMetricLatencyVal;
         internal System.Windows.Forms.Label lblMetricLatencySub;
 
-        internal ScreenTask.UI.Controls.FluentCard cardMetricSync;
+        internal System.Windows.Forms.Panel cardMetricSync;
         internal System.Windows.Forms.Label lblIconMetricSync;
         internal System.Windows.Forms.Label lblTitleMetricSync;
         internal System.Windows.Forms.Label lblMetricSyncVal;
         internal System.Windows.Forms.Label lblMetricSyncSub;
 
-        internal ScreenTask.UI.Controls.FluentCard cardFleetTerminal;
+        internal System.Windows.Forms.Panel cardFleetTerminal;
         internal System.Windows.Forms.Label lblFleetHeader;
         internal System.Windows.Forms.Panel panelSessionList;
         internal System.Windows.Forms.Label lblNoClientsPlaceholder;
         internal System.Windows.Forms.Label lblAnnouncement;
         internal System.Windows.Forms.TextBox txtAnnouncement;
-        internal ScreenTask.UI.Controls.FluentButton btnSendAnnouncement;
+        internal System.Windows.Forms.Button btnSendAnnouncement;
         internal System.Windows.Forms.Label lblAnnouncementStatus;
 
-        internal ScreenTask.UI.Controls.FluentCard cardPairingPass;
+        internal System.Windows.Forms.Panel cardPairingPass;
         internal System.Windows.Forms.PictureBox picPairingQr;
         internal System.Windows.Forms.Label lblPairingUrlTitle;
         internal System.Windows.Forms.TextBox txtPairingUrl;
-        internal ScreenTask.UI.Controls.FluentButton btnPairingCopy;
+        internal System.Windows.Forms.Button btnPairingCopy;
         internal System.Windows.Forms.Label lblPairingPin;
-        internal ScreenTask.UI.Controls.FluentButton btnPairingRegen;
+        internal System.Windows.Forms.Button btnPairingRegen;
         internal System.Windows.Forms.Label lblZeroConf;
 
         internal System.Windows.Forms.Panel panelSpotlight;

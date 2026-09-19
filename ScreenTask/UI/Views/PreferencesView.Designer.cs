@@ -17,13 +17,13 @@ namespace ScreenTask.UI.Views
 
         private void InitializeComponent()
         {
-            this.groupBox2 = new ScreenTask.UI.Controls.FluentCard();
-            this.cbAutoStart = new ScreenTask.UI.Controls.FluentToggleSwitch();
-            this.cbMiniStart = new ScreenTask.UI.Controls.FluentToggleSwitch();
-            this.cbCloseToTray = new ScreenTask.UI.Controls.FluentToggleSwitch();
-            this.cardLogs = new ScreenTask.UI.Controls.FluentCard();
-            this.btnClearLog = new ScreenTask.UI.Controls.FluentButton();
-            this.btnCopyLog = new ScreenTask.UI.Controls.FluentButton();
+            this.groupBox2 = new System.Windows.Forms.Panel();
+            this.cbAutoStart = new System.Windows.Forms.CheckBox();
+            this.cbMiniStart = new System.Windows.Forms.CheckBox();
+            this.cbCloseToTray = new System.Windows.Forms.CheckBox();
+            this.cardLogs = new System.Windows.Forms.Panel();
+            this.btnClearLog = new System.Windows.Forms.Button();
+            this.btnCopyLog = new System.Windows.Forms.Button();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.groupBox2.SuspendLayout();
             this.cardLogs.SuspendLayout();
@@ -31,7 +31,8 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox2 (Startup & Window Preferences Card)
             // 
-            this.groupBox2.CardBackColor = System.Drawing.SystemColors.Control;
+            this.groupBox2.BackColor = System.Drawing.SystemColors.Control;
+            this.groupBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox2.Controls.Add(this.cbAutoStart);
             this.groupBox2.Controls.Add(this.cbMiniStart);
             this.groupBox2.Controls.Add(this.cbCloseToTray);
@@ -39,10 +40,10 @@ namespace ScreenTask.UI.Views
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(652, 140);
             this.groupBox2.TabIndex = 0;
-            this.groupBox2.Title = "Startup & Window Preferences";
             // 
             // cbAutoStart
             // 
+            this.cbAutoStart.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbAutoStart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbAutoStart.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAutoStart.Location = new System.Drawing.Point(16, 35);
@@ -54,6 +55,7 @@ namespace ScreenTask.UI.Views
             // 
             // cbMiniStart
             // 
+            this.cbMiniStart.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbMiniStart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbMiniStart.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbMiniStart.Location = new System.Drawing.Point(16, 68);
@@ -67,6 +69,7 @@ namespace ScreenTask.UI.Views
             // 
             this.cbCloseToTray.Checked = true;
             this.cbCloseToTray.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbCloseToTray.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbCloseToTray.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbCloseToTray.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbCloseToTray.Location = new System.Drawing.Point(16, 101);
@@ -78,7 +81,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardLogs (Diagnostic Logs Card)
             // 
-            this.cardLogs.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardLogs.BackColor = System.Drawing.SystemColors.Control;
+            this.cardLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardLogs.Controls.Add(this.btnClearLog);
             this.cardLogs.Controls.Add(this.btnCopyLog);
             this.cardLogs.Controls.Add(this.txtLog);
@@ -86,7 +90,6 @@ namespace ScreenTask.UI.Views
             this.cardLogs.Name = "cardLogs";
             this.cardLogs.Size = new System.Drawing.Size(652, 340);
             this.cardLogs.TabIndex = 1;
-            this.cardLogs.Title = "Activity & Connection Log";
             // 
             // btnClearLog
             // 
@@ -140,14 +143,14 @@ namespace ScreenTask.UI.Views
 
         #endregion
 
-        internal ScreenTask.UI.Controls.FluentCard groupBox2;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbAutoStart;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbMiniStart;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbCloseToTray;
+        internal System.Windows.Forms.Panel groupBox2;
+        internal System.Windows.Forms.CheckBox cbAutoStart;
+        internal System.Windows.Forms.CheckBox cbMiniStart;
+        internal System.Windows.Forms.CheckBox cbCloseToTray;
 
-        internal ScreenTask.UI.Controls.FluentCard cardLogs;
-        internal ScreenTask.UI.Controls.FluentButton btnClearLog;
-        internal ScreenTask.UI.Controls.FluentButton btnCopyLog;
+        internal System.Windows.Forms.Panel cardLogs;
+        internal System.Windows.Forms.Button btnClearLog;
+        internal System.Windows.Forms.Button btnCopyLog;
         internal System.Windows.Forms.TextBox txtLog;
     }
 }

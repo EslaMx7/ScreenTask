@@ -183,7 +183,7 @@ namespace ScreenTask.UI.Views
                 Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}"
             };
 
-            var btnMute = new ScreenTask.UI.Controls.FluentButton
+            var btnMute = new Button
             {
                 Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
                 Font = new Font("Segoe UI", 7.5F),
@@ -194,7 +194,7 @@ namespace ScreenTask.UI.Views
                 UseVisualStyleBackColor = true
             };
 
-            var btnKick = new ScreenTask.UI.Controls.FluentButton
+            var btnKick = new Button
             {
                 Name = index == 0 ? "btnKickClient1" : $"btnKick_{session.Id}",
                 Font = new Font("Segoe UI", 7.5F),

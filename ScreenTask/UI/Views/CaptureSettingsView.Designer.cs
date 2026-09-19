@@ -17,22 +17,21 @@ namespace ScreenTask.UI.Views
 
         private void InitializeComponent()
         {
-            this.cardVideoSource = new ScreenTask.UI.Controls.FluentCard();
+            this.cardVideoSource = new System.Windows.Forms.Panel();
             this.label7 = new System.Windows.Forms.Label();
-            this.comboScreens = new ScreenTask.UI.Controls.FluentComboBox();
-            this.btnRefreshScreens = new ScreenTask.UI.Controls.FluentButton();
-            this.cbCaptureMouse = new ScreenTask.UI.Controls.FluentToggleSwitch();
-            this.cardAudio = new ScreenTask.UI.Controls.FluentCard();
+            this.comboScreens = new System.Windows.Forms.ComboBox();
+            this.btnRefreshScreens = new System.Windows.Forms.Button();
+            this.cbCaptureMouse = new System.Windows.Forms.CheckBox();
+            this.cardAudio = new System.Windows.Forms.Panel();
             this.lblAudioPill = new System.Windows.Forms.Label();
-            this.cbAudio = new ScreenTask.UI.Controls.FluentToggleSwitch();
-            this.comboAudioDevices = new ScreenTask.UI.Controls.FluentComboBox();
-            this.btnRefreshAudio = new ScreenTask.UI.Controls.FluentButton();
-            this.btnTestAudio = new ScreenTask.UI.Controls.FluentButton();
-            this.btnAudioDiag = new ScreenTask.UI.Controls.FluentButton();
-            this.groupBox1 = new ScreenTask.UI.Controls.FluentCard();
+            this.cbAudio = new System.Windows.Forms.CheckBox();
+            this.comboAudioDevices = new System.Windows.Forms.ComboBox();
+            this.btnRefreshAudio = new System.Windows.Forms.Button();
+            this.btnTestAudio = new System.Windows.Forms.Button();
+            this.btnAudioDiag = new System.Windows.Forms.Button();
+            this.groupBox1 = new System.Windows.Forms.Panel();
             this.label8 = new System.Windows.Forms.Label();
-            this.fpsSegmentedControl = new ScreenTask.UI.Controls.FluentSegmentedControl();
-            this.comboFps = new ScreenTask.UI.Controls.FluentComboBox();
+            this.comboFps = new System.Windows.Forms.ComboBox();
             this.lblQuality = new System.Windows.Forms.Label();
             this.qualitySlider = new System.Windows.Forms.TrackBar();
             this.cardVideoSource.SuspendLayout();
@@ -43,7 +42,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardVideoSource
             // 
-            this.cardVideoSource.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardVideoSource.BackColor = System.Drawing.SystemColors.Control;
+            this.cardVideoSource.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardVideoSource.Controls.Add(this.label7);
             this.cardVideoSource.Controls.Add(this.comboScreens);
             this.cardVideoSource.Controls.Add(this.btnRefreshScreens);
@@ -52,7 +52,6 @@ namespace ScreenTask.UI.Views
             this.cardVideoSource.Name = "cardVideoSource";
             this.cardVideoSource.Size = new System.Drawing.Size(652, 115);
             this.cardVideoSource.TabIndex = 0;
-            this.cardVideoSource.Title = "Screen & Window Selection";
             // 
             // label7
             // 
@@ -89,6 +88,7 @@ namespace ScreenTask.UI.Views
             // 
             this.cbCaptureMouse.Checked = true;
             this.cbCaptureMouse.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbCaptureMouse.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbCaptureMouse.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbCaptureMouse.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbCaptureMouse.Location = new System.Drawing.Point(16, 72);
@@ -100,7 +100,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardAudio
             // 
-            this.cardAudio.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardAudio.BackColor = System.Drawing.SystemColors.Control;
+            this.cardAudio.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardAudio.Controls.Add(this.lblAudioPill);
             this.cardAudio.Controls.Add(this.cbAudio);
             this.cardAudio.Controls.Add(this.comboAudioDevices);
@@ -111,7 +112,6 @@ namespace ScreenTask.UI.Views
             this.cardAudio.Name = "cardAudio";
             this.cardAudio.Size = new System.Drawing.Size(652, 160);
             this.cardAudio.TabIndex = 1;
-            this.cardAudio.Title = "Audio & Microphone";
             // 
             // lblAudioPill
             // 
@@ -128,6 +128,7 @@ namespace ScreenTask.UI.Views
             // 
             // cbAudio
             // 
+            this.cbAudio.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbAudio.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbAudio.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbAudio.Location = new System.Drawing.Point(16, 35);
@@ -185,9 +186,9 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox1
             // 
-            this.groupBox1.CardBackColor = System.Drawing.SystemColors.Control;
+            this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
+            this.groupBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox1.Controls.Add(this.label8);
-            this.groupBox1.Controls.Add(this.fpsSegmentedControl);
             this.groupBox1.Controls.Add(this.comboFps);
             this.groupBox1.Controls.Add(this.lblQuality);
             this.groupBox1.Controls.Add(this.qualitySlider);
@@ -195,7 +196,6 @@ namespace ScreenTask.UI.Views
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(652, 190);
             this.groupBox1.TabIndex = 2;
-            this.groupBox1.Title = "Video Smoothness & Quality";
             // 
             // label8
             // 
@@ -207,22 +207,6 @@ namespace ScreenTask.UI.Views
             this.label8.Size = new System.Drawing.Size(142, 15);
             this.label8.TabIndex = 0;
             this.label8.Text = "Framerate (Smoothness):";
-            // 
-            // fpsSegmentedControl
-            // 
-            this.fpsSegmentedControl.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.fpsSegmentedControl.Items.AddRange(new string[] {
-                "60 Ultra",
-                "30 Smooth",
-                "15 Bal",
-                "5 Saver"
-            });
-            this.fpsSegmentedControl.Location = new System.Drawing.Point(16, 56);
-            this.fpsSegmentedControl.Name = "fpsSegmentedControl";
-            this.fpsSegmentedControl.SelectedIndex = 1;
-            this.fpsSegmentedControl.Size = new System.Drawing.Size(380, 32);
-            this.fpsSegmentedControl.TabIndex = 1;
-            this.fpsSegmentedControl.Visible = false;
             // 
             // comboFps
             // 
@@ -283,24 +267,23 @@ namespace ScreenTask.UI.Views
 
         #endregion
 
-        internal ScreenTask.UI.Controls.FluentCard cardVideoSource;
+        internal System.Windows.Forms.Panel cardVideoSource;
         internal System.Windows.Forms.Label label7;
-        internal ScreenTask.UI.Controls.FluentComboBox comboScreens;
-        internal ScreenTask.UI.Controls.FluentButton btnRefreshScreens;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbCaptureMouse;
+        internal System.Windows.Forms.ComboBox comboScreens;
+        internal System.Windows.Forms.Button btnRefreshScreens;
+        internal System.Windows.Forms.CheckBox cbCaptureMouse;
 
-        internal ScreenTask.UI.Controls.FluentCard cardAudio;
+        internal System.Windows.Forms.Panel cardAudio;
         internal System.Windows.Forms.Label lblAudioPill;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbAudio;
-        internal ScreenTask.UI.Controls.FluentComboBox comboAudioDevices;
-        internal ScreenTask.UI.Controls.FluentButton btnRefreshAudio;
-        internal ScreenTask.UI.Controls.FluentButton btnTestAudio;
-        internal ScreenTask.UI.Controls.FluentButton btnAudioDiag;
+        internal System.Windows.Forms.CheckBox cbAudio;
+        internal System.Windows.Forms.ComboBox comboAudioDevices;
+        internal System.Windows.Forms.Button btnRefreshAudio;
+        internal System.Windows.Forms.Button btnTestAudio;
+        internal System.Windows.Forms.Button btnAudioDiag;
 
-        internal ScreenTask.UI.Controls.FluentCard groupBox1;
+        internal System.Windows.Forms.Panel groupBox1;
         internal System.Windows.Forms.Label label8;
-        internal ScreenTask.UI.Controls.FluentSegmentedControl fpsSegmentedControl;
-        internal ScreenTask.UI.Controls.FluentComboBox comboFps;
+        internal System.Windows.Forms.ComboBox comboFps;
         internal System.Windows.Forms.Label lblQuality;
         internal System.Windows.Forms.TrackBar qualitySlider;
     }

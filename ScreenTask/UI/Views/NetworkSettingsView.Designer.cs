@@ -17,20 +17,20 @@ namespace ScreenTask.UI.Views
 
         private void InitializeComponent()
         {
-            this.cardNetwork = new ScreenTask.UI.Controls.FluentCard();
+            this.cardNetwork = new System.Windows.Forms.Panel();
             this.lblNetworkPill = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.comboIPs = new ScreenTask.UI.Controls.FluentComboBox();
-            this.btnRefreshIPs = new ScreenTask.UI.Controls.FluentButton();
+            this.comboIPs = new System.Windows.Forms.ComboBox();
+            this.btnRefreshIPs = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.numPort = new System.Windows.Forms.NumericUpDown();
             this.lblPortStatus = new System.Windows.Forms.Label();
-            this.gbOptions = new ScreenTask.UI.Controls.FluentCard();
-            this.cbPrivate = new ScreenTask.UI.Controls.FluentToggleSwitch();
+            this.gbOptions = new System.Windows.Forms.Panel();
+            this.cbPrivate = new System.Windows.Forms.CheckBox();
             this.lblPinDesc = new System.Windows.Forms.Label();
             this.txtPassword = new System.Windows.Forms.TextBox();
-            this.btnGenPin = new ScreenTask.UI.Controls.FluentButton();
-            this.btnCopyPin = new ScreenTask.UI.Controls.FluentButton();
+            this.btnGenPin = new System.Windows.Forms.Button();
+            this.btnCopyPin = new System.Windows.Forms.Button();
             this.cardNetwork.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numPort)).BeginInit();
             this.gbOptions.SuspendLayout();
@@ -38,7 +38,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardNetwork
             // 
-            this.cardNetwork.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardNetwork.BackColor = System.Drawing.SystemColors.Control;
+            this.cardNetwork.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardNetwork.Controls.Add(this.lblNetworkPill);
             this.cardNetwork.Controls.Add(this.label5);
             this.cardNetwork.Controls.Add(this.comboIPs);
@@ -50,7 +51,6 @@ namespace ScreenTask.UI.Views
             this.cardNetwork.Name = "cardNetwork";
             this.cardNetwork.Size = new System.Drawing.Size(652, 185);
             this.cardNetwork.TabIndex = 0;
-            this.cardNetwork.Title = "Network Connection";
             // 
             // lblNetworkPill
             // 
@@ -134,7 +134,8 @@ namespace ScreenTask.UI.Views
             // 
             // gbOptions
             // 
-            this.gbOptions.CardBackColor = System.Drawing.SystemColors.Control;
+            this.gbOptions.BackColor = System.Drawing.SystemColors.Control;
+            this.gbOptions.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gbOptions.Controls.Add(this.cbPrivate);
             this.gbOptions.Controls.Add(this.lblPinDesc);
             this.gbOptions.Controls.Add(this.txtPassword);
@@ -144,10 +145,10 @@ namespace ScreenTask.UI.Views
             this.gbOptions.Name = "gbOptions";
             this.gbOptions.Size = new System.Drawing.Size(652, 185);
             this.gbOptions.TabIndex = 1;
-            this.gbOptions.Title = "Access Security & PIN";
             // 
             // cbPrivate
             // 
+            this.cbPrivate.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbPrivate.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbPrivate.ForeColor = System.Drawing.SystemColors.ControlText;
             this.cbPrivate.Location = new System.Drawing.Point(16, 35);
@@ -222,20 +223,20 @@ namespace ScreenTask.UI.Views
 
         #endregion
 
-        internal ScreenTask.UI.Controls.FluentCard cardNetwork;
+        internal System.Windows.Forms.Panel cardNetwork;
         internal System.Windows.Forms.Label lblNetworkPill;
         internal System.Windows.Forms.Label label5;
-        internal ScreenTask.UI.Controls.FluentComboBox comboIPs;
-        internal ScreenTask.UI.Controls.FluentButton btnRefreshIPs;
+        internal System.Windows.Forms.ComboBox comboIPs;
+        internal System.Windows.Forms.Button btnRefreshIPs;
         internal System.Windows.Forms.Label label2;
         internal System.Windows.Forms.NumericUpDown numPort;
         internal System.Windows.Forms.Label lblPortStatus;
 
-        internal ScreenTask.UI.Controls.FluentCard gbOptions;
-        internal ScreenTask.UI.Controls.FluentToggleSwitch cbPrivate;
+        internal System.Windows.Forms.Panel gbOptions;
+        internal System.Windows.Forms.CheckBox cbPrivate;
         internal System.Windows.Forms.Label lblPinDesc;
         internal System.Windows.Forms.TextBox txtPassword;
-        internal ScreenTask.UI.Controls.FluentButton btnGenPin;
-        internal ScreenTask.UI.Controls.FluentButton btnCopyPin;
+        internal System.Windows.Forms.Button btnGenPin;
+        internal System.Windows.Forms.Button btnCopyPin;
     }
 }

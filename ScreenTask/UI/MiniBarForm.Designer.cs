@@ -22,9 +22,9 @@ namespace ScreenTask.UI
             this.lblCompactDot = new System.Windows.Forms.Label();
             this.lblCompactStatus = new System.Windows.Forms.Label();
             this.lblCompactUrl = new System.Windows.Forms.Label();
-            this.btnCompactCopy = new ScreenTask.UI.Controls.FluentButton();
-            this.btnCompactStop = new ScreenTask.UI.Controls.FluentButton();
-            this.btnCompactExpand = new ScreenTask.UI.Controls.FluentButton();
+            this.btnCompactCopy = new System.Windows.Forms.Button();
+            this.btnCompactStop = new System.Windows.Forms.Button();
+            this.btnCompactExpand = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
@@ -127,9 +127,9 @@ namespace ScreenTask.UI
         internal System.Windows.Forms.Label lblCompactDot;
         internal System.Windows.Forms.Label lblCompactStatus;
         internal System.Windows.Forms.Label lblCompactUrl;
-        internal ScreenTask.UI.Controls.FluentButton btnCompactCopy;
-        internal ScreenTask.UI.Controls.FluentButton btnCompactStop;
-        internal ScreenTask.UI.Controls.FluentButton btnCompactExpand;
+        internal System.Windows.Forms.Button btnCompactCopy;
+        internal System.Windows.Forms.Button btnCompactStop;
+        internal System.Windows.Forms.Button btnCompactExpand;
         private System.Windows.Forms.ToolTip toolTip;
     }
 }

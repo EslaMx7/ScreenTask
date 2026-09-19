@@ -30,7 +30,7 @@ namespace ScreenTask.UI.Controls
     /// A native Windows Forms vertical side navigation control adhering to Windows 11 NavigationView design specifications.
     /// Features smooth rounded item plates, signature accent pill indicators, and keyboard navigation.
     /// </summary>
-    public class FluentSideNav : Control
+    public class SideNavControl : Control
     {
         private readonly List<SideNavItem> _items = new();
         private int _selectedIndex = 0;
@@ -90,7 +90,7 @@ namespace ScreenTask.UI.Controls
             }
         }
 
-        public FluentSideNav()
+        public SideNavControl()
         {
             SetStyle(ControlStyles.UserPaint |
                      ControlStyles.AllPaintingInWmPaint |

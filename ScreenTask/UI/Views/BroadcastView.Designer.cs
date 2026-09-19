@@ -17,39 +17,39 @@ namespace ScreenTask.UI.Views
 
         private void InitializeComponent()
         {
-            this.cardPreview = new ScreenTask.UI.Controls.FluentCard();
-            this.monitorPreview = new ScreenTask.UI.Controls.FluentMonitorPreview();
+            this.cardPreview = new System.Windows.Forms.Panel();
+            this.monitorPreview = new ScreenTask.UI.Controls.MonitorPreviewControl();
             this.lblCursorStatus = new System.Windows.Forms.Label();
             this.btnSwitchSource = new System.Windows.Forms.Button();
-            this.groupBox3 = new ScreenTask.UI.Controls.FluentCard();
+            this.groupBox3 = new System.Windows.Forms.Panel();
             this.lblBroadcastDesc = new System.Windows.Forms.Label();
-            this.btnStartServer = new ScreenTask.UI.Controls.FluentButton();
-            this.btnQuickMute = new ScreenTask.UI.Controls.FluentButton();
+            this.btnStartServer = new System.Windows.Forms.Button();
+            this.btnQuickMute = new System.Windows.Forms.Button();
             this.lblAudioMeterText = new System.Windows.Forms.Label();
-            this.pbAudioMeter = new ScreenTask.UI.Controls.FluentAudioMeter();
+            this.pbAudioMeter = new System.Windows.Forms.ProgressBar();
             this.lblLiveStats = new System.Windows.Forms.Label();
-            this.cardUrl = new ScreenTask.UI.Controls.FluentCard();
+            this.cardUrl = new System.Windows.Forms.Panel();
             this.lblUrlTitle = new System.Windows.Forms.Label();
             this.lblWifiBadge = new System.Windows.Forms.Label();
             this.lblPinDisplay = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.txtURL = new System.Windows.Forms.TextBox();
-            this.btnCopyUrl = new ScreenTask.UI.Controls.FluentButton();
-            this.btnQr = new ScreenTask.UI.Controls.FluentButton();
-            this.btnLaunch = new ScreenTask.UI.Controls.FluentButton();
-            this.cardChipViewers = new ScreenTask.UI.Controls.FluentCard();
+            this.btnCopyUrl = new System.Windows.Forms.Button();
+            this.btnQr = new System.Windows.Forms.Button();
+            this.btnLaunch = new System.Windows.Forms.Button();
+            this.cardChipViewers = new System.Windows.Forms.Panel();
             this.lblIconViewers = new System.Windows.Forms.Label();
             this.lblTitleViewers = new System.Windows.Forms.Label();
             this.lblChipViewers = new System.Windows.Forms.Label();
-            this.cardChipFps = new ScreenTask.UI.Controls.FluentCard();
+            this.cardChipFps = new System.Windows.Forms.Panel();
             this.lblIconFps = new System.Windows.Forms.Label();
             this.lblTitleFps = new System.Windows.Forms.Label();
             this.lblChipFps = new System.Windows.Forms.Label();
-            this.cardChipData = new ScreenTask.UI.Controls.FluentCard();
+            this.cardChipData = new System.Windows.Forms.Panel();
             this.lblIconData = new System.Windows.Forms.Label();
             this.lblTitleData = new System.Windows.Forms.Label();
             this.lblChipData = new System.Windows.Forms.Label();
-            this.cardChipUptime = new ScreenTask.UI.Controls.FluentCard();
+            this.cardChipUptime = new System.Windows.Forms.Panel();
             this.lblIconUptime = new System.Windows.Forms.Label();
             this.lblTitleUptime = new System.Windows.Forms.Label();
             this.lblChipUptime = new System.Windows.Forms.Label();
@@ -64,7 +64,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardPreview (Live Monitor Preview)
             // 
-            this.cardPreview.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardPreview.BackColor = System.Drawing.SystemColors.Control;
+            this.cardPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardPreview.Controls.Add(this.monitorPreview);
             this.cardPreview.Controls.Add(this.lblCursorStatus);
             this.cardPreview.Controls.Add(this.btnSwitchSource);
@@ -72,7 +73,6 @@ namespace ScreenTask.UI.Views
             this.cardPreview.Name = "cardPreview";
             this.cardPreview.Size = new System.Drawing.Size(384, 222);
             this.cardPreview.TabIndex = 0;
-            this.cardPreview.Title = "Live Screen Preview";
             // 
             // monitorPreview
             // 
@@ -81,10 +81,10 @@ namespace ScreenTask.UI.Views
             this.monitorPreview.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.monitorPreview.FpsText = "30.0 FPS";
             this.monitorPreview.IsLive = false;
-            this.monitorPreview.Location = new System.Drawing.Point(12, 32);
+            this.monitorPreview.Location = new System.Drawing.Point(12, 12);
             this.monitorPreview.Name = "monitorPreview";
             this.monitorPreview.ResolutionText = "1920 × 1080";
-            this.monitorPreview.Size = new System.Drawing.Size(360, 155);
+            this.monitorPreview.Size = new System.Drawing.Size(360, 175);
             this.monitorPreview.SourceTitle = "Display 1 (Primary)";
             this.monitorPreview.TabIndex = 0;
             // 
@@ -112,7 +112,8 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox3 (Broadcast Control Card)
             // 
-            this.groupBox3.CardBackColor = System.Drawing.SystemColors.Control;
+            this.groupBox3.BackColor = System.Drawing.SystemColors.Control;
+            this.groupBox3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox3.Controls.Add(this.lblBroadcastDesc);
             this.groupBox3.Controls.Add(this.btnStartServer);
             this.groupBox3.Controls.Add(this.btnQuickMute);
@@ -123,15 +124,14 @@ namespace ScreenTask.UI.Views
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(258, 222);
             this.groupBox3.TabIndex = 1;
-            this.groupBox3.Title = "Broadcast Controls";
             // 
             // lblBroadcastDesc
             // 
             this.lblBroadcastDesc.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblBroadcastDesc.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblBroadcastDesc.Location = new System.Drawing.Point(12, 28);
+            this.lblBroadcastDesc.Location = new System.Drawing.Point(12, 12);
             this.lblBroadcastDesc.Name = "lblBroadcastDesc";
-            this.lblBroadcastDesc.Size = new System.Drawing.Size(234, 28);
+            this.lblBroadcastDesc.Size = new System.Drawing.Size(234, 40);
             this.lblBroadcastDesc.TabIndex = 0;
             this.lblBroadcastDesc.Text = "Share your screen with any phone, tablet, or browser on your local network.";
             // 
@@ -139,7 +139,7 @@ namespace ScreenTask.UI.Views
             // 
             this.btnStartServer.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnStartServer.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnStartServer.Location = new System.Drawing.Point(12, 58);
+            this.btnStartServer.Location = new System.Drawing.Point(12, 54);
             this.btnStartServer.Name = "btnStartServer";
             this.btnStartServer.Size = new System.Drawing.Size(234, 40);
             this.btnStartServer.TabIndex = 1;
@@ -150,7 +150,7 @@ namespace ScreenTask.UI.Views
             // 
             this.btnQuickMute.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnQuickMute.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnQuickMute.Location = new System.Drawing.Point(12, 102);
+            this.btnQuickMute.Location = new System.Drawing.Point(12, 98);
             this.btnQuickMute.Name = "btnQuickMute";
             this.btnQuickMute.Size = new System.Drawing.Size(234, 30);
             this.btnQuickMute.TabIndex = 2;
@@ -163,7 +163,7 @@ namespace ScreenTask.UI.Views
             this.lblAudioMeterText.AutoSize = true;
             this.lblAudioMeterText.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblAudioMeterText.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblAudioMeterText.Location = new System.Drawing.Point(12, 136);
+            this.lblAudioMeterText.Location = new System.Drawing.Point(12, 134);
             this.lblAudioMeterText.Name = "lblAudioMeterText";
             this.lblAudioMeterText.Size = new System.Drawing.Size(95, 12);
             this.lblAudioMeterText.TabIndex = 3;
@@ -172,9 +172,10 @@ namespace ScreenTask.UI.Views
             // pbAudioMeter
             // 
             this.pbAudioMeter.Enabled = false;
-            this.pbAudioMeter.Location = new System.Drawing.Point(12, 153);
+            this.pbAudioMeter.Location = new System.Drawing.Point(12, 150);
             this.pbAudioMeter.Name = "pbAudioMeter";
             this.pbAudioMeter.Size = new System.Drawing.Size(234, 10);
+            this.pbAudioMeter.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.pbAudioMeter.TabIndex = 4;
             this.pbAudioMeter.Value = 0;
             // 
@@ -182,16 +183,17 @@ namespace ScreenTask.UI.Views
             // 
             this.lblLiveStats.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblLiveStats.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblLiveStats.Location = new System.Drawing.Point(12, 168);
+            this.lblLiveStats.Location = new System.Drawing.Point(12, 166);
             this.lblLiveStats.Name = "lblLiveStats";
-            this.lblLiveStats.Size = new System.Drawing.Size(234, 46);
+            this.lblLiveStats.Size = new System.Drawing.Size(234, 48);
             this.lblLiveStats.TabIndex = 5;
             this.lblLiveStats.Text = "⚡ Stopped • Ready to broadcast";
             this.lblLiveStats.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // cardUrl (Stream URL Card)
             // 
-            this.cardUrl.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardUrl.BackColor = System.Drawing.SystemColors.Control;
+            this.cardUrl.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardUrl.Controls.Add(this.lblUrlTitle);
             this.cardUrl.Controls.Add(this.lblWifiBadge);
             this.cardUrl.Controls.Add(this.lblPinDisplay);
@@ -204,7 +206,6 @@ namespace ScreenTask.UI.Views
             this.cardUrl.Name = "cardUrl";
             this.cardUrl.Size = new System.Drawing.Size(652, 90);
             this.cardUrl.TabIndex = 2;
-            this.cardUrl.Title = "Stream Web Address";
             // 
             // lblUrlTitle
             // 
@@ -248,22 +249,18 @@ namespace ScreenTask.UI.Views
             this.label1.ForeColor = System.Drawing.SystemColors.GrayText;
             this.label1.Location = new System.Drawing.Point(12, 44);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(30, 13);
+            this.label1.Size = new System.Drawing.Size(26, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Link:";
+            this.label1.Text = "URL";
             // 
             // txtURL
             // 
-            this.txtURL.BackColor = System.Drawing.SystemColors.Window;
-            this.txtURL.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.txtURL.Font = new System.Drawing.Font("Consolas", 9F);
-            this.txtURL.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.txtURL.Location = new System.Drawing.Point(48, 40);
+            this.txtURL.Font = new System.Drawing.Font("Consolas", 9.5F);
+            this.txtURL.Location = new System.Drawing.Point(44, 40);
             this.txtURL.Name = "txtURL";
             this.txtURL.ReadOnly = true;
-            this.txtURL.Size = new System.Drawing.Size(315, 22);
+            this.txtURL.Size = new System.Drawing.Size(320, 22);
             this.txtURL.TabIndex = 4;
-            this.txtURL.Text = "http://127.0.0.1:7070";
             // 
             // btnCopyUrl
             // 
@@ -271,7 +268,7 @@ namespace ScreenTask.UI.Views
             this.btnCopyUrl.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnCopyUrl.Location = new System.Drawing.Point(372, 38);
             this.btnCopyUrl.Name = "btnCopyUrl";
-            this.btnCopyUrl.Size = new System.Drawing.Size(85, 26);
+            this.btnCopyUrl.Size = new System.Drawing.Size(86, 26);
             this.btnCopyUrl.TabIndex = 5;
             this.btnCopyUrl.Text = "📋 Copy Link";
             this.btnCopyUrl.UseVisualStyleBackColor = true;
@@ -280,9 +277,9 @@ namespace ScreenTask.UI.Views
             // 
             this.btnQr.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnQr.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnQr.Location = new System.Drawing.Point(463, 38);
+            this.btnQr.Location = new System.Drawing.Point(464, 38);
             this.btnQr.Name = "btnQr";
-            this.btnQr.Size = new System.Drawing.Size(80, 26);
+            this.btnQr.Size = new System.Drawing.Size(86, 26);
             this.btnQr.TabIndex = 6;
             this.btnQr.Text = "📱 Show QR";
             this.btnQr.UseVisualStyleBackColor = true;
@@ -291,178 +288,174 @@ namespace ScreenTask.UI.Views
             // 
             this.btnLaunch.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnLaunch.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnLaunch.Location = new System.Drawing.Point(549, 38);
+            this.btnLaunch.Location = new System.Drawing.Point(556, 38);
             this.btnLaunch.Name = "btnLaunch";
-            this.btnLaunch.Size = new System.Drawing.Size(92, 26);
+            this.btnLaunch.Size = new System.Drawing.Size(86, 26);
             this.btnLaunch.TabIndex = 7;
-            this.btnLaunch.Text = "🌐 Open Browser";
+            this.btnLaunch.Text = "🌐 Open";
             this.btnLaunch.UseVisualStyleBackColor = true;
             // 
             // cardChipViewers
             // 
-            this.cardChipViewers.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardChipViewers.BackColor = System.Drawing.SystemColors.Control;
+            this.cardChipViewers.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardChipViewers.Controls.Add(this.lblIconViewers);
             this.cardChipViewers.Controls.Add(this.lblTitleViewers);
             this.cardChipViewers.Controls.Add(this.lblChipViewers);
-            this.cardChipViewers.Location = new System.Drawing.Point(0, 330);
+            this.cardChipViewers.Location = new System.Drawing.Point(0, 328);
             this.cardChipViewers.Name = "cardChipViewers";
-            this.cardChipViewers.Size = new System.Drawing.Size(155, 75);
+            this.cardChipViewers.Size = new System.Drawing.Size(157, 72);
             this.cardChipViewers.TabIndex = 3;
             // 
             // lblIconViewers
             // 
             this.lblIconViewers.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.lblIconViewers.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblIconViewers.Location = new System.Drawing.Point(10, 10);
+            this.lblIconViewers.Location = new System.Drawing.Point(8, 8);
             this.lblIconViewers.Name = "lblIconViewers";
-            this.lblIconViewers.Size = new System.Drawing.Size(26, 24);
+            this.lblIconViewers.Size = new System.Drawing.Size(28, 28);
             this.lblIconViewers.TabIndex = 0;
             this.lblIconViewers.Text = "👥";
             // 
             // lblTitleViewers
             // 
-            this.lblTitleViewers.AutoSize = true;
             this.lblTitleViewers.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblTitleViewers.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblTitleViewers.Location = new System.Drawing.Point(40, 12);
+            this.lblTitleViewers.Location = new System.Drawing.Point(40, 8);
             this.lblTitleViewers.Name = "lblTitleViewers";
-            this.lblTitleViewers.Size = new System.Drawing.Size(95, 12);
+            this.lblTitleViewers.Size = new System.Drawing.Size(110, 16);
             this.lblTitleViewers.TabIndex = 1;
             this.lblTitleViewers.Text = "Connected Viewers";
             // 
             // lblChipViewers
             // 
-            this.lblChipViewers.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblChipViewers.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblChipViewers.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblChipViewers.Location = new System.Drawing.Point(10, 40);
+            this.lblChipViewers.Location = new System.Drawing.Point(8, 38);
             this.lblChipViewers.Name = "lblChipViewers";
-            this.lblChipViewers.Size = new System.Drawing.Size(135, 24);
+            this.lblChipViewers.Size = new System.Drawing.Size(142, 22);
             this.lblChipViewers.TabIndex = 2;
             this.lblChipViewers.Text = "0 Connected";
             // 
             // cardChipFps
             // 
-            this.cardChipFps.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardChipFps.BackColor = System.Drawing.SystemColors.Control;
+            this.cardChipFps.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardChipFps.Controls.Add(this.lblIconFps);
             this.cardChipFps.Controls.Add(this.lblTitleFps);
             this.cardChipFps.Controls.Add(this.lblChipFps);
-            this.cardChipFps.Location = new System.Drawing.Point(165, 330);
+            this.cardChipFps.Location = new System.Drawing.Point(165, 328);
             this.cardChipFps.Name = "cardChipFps";
-            this.cardChipFps.Size = new System.Drawing.Size(155, 75);
+            this.cardChipFps.Size = new System.Drawing.Size(157, 72);
             this.cardChipFps.TabIndex = 4;
             // 
             // lblIconFps
             // 
             this.lblIconFps.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.lblIconFps.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblIconFps.Location = new System.Drawing.Point(10, 10);
+            this.lblIconFps.Location = new System.Drawing.Point(8, 8);
             this.lblIconFps.Name = "lblIconFps";
-            this.lblIconFps.Size = new System.Drawing.Size(26, 24);
+            this.lblIconFps.Size = new System.Drawing.Size(28, 28);
             this.lblIconFps.TabIndex = 0;
             this.lblIconFps.Text = "⚡";
             // 
             // lblTitleFps
             // 
-            this.lblTitleFps.AutoSize = true;
             this.lblTitleFps.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblTitleFps.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblTitleFps.Location = new System.Drawing.Point(40, 12);
+            this.lblTitleFps.Location = new System.Drawing.Point(40, 8);
             this.lblTitleFps.Name = "lblTitleFps";
-            this.lblTitleFps.Size = new System.Drawing.Size(89, 12);
+            this.lblTitleFps.Size = new System.Drawing.Size(110, 16);
             this.lblTitleFps.TabIndex = 1;
             this.lblTitleFps.Text = "Smoothness (FPS)";
             // 
             // lblChipFps
             // 
-            this.lblChipFps.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblChipFps.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblChipFps.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblChipFps.Location = new System.Drawing.Point(10, 40);
+            this.lblChipFps.Location = new System.Drawing.Point(8, 38);
             this.lblChipFps.Name = "lblChipFps";
-            this.lblChipFps.Size = new System.Drawing.Size(135, 24);
+            this.lblChipFps.Size = new System.Drawing.Size(142, 22);
             this.lblChipFps.TabIndex = 2;
             this.lblChipFps.Text = "0.0 FPS";
             // 
             // cardChipData
             // 
-            this.cardChipData.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardChipData.BackColor = System.Drawing.SystemColors.Control;
+            this.cardChipData.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardChipData.Controls.Add(this.lblIconData);
             this.cardChipData.Controls.Add(this.lblTitleData);
             this.cardChipData.Controls.Add(this.lblChipData);
-            this.cardChipData.Location = new System.Drawing.Point(330, 330);
+            this.cardChipData.Location = new System.Drawing.Point(330, 328);
             this.cardChipData.Name = "cardChipData";
-            this.cardChipData.Size = new System.Drawing.Size(155, 75);
+            this.cardChipData.Size = new System.Drawing.Size(157, 72);
             this.cardChipData.TabIndex = 5;
             // 
             // lblIconData
             // 
             this.lblIconData.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.lblIconData.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblIconData.Location = new System.Drawing.Point(10, 10);
+            this.lblIconData.Location = new System.Drawing.Point(8, 8);
             this.lblIconData.Name = "lblIconData";
-            this.lblIconData.Size = new System.Drawing.Size(26, 24);
+            this.lblIconData.Size = new System.Drawing.Size(28, 28);
             this.lblIconData.TabIndex = 0;
-            this.lblIconData.Text = "📶";
+            this.lblIconData.Text = "📊";
             // 
             // lblTitleData
             // 
-            this.lblTitleData.AutoSize = true;
             this.lblTitleData.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblTitleData.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblTitleData.Location = new System.Drawing.Point(40, 12);
+            this.lblTitleData.Location = new System.Drawing.Point(40, 8);
             this.lblTitleData.Name = "lblTitleData";
-            this.lblTitleData.Size = new System.Drawing.Size(84, 12);
+            this.lblTitleData.Size = new System.Drawing.Size(110, 16);
             this.lblTitleData.TabIndex = 1;
             this.lblTitleData.Text = "Data Transferred";
             // 
             // lblChipData
             // 
-            this.lblChipData.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblChipData.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblChipData.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblChipData.Location = new System.Drawing.Point(10, 40);
+            this.lblChipData.Location = new System.Drawing.Point(8, 38);
             this.lblChipData.Name = "lblChipData";
-            this.lblChipData.Size = new System.Drawing.Size(135, 24);
+            this.lblChipData.Size = new System.Drawing.Size(142, 22);
             this.lblChipData.TabIndex = 2;
             this.lblChipData.Text = "0.0 MB";
             // 
             // cardChipUptime
             // 
-            this.cardChipUptime.CardBackColor = System.Drawing.SystemColors.Control;
+            this.cardChipUptime.BackColor = System.Drawing.SystemColors.Control;
+            this.cardChipUptime.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardChipUptime.Controls.Add(this.lblIconUptime);
             this.cardChipUptime.Controls.Add(this.lblTitleUptime);
             this.cardChipUptime.Controls.Add(this.lblChipUptime);
-            this.cardChipUptime.Location = new System.Drawing.Point(495, 330);
+            this.cardChipUptime.Location = new System.Drawing.Point(495, 328);
             this.cardChipUptime.Name = "cardChipUptime";
-            this.cardChipUptime.Size = new System.Drawing.Size(157, 75);
+            this.cardChipUptime.Size = new System.Drawing.Size(157, 72);
             this.cardChipUptime.TabIndex = 6;
             // 
             // lblIconUptime
             // 
             this.lblIconUptime.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.lblIconUptime.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblIconUptime.Location = new System.Drawing.Point(10, 10);
+            this.lblIconUptime.Location = new System.Drawing.Point(8, 8);
             this.lblIconUptime.Name = "lblIconUptime";
-            this.lblIconUptime.Size = new System.Drawing.Size(26, 24);
+            this.lblIconUptime.Size = new System.Drawing.Size(28, 28);
             this.lblIconUptime.TabIndex = 0;
             this.lblIconUptime.Text = "⏱";
             // 
             // lblTitleUptime
             // 
-            this.lblTitleUptime.AutoSize = true;
             this.lblTitleUptime.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblTitleUptime.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblTitleUptime.Location = new System.Drawing.Point(40, 12);
+            this.lblTitleUptime.Location = new System.Drawing.Point(40, 8);
             this.lblTitleUptime.Name = "lblTitleUptime";
-            this.lblTitleUptime.Size = new System.Drawing.Size(64, 12);
+            this.lblTitleUptime.Size = new System.Drawing.Size(110, 16);
             this.lblTitleUptime.TabIndex = 1;
             this.lblTitleUptime.Text = "Stream Time";
             // 
             // lblChipUptime
             // 
-            this.lblChipUptime.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblChipUptime.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblChipUptime.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblChipUptime.Location = new System.Drawing.Point(10, 40);
+            this.lblChipUptime.Location = new System.Drawing.Point(8, 38);
             this.lblChipUptime.Name = "lblChipUptime";
-            this.lblChipUptime.Size = new System.Drawing.Size(135, 24);
+            this.lblChipUptime.Size = new System.Drawing.Size(142, 22);
             this.lblChipUptime.TabIndex = 2;
             this.lblChipUptime.Text = "00:00:00";
             // 
@@ -486,57 +479,53 @@ namespace ScreenTask.UI.Views
             this.cardUrl.ResumeLayout(false);
             this.cardUrl.PerformLayout();
             this.cardChipViewers.ResumeLayout(false);
-            this.cardChipViewers.PerformLayout();
             this.cardChipFps.ResumeLayout(false);
-            this.cardChipFps.PerformLayout();
             this.cardChipData.ResumeLayout(false);
-            this.cardChipData.PerformLayout();
             this.cardChipUptime.ResumeLayout(false);
-            this.cardChipUptime.PerformLayout();
             this.ResumeLayout(false);
         }
 
         #endregion
 
-        internal ScreenTask.UI.Controls.FluentCard cardPreview;
-        internal ScreenTask.UI.Controls.FluentMonitorPreview monitorPreview;
+        internal System.Windows.Forms.Panel cardPreview;
+        internal ScreenTask.UI.Controls.MonitorPreviewControl monitorPreview;
         internal System.Windows.Forms.Label lblCursorStatus;
         internal System.Windows.Forms.Button btnSwitchSource;
 
-        internal ScreenTask.UI.Controls.FluentCard groupBox3;
+        internal System.Windows.Forms.Panel groupBox3;
         internal System.Windows.Forms.Label lblBroadcastDesc;
-        internal ScreenTask.UI.Controls.FluentButton btnStartServer;
-        internal ScreenTask.UI.Controls.FluentButton btnQuickMute;
+        internal System.Windows.Forms.Button btnStartServer;
+        internal System.Windows.Forms.Button btnQuickMute;
         internal System.Windows.Forms.Label lblAudioMeterText;
-        internal ScreenTask.UI.Controls.FluentAudioMeter pbAudioMeter;
+        internal System.Windows.Forms.ProgressBar pbAudioMeter;
         internal System.Windows.Forms.Label lblLiveStats;
 
-        internal ScreenTask.UI.Controls.FluentCard cardUrl;
+        internal System.Windows.Forms.Panel cardUrl;
         internal System.Windows.Forms.Label lblUrlTitle;
         internal System.Windows.Forms.Label lblWifiBadge;
         internal System.Windows.Forms.Label lblPinDisplay;
         internal System.Windows.Forms.Label label1;
         internal System.Windows.Forms.TextBox txtURL;
-        internal ScreenTask.UI.Controls.FluentButton btnCopyUrl;
-        internal ScreenTask.UI.Controls.FluentButton btnQr;
-        internal ScreenTask.UI.Controls.FluentButton btnLaunch;
+        internal System.Windows.Forms.Button btnCopyUrl;
+        internal System.Windows.Forms.Button btnQr;
+        internal System.Windows.Forms.Button btnLaunch;
 
-        internal ScreenTask.UI.Controls.FluentCard cardChipViewers;
+        internal System.Windows.Forms.Panel cardChipViewers;
         internal System.Windows.Forms.Label lblIconViewers;
         internal System.Windows.Forms.Label lblTitleViewers;
         internal System.Windows.Forms.Label lblChipViewers;
 
-        internal ScreenTask.UI.Controls.FluentCard cardChipFps;
+        internal System.Windows.Forms.Panel cardChipFps;
         internal System.Windows.Forms.Label lblIconFps;
         internal System.Windows.Forms.Label lblTitleFps;
         internal System.Windows.Forms.Label lblChipFps;
 
-        internal ScreenTask.UI.Controls.FluentCard cardChipData;
+        internal System.Windows.Forms.Panel cardChipData;
         internal System.Windows.Forms.Label lblIconData;
         internal System.Windows.Forms.Label lblTitleData;
         internal System.Windows.Forms.Label lblChipData;
 
-        internal ScreenTask.UI.Controls.FluentCard cardChipUptime;
+        internal System.Windows.Forms.Panel cardChipUptime;
         internal System.Windows.Forms.Label lblIconUptime;
         internal System.Windows.Forms.Label lblTitleUptime;
         internal System.Windows.Forms.Label lblChipUptime;

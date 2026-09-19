@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 using ScreenTask.Core.Network;
-using ScreenTask.UI.Controls;
 
 namespace ScreenTask.UI
 {
@@ -12,9 +11,9 @@ namespace ScreenTask.UI
         private readonly string _url;
         private readonly PictureBox _picQr;
         private readonly Label _lblUrl;
-        private readonly FluentButton _btnCopy;
-        private readonly FluentButton _btnOpen;
-        private readonly FluentButton _btnClose;
+        private readonly Button _btnCopy;
+        private readonly Button _btnOpen;
+        private readonly Button _btnClose;
 
         public QrCodeForm(string url)
         {
@@ -76,7 +75,7 @@ namespace ScreenTask.UI
                 Size = new Size(ClientSize.Width - 20, 25)
             };
 
-            _btnCopy = new FluentButton
+            _btnCopy = new Button
             {
                 Text = "📋 Copy Link",
                 Size = new Size(110, 34),
@@ -98,7 +97,7 @@ namespace ScreenTask.UI
                 timer.Start();
             };
 
-            _btnOpen = new FluentButton
+            _btnOpen = new Button
             {
                 Text = "🌐 Open Browser",
                 Size = new Size(120, 34),
@@ -115,7 +114,7 @@ namespace ScreenTask.UI
                 catch { }
             };
 
-            _btnClose = new FluentButton
+            _btnClose = new Button
             {
                 Text = "Close",
                 Size = new Size(70, 34),

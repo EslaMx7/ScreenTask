@@ -47,19 +47,19 @@ namespace ScreenTask
 
         #region View Control Forwarders
         // BroadcastView Forwarders
-        internal FluentMonitorPreview monitorPreview => viewBroadcast.monitorPreview;
+        internal MonitorPreviewControl monitorPreview => viewBroadcast.monitorPreview;
         internal Label lblCursorStatus => viewBroadcast.lblCursorStatus;
         internal Button btnSwitchSource => viewBroadcast.btnSwitchSource;
-        internal FluentButton btnStartServer => viewBroadcast.btnStartServer;
-        internal FluentButton btnQuickMute => viewBroadcast.btnQuickMute;
+        internal Button btnStartServer => viewBroadcast.btnStartServer;
+        internal Button btnQuickMute => viewBroadcast.btnQuickMute;
         internal Label lblAudioMeterText => viewBroadcast.lblAudioMeterText;
-        internal FluentAudioMeter pbAudioMeter => viewBroadcast.pbAudioMeter;
+        internal ProgressBar pbAudioMeter => viewBroadcast.pbAudioMeter;
         internal Label lblLiveStats => viewBroadcast.lblLiveStats;
         internal Label lblPinDisplay => viewBroadcast.lblPinDisplay;
         internal TextBox txtURL => viewBroadcast.txtURL;
-        internal FluentButton btnCopyUrl => viewBroadcast.btnCopyUrl;
-        internal FluentButton btnQr => viewBroadcast.btnQr;
-        internal FluentButton btnLaunch => viewBroadcast.btnLaunch;
+        internal Button btnCopyUrl => viewBroadcast.btnCopyUrl;
+        internal Button btnQr => viewBroadcast.btnQr;
+        internal Button btnLaunch => viewBroadcast.btnLaunch;
         internal Label lblChipViewers => viewBroadcast.lblChipViewers;
         internal Label lblChipFps => viewBroadcast.lblChipFps;
         internal Label lblChipData => viewBroadcast.lblChipData;
@@ -76,57 +76,56 @@ namespace ScreenTask
         internal Panel panelSessionList => viewClients.panelSessionList;
         internal Label lblNoClientsPlaceholder => viewClients.lblNoClientsPlaceholder;
         internal TextBox txtAnnouncement => viewClients.txtAnnouncement;
-        internal FluentButton btnSendAnnouncement => viewClients.btnSendAnnouncement;
+        internal Button btnSendAnnouncement => viewClients.btnSendAnnouncement;
         internal Label lblAnnouncementStatus => viewClients.lblAnnouncementStatus;
         internal PictureBox picPairingQr => viewClients.picPairingQr;
         internal TextBox txtPairingUrl => viewClients.txtPairingUrl;
-        internal FluentButton btnPairingCopy => viewClients.btnPairingCopy;
+        internal Button btnPairingCopy => viewClients.btnPairingCopy;
         internal Label lblPairingPin => viewClients.lblPairingPin;
-        internal FluentButton btnPairingRegen => viewClients.btnPairingRegen;
+        internal Button btnPairingRegen => viewClients.btnPairingRegen;
         internal Label lblZeroConf => viewClients.lblZeroConf;
 
         // CaptureSettingsView Forwarders
-        internal FluentComboBox comboScreens => viewCapture.comboScreens;
-        internal FluentButton btnRefreshScreens => viewCapture.btnRefreshScreens;
-        internal FluentToggleSwitch cbCaptureMouse => viewCapture.cbCaptureMouse;
-        internal FluentCard cardAudio => viewCapture.cardAudio;
-        internal FluentToggleSwitch cbAudio => viewCapture.cbAudio;
-        internal FluentComboBox comboAudioDevices => viewCapture.comboAudioDevices;
-        internal FluentButton btnRefreshAudio => viewCapture.btnRefreshAudio;
-        internal FluentButton btnTestAudio => viewCapture.btnTestAudio;
-        internal FluentButton btnAudioDiag => viewCapture.btnAudioDiag;
-        internal FluentCard groupBox1 => viewCapture.groupBox1;
-        internal FluentSegmentedControl fpsSegmentedControl => viewCapture.fpsSegmentedControl;
-        internal FluentComboBox comboFps => viewCapture.comboFps;
+        internal ComboBox comboScreens => viewCapture.comboScreens;
+        internal Button btnRefreshScreens => viewCapture.btnRefreshScreens;
+        internal CheckBox cbCaptureMouse => viewCapture.cbCaptureMouse;
+        internal Panel cardAudio => viewCapture.cardAudio;
+        internal CheckBox cbAudio => viewCapture.cbAudio;
+        internal ComboBox comboAudioDevices => viewCapture.comboAudioDevices;
+        internal Button btnRefreshAudio => viewCapture.btnRefreshAudio;
+        internal Button btnTestAudio => viewCapture.btnTestAudio;
+        internal Button btnAudioDiag => viewCapture.btnAudioDiag;
+        internal Panel groupBox1 => viewCapture.groupBox1;
+        internal ComboBox comboFps => viewCapture.comboFps;
         internal Label lblQuality => viewCapture.lblQuality;
         internal TrackBar qualitySlider => viewCapture.qualitySlider;
 
         // NetworkSettingsView Forwarders
-        internal FluentCard cardNetwork => viewNetwork.cardNetwork;
-        internal FluentComboBox comboIPs => viewNetwork.comboIPs;
-        internal FluentButton btnRefreshIPs => viewNetwork.btnRefreshIPs;
+        internal Panel cardNetwork => viewNetwork.cardNetwork;
+        internal ComboBox comboIPs => viewNetwork.comboIPs;
+        internal Button btnRefreshIPs => viewNetwork.btnRefreshIPs;
         internal NumericUpDown numPort => viewNetwork.numPort;
         internal Label lblPortStatus => viewNetwork.lblPortStatus;
-        internal FluentCard gbOptions => viewNetwork.gbOptions;
-        internal FluentToggleSwitch cbPrivate => viewNetwork.cbPrivate;
+        internal Panel gbOptions => viewNetwork.gbOptions;
+        internal CheckBox cbPrivate => viewNetwork.cbPrivate;
         internal TextBox txtPassword => viewNetwork.txtPassword;
-        internal FluentButton btnGenPin => viewNetwork.btnGenPin;
-        internal FluentButton btnCopyPin => viewNetwork.btnCopyPin;
+        internal Button btnGenPin => viewNetwork.btnGenPin;
+        internal Button btnCopyPin => viewNetwork.btnCopyPin;
 
         // PreferencesView Forwarders
-        internal FluentCard groupBox2 => viewPreferences.groupBox2;
-        internal FluentToggleSwitch cbAutoStart => viewPreferences.cbAutoStart;
-        internal FluentToggleSwitch cbMiniStart => viewPreferences.cbMiniStart;
-        internal FluentToggleSwitch cbCloseToTray => viewPreferences.cbCloseToTray;
-        internal FluentCard cardLogs => viewPreferences.cardLogs;
+        internal Panel groupBox2 => viewPreferences.groupBox2;
+        internal CheckBox cbAutoStart => viewPreferences.cbAutoStart;
+        internal CheckBox cbMiniStart => viewPreferences.cbMiniStart;
+        internal CheckBox cbCloseToTray => viewPreferences.cbCloseToTray;
+        internal Panel cardLogs => viewPreferences.cardLogs;
         internal TextBox txtLog => viewPreferences.txtLog;
-        internal FluentButton btnClearLog => viewPreferences.btnClearLog;
-        internal FluentButton btnCopyLog => viewPreferences.btnCopyLog;
+        internal Button btnClearLog => viewPreferences.btnClearLog;
+        internal Button btnCopyLog => viewPreferences.btnCopyLog;
 
         // MiniBarForm Controls Forwarders
-        internal FluentButton btnCompactStop => _miniBarForm.btnCompactStop;
-        internal FluentButton btnCompactCopy => _miniBarForm.btnCompactCopy;
-        internal FluentButton btnCompactExpand => _miniBarForm.btnCompactExpand;
+        internal Button btnCompactStop => _miniBarForm.btnCompactStop;
+        internal Button btnCompactCopy => _miniBarForm.btnCompactCopy;
+        internal Button btnCompactExpand => _miniBarForm.btnCompactExpand;
         internal Label lblCompactStatus => _miniBarForm.lblCompactStatus;
         internal Label lblCompactUrl => _miniBarForm.lblCompactUrl;
         internal Label lblCompactDot => _miniBarForm.lblCompactDot;
@@ -269,24 +268,7 @@ namespace ScreenTask
             btnTestAudio.Click += btnTestAudio_Click;
             btnAudioDiag.Click += btnAudioDiag_Click;
             qualitySlider.Scroll += qualitySlider_Scroll;
-
-            // Sync Segmented Framerate with comboFps
-            fpsSegmentedControl.SelectedIndexChanged += (s, e) =>
-            {
-                if (comboFps.SelectedIndex != fpsSegmentedControl.SelectedIndex)
-                {
-                    comboFps.SelectedIndex = fpsSegmentedControl.SelectedIndex;
-                }
-            };
-
-            comboFps.SelectedIndexChanged += (s, e) =>
-            {
-                if (fpsSegmentedControl.SelectedIndex != comboFps.SelectedIndex)
-                {
-                    fpsSegmentedControl.SelectedIndex = comboFps.SelectedIndex;
-                }
-                comboFps_SelectedIndexChanged(s, e);
-            };
+            comboFps.SelectedIndexChanged += comboFps_SelectedIndexChanged;
 
             // Logs
             btnClearLog.Click += (s, e) => txtLog.Clear();
@@ -696,7 +678,7 @@ namespace ScreenTask
                 Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}"
             };
 
-            var btnMute = new ScreenTask.UI.Controls.FluentButton
+            var btnMute = new Button
             {
                 Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
                 Font = new Font("Segoe UI", 7.5F),
@@ -707,7 +689,7 @@ namespace ScreenTask
                 UseVisualStyleBackColor = true
             };
 
-            var btnKick = new ScreenTask.UI.Controls.FluentButton
+            var btnKick = new Button
             {
                 Name = index == 0 ? "btnKickClient1" : $"btnKick_{session.Id}",
                 Font = new Font("Segoe UI", 7.5F),
@@ -1328,7 +1310,6 @@ namespace ScreenTask
                         _ => 1
                     };
                     comboFps.SelectedIndex = fpsIdx;
-                    fpsSegmentedControl.SelectedIndex = fpsIdx;
 
                     if (!string.IsNullOrEmpty(_currentSettings.IP))
                     {

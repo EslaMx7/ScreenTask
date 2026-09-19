@@ -11,7 +11,7 @@ namespace ScreenTask.UI.Controls
     /// A confidence monitor control that displays a live, scaled-down preview of the captured screen
     /// or application window, complete with resolution pill and live broadcasting indicators.
     /// </summary>
-    public class FluentMonitorPreview : Control
+    public class MonitorPreviewControl : Control
     {
         private Bitmap? _previewImage;
         private readonly object _imageLock = new();
@@ -62,7 +62,7 @@ namespace ScreenTask.UI.Controls
             set { _resolutionText = value; Invalidate(); }
         }
 
-        public FluentMonitorPreview()
+        public MonitorPreviewControl()
         {
             SetStyle(ControlStyles.UserPaint |
                      ControlStyles.AllPaintingInWmPaint |
