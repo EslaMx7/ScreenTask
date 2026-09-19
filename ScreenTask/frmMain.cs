@@ -38,6 +38,99 @@ namespace ScreenTask
         private bool _isExitingExplicitly = false;
         private int _currentTabIndex = 0;
         private Size _fullModeClientSize = new Size(860, 620);
+        private readonly MiniBarForm _miniBarForm = new();
+
+        public MiniBarForm MiniBarForm => _miniBarForm;
+        public StreamBroadcaster Broadcaster => _broadcaster;
+        public EmbeddedWebServer WebServer => _webServer;
+        public ScreenCaptureEngine CaptureEngine => _captureEngine;
+
+        #region View Control Forwarders
+        // BroadcastView Forwarders
+        internal FluentMonitorPreview monitorPreview => viewBroadcast.monitorPreview;
+        internal Label lblCursorStatus => viewBroadcast.lblCursorStatus;
+        internal Button btnSwitchSource => viewBroadcast.btnSwitchSource;
+        internal FluentButton btnStartServer => viewBroadcast.btnStartServer;
+        internal FluentButton btnQuickMute => viewBroadcast.btnQuickMute;
+        internal Label lblAudioMeterText => viewBroadcast.lblAudioMeterText;
+        internal FluentAudioMeter pbAudioMeter => viewBroadcast.pbAudioMeter;
+        internal Label lblLiveStats => viewBroadcast.lblLiveStats;
+        internal Label lblPinDisplay => viewBroadcast.lblPinDisplay;
+        internal TextBox txtURL => viewBroadcast.txtURL;
+        internal FluentButton btnCopyUrl => viewBroadcast.btnCopyUrl;
+        internal FluentButton btnQr => viewBroadcast.btnQr;
+        internal FluentButton btnLaunch => viewBroadcast.btnLaunch;
+        internal Label lblChipViewers => viewBroadcast.lblChipViewers;
+        internal Label lblChipFps => viewBroadcast.lblChipFps;
+        internal Label lblChipData => viewBroadcast.lblChipData;
+        internal Label lblChipUptime => viewBroadcast.lblChipUptime;
+
+        // ConnectedViewersView Forwarders
+        internal Label lblMetricViewersVal => viewClients.lblMetricViewersVal;
+        internal ProgressBar pbViewerCapacity => viewClients.pbViewerCapacity;
+        internal Label lblMetricLatencyVal => viewClients.lblMetricLatencyVal;
+        internal Label lblMetricLatencySub => viewClients.lblMetricLatencySub;
+        internal Label lblMetricSyncVal => viewClients.lblMetricSyncVal;
+        internal Label lblMetricSyncSub => viewClients.lblMetricSyncSub;
+        internal Label lblFleetHeader => viewClients.lblFleetHeader;
+        internal Panel panelSessionList => viewClients.panelSessionList;
+        internal Label lblNoClientsPlaceholder => viewClients.lblNoClientsPlaceholder;
+        internal TextBox txtAnnouncement => viewClients.txtAnnouncement;
+        internal FluentButton btnSendAnnouncement => viewClients.btnSendAnnouncement;
+        internal Label lblAnnouncementStatus => viewClients.lblAnnouncementStatus;
+        internal PictureBox picPairingQr => viewClients.picPairingQr;
+        internal TextBox txtPairingUrl => viewClients.txtPairingUrl;
+        internal FluentButton btnPairingCopy => viewClients.btnPairingCopy;
+        internal Label lblPairingPin => viewClients.lblPairingPin;
+        internal FluentButton btnPairingRegen => viewClients.btnPairingRegen;
+        internal Label lblZeroConf => viewClients.lblZeroConf;
+
+        // CaptureSettingsView Forwarders
+        internal FluentComboBox comboScreens => viewCapture.comboScreens;
+        internal FluentButton btnRefreshScreens => viewCapture.btnRefreshScreens;
+        internal FluentToggleSwitch cbCaptureMouse => viewCapture.cbCaptureMouse;
+        internal FluentCard cardAudio => viewCapture.cardAudio;
+        internal FluentToggleSwitch cbAudio => viewCapture.cbAudio;
+        internal FluentComboBox comboAudioDevices => viewCapture.comboAudioDevices;
+        internal FluentButton btnRefreshAudio => viewCapture.btnRefreshAudio;
+        internal FluentButton btnTestAudio => viewCapture.btnTestAudio;
+        internal FluentButton btnAudioDiag => viewCapture.btnAudioDiag;
+        internal FluentCard groupBox1 => viewCapture.groupBox1;
+        internal FluentSegmentedControl fpsSegmentedControl => viewCapture.fpsSegmentedControl;
+        internal FluentComboBox comboFps => viewCapture.comboFps;
+        internal Label lblQuality => viewCapture.lblQuality;
+        internal TrackBar qualitySlider => viewCapture.qualitySlider;
+
+        // NetworkSettingsView Forwarders
+        internal FluentCard cardNetwork => viewNetwork.cardNetwork;
+        internal FluentComboBox comboIPs => viewNetwork.comboIPs;
+        internal FluentButton btnRefreshIPs => viewNetwork.btnRefreshIPs;
+        internal NumericUpDown numPort => viewNetwork.numPort;
+        internal Label lblPortStatus => viewNetwork.lblPortStatus;
+        internal FluentCard gbOptions => viewNetwork.gbOptions;
+        internal FluentToggleSwitch cbPrivate => viewNetwork.cbPrivate;
+        internal TextBox txtPassword => viewNetwork.txtPassword;
+        internal FluentButton btnGenPin => viewNetwork.btnGenPin;
+        internal FluentButton btnCopyPin => viewNetwork.btnCopyPin;
+
+        // PreferencesView Forwarders
+        internal FluentCard groupBox2 => viewPreferences.groupBox2;
+        internal FluentToggleSwitch cbAutoStart => viewPreferences.cbAutoStart;
+        internal FluentToggleSwitch cbMiniStart => viewPreferences.cbMiniStart;
+        internal FluentToggleSwitch cbCloseToTray => viewPreferences.cbCloseToTray;
+        internal FluentCard cardLogs => viewPreferences.cardLogs;
+        internal TextBox txtLog => viewPreferences.txtLog;
+        internal FluentButton btnClearLog => viewPreferences.btnClearLog;
+        internal FluentButton btnCopyLog => viewPreferences.btnCopyLog;
+
+        // MiniBarForm Controls Forwarders
+        internal FluentButton btnCompactStop => _miniBarForm.btnCompactStop;
+        internal FluentButton btnCompactCopy => _miniBarForm.btnCompactCopy;
+        internal FluentButton btnCompactExpand => _miniBarForm.btnCompactExpand;
+        internal Label lblCompactStatus => _miniBarForm.lblCompactStatus;
+        internal Label lblCompactUrl => _miniBarForm.lblCompactUrl;
+        internal Label lblCompactDot => _miniBarForm.lblCompactDot;
+        #endregion
 
         public frmMain()
         {
@@ -83,15 +176,18 @@ namespace ScreenTask
                 var msg = txtAnnouncement.Text.Trim();
                 if (string.IsNullOrEmpty(msg)) return;
 
-                int clientCount = Math.Max(_broadcaster.ConnectedClientsCount, _activeDemoClientsCount);
-                if (_webServer.IsRunning && _broadcaster.ConnectedClientsCount > 0)
+                int clientCount = _broadcaster.ConnectedClientsCount;
+                if (clientCount > 0)
                 {
-                    await _broadcaster.BroadcastAnnouncementAsync(msg);
+                    int notified = await _broadcaster.BroadcastAnnouncementAsync(msg);
+                    Log($"Broadcast announcement dispatched to {notified} viewer(s): \"{msg}\"");
+                    lblAnnouncementStatus.Text = $"✓ Dispatched to {notified} connected viewer(s) at {DateTime.Now:HH:mm:ss}";
+                    txtAnnouncement.Clear();
                 }
-
-                Log($"Broadcast announcement dispatched to {clientCount} viewers: \"{msg}\"");
-                lblAnnouncementStatus.Text = $"✓ Dispatched to {clientCount} connected viewers at {DateTime.Now:HH:mm:ss}";
-                txtAnnouncement.Clear();
+                else
+                {
+                    lblAnnouncementStatus.Text = "⚠️ No viewers connected to receive announcement.";
+                }
             };
 
             btnPairingCopy.Click += (s, e) =>
@@ -110,10 +206,30 @@ namespace ScreenTask
                 SyncPairingInfo();
             };
 
-            WireClientCard(btnMuteClient1, btnKickClient1, panelClientItem1, "iPhone 15 Pro");
-            WireClientCard(btnMuteClient2, btnKickClient2, panelClientItem2, "MacBook Pro 16\"");
-            WireClientCard(btnMuteClient3, btnKickClient3, panelClientItem3, "iPad Air 5th Gen");
-            WireClientCard(btnMuteClient4, btnKickClient4, panelClientItem4, "Surface Pro 9");
+            // Broadcaster real session tracking events
+            _broadcaster.SessionConnected += (session) =>
+            {
+                if (this.IsHandleCreated && !this.IsDisposed)
+                {
+                    try { this.BeginInvoke(() => UpdateSessionCards()); } catch { }
+                }
+            };
+
+            _broadcaster.SessionDisconnected += (id) =>
+            {
+                if (this.IsHandleCreated && !this.IsDisposed)
+                {
+                    try { this.BeginInvoke(() => UpdateSessionCards()); } catch { }
+                }
+            };
+
+            _broadcaster.SessionUpdated += (session) =>
+            {
+                if (this.IsHandleCreated && !this.IsDisposed)
+                {
+                    try { this.BeginInvoke(() => RefreshSessionCardData(session)); } catch { }
+                }
+            };
 
             // Quick Mute Button in Broadcast Controls
             btnQuickMute.Click += (s, e) =>
@@ -123,13 +239,9 @@ namespace ScreenTask
 
             // Compact Mode
             btnMiniMode.Click += (s, e) => ToggleCompactMode();
-            btnCompactExpand.Click += (s, e) => ToggleCompactMode();
-            btnCompactStop.Click += btnStartServer_Click;
-            btnCompactCopy.Click += btnCopyUrl_Click;
-            panelCompactBar.DoubleClick += (s, e) => ToggleCompactMode();
-            lblCompactStatus.DoubleClick += (s, e) => ToggleCompactMode();
-            lblCompactUrl.DoubleClick += (s, e) => ToggleCompactMode();
-            lblCompactDot.DoubleClick += (s, e) => ToggleCompactMode();
+            _miniBarForm.ExpandRequested += (s, e) => ToggleCompactMode();
+            _miniBarForm.ToggleBroadcastRequested += btnStartServer_Click;
+            _miniBarForm.CopyUrlRequested += btnCopyUrl_Click;
 
             // Broadcast Controls
             btnStartServer.Click += btnStartServer_Click;
@@ -272,6 +384,7 @@ namespace ScreenTask
             PopulateAudioDevices();
             LoadSettings();
             SyncPairingInfo();
+            UpdateSessionCards();
             SelectTab(0);
 
             if (_currentSettings.IsStartMinimizedEnabled)
@@ -295,16 +408,22 @@ namespace ScreenTask
             {
                 sideNav.SelectedIndex = index;
             }
-            panelTabBroadcast.Visible = index == 0;
-            panelTabClients.Visible = index == 1;
-            panelTabCapture.Visible = index == 2;
-            panelTabNetwork.Visible = index == 3;
-            panelTabPreferences.Visible = index == 4;
+            viewBroadcast.Visible = index == 0;
+            viewClients.Visible = index == 1;
+            viewCapture.Visible = index == 2;
+            viewNetwork.Visible = index == 3;
+            viewPreferences.Visible = index == 4;
 
-            if (index == 1)
+            if (index == 0) viewBroadcast.BringToFront();
+            else if (index == 1)
             {
+                viewClients.BringToFront();
                 SyncPairingInfo();
+                UpdateSessionCards();
             }
+            else if (index == 2) viewCapture.BringToFront();
+            else if (index == 3) viewNetwork.BringToFront();
+            else if (index == 4) viewPreferences.BringToFront();
         }
 
         private void ToggleCompactMode()
@@ -313,54 +432,23 @@ namespace ScreenTask
 
             if (_isCompactMode)
             {
-                // Save current full view dimensions before shrinking
-                if (this.ClientSize.Height > 100)
-                {
-                    _fullModeClientSize = this.ClientSize;
-                }
-
-                // Calculate compact height scaled by current DPI
-                float dpiScale = (float)this.DeviceDpi / 96f;
-                int compactHeight = Math.Max(68, (int)Math.Round(68f * dpiScale));
-
-                // Hide all main view and header controls to avoid bleed-through
-                panelSideNav.Visible = false;
-                panelTabBroadcast.Visible = false;
-                panelTabClients.Visible = false;
-                panelTabCapture.Visible = false;
-                panelTabNetwork.Visible = false;
-                panelTabPreferences.Visible = false;
-                lblMe.Visible = false;
-                lblStatusBadge.Visible = false;
-                btnMiniMode.Visible = false;
-
-                // Configure and show compact bar filling the entire client area
-                panelCompactBar.Dock = DockStyle.Fill;
-                panelCompactBar.Visible = true;
-                panelCompactBar.BringToFront();
-
-                // Keep same width so window doesn't jump horizontally, only shrink height
-                this.ClientSize = new Size(this.ClientSize.Width, compactHeight);
-                this.TopMost = true;
+                _miniBarForm.Location = this.Location;
+                string status = _webServer.IsRunning
+                    ? $"{_broadcaster.CurrentFps} FPS • {_broadcaster.ConnectedClientsCount} Viewers • {_uptimeStopwatch.Elapsed:hh\\:mm\\:ss}"
+                    : "Stopped";
+                _miniBarForm.UpdateStatus(_webServer.IsRunning, status, txtURL.Text);
+                this.Hide();
+                _miniBarForm.Show();
+                _miniBarForm.BringToFront();
             }
             else
             {
-                // Hide compact bar
-                panelCompactBar.Visible = false;
-
-                // Restore full view size
-                this.ClientSize = _fullModeClientSize.Height > 100 ? _fullModeClientSize : new Size(860, 620);
-                this.TopMost = false;
-
-                // Restore header & navigation controls
-                lblStatusBadge.Visible = true;
-                btnMiniMode.Visible = true;
-                btnMiniMode.Text = "🗖 Mini Bar";
-
-                panelSideNav.Visible = true;
-                lblMe.Visible = true;
-
-                // Restore the currently active tab panel
+                _miniBarForm.Hide();
+                this.Location = _miniBarForm.Location;
+                this.Show();
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                this.Focus();
                 SelectTab(_currentTabIndex);
             }
         }
@@ -466,8 +554,6 @@ namespace ScreenTask
             Log("Refreshed capture sources and open application windows.");
         }
 
-        private int _activeDemoClientsCount = 4;
-
         private void UpdateUrlPreview()
         {
             if (comboIPs.SelectedIndex >= 0 && comboIPs.SelectedIndex < _adapters.Count)
@@ -495,24 +581,193 @@ namespace ScreenTask
             catch { }
         }
 
-        private void WireClientCard(Button btnMute, Button btnKick, Panel cardPanel, string clientName)
+        private readonly Dictionary<string, Panel> _sessionCardPanels = new();
+
+        private void UpdateSessionCards()
         {
+            if (panelSessionList.InvokeRequired)
+            {
+                try { panelSessionList.BeginInvoke(() => UpdateSessionCards()); } catch { }
+                return;
+            }
+
+            var sessions = _broadcaster.ConnectedSessions;
+            int count = sessions.Count;
+
+            lblNoClientsPlaceholder.Visible = count == 0;
+            lblFleetHeader.Text = $"Live Client Sessions ({count} Connected):";
+
+            lblMetricViewersVal.Text = $"{count} / 32 Active";
+            pbViewerCapacity.Value = Math.Clamp(count, 0, 32);
+
+            double avgRtt = _broadcaster.AverageFleetLatencyMs;
+            lblMetricLatencyVal.Text = count > 0 ? $"{avgRtt:0.0} ms Avg" : "0.0 ms Avg";
+            double dropPct = _broadcaster.FrameDropPercentage;
+            lblMetricLatencySub.Text = $"<50ms pipeline • {dropPct:0.0}% drop";
+
+            lblMetricSyncVal.Text = _captureEngine.AudioEnabled ? "100% Locked" : "Audio Inactive";
+            lblMetricSyncSub.Text = _captureEngine.AudioEnabled ? "WASAPI + Display (0 drop, ±0.0ms)" : "Display Only (Audio muted)";
+
+            // Remove panels for disconnected sessions
+            var currentIds = new HashSet<string>(sessions.Select(s => s.Id));
+            var toRemove = _sessionCardPanels.Keys.Where(k => !currentIds.Contains(k)).ToList();
+            foreach (var id in toRemove)
+            {
+                if (_sessionCardPanels.TryGetValue(id, out var panel))
+                {
+                    panelSessionList.Controls.Remove(panel);
+                    panel.Dispose();
+                    _sessionCardPanels.Remove(id);
+                }
+            }
+
+            // Create or position panels
+            panelSessionList.SuspendLayout();
+            int index = 0;
+            foreach (var session in sessions)
+            {
+                if (!_sessionCardPanels.TryGetValue(session.Id, out var cardPanel))
+                {
+                    cardPanel = CreateSessionCard(session, index);
+                    _sessionCardPanels[session.Id] = cardPanel;
+                    panelSessionList.Controls.Add(cardPanel);
+                }
+                else
+                {
+                    cardPanel.Location = new Point(4, index * 78 + 4);
+                    if (index == 0) cardPanel.Name = "panelClientItem1";
+                }
+                RefreshSessionCardData(session);
+                index++;
+            }
+            panelSessionList.ResumeLayout(true);
+        }
+
+        private Panel CreateSessionCard(ViewerSession session, int index)
+        {
+            var panel = new Panel
+            {
+                Name = index == 0 ? "panelClientItem1" : $"panelClientItem_{session.Id}",
+                Size = new Size(346, 72),
+                Location = new Point(4, index * 78 + 4),
+                BackColor = SystemColors.Window,
+                BorderStyle = BorderStyle.FixedSingle,
+                Tag = session.Id
+            };
+
+            var lblTitle = new Label
+            {
+                Name = "lblClientTitle",
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(6, 4),
+                Size = new Size(160, 16),
+                Text = $"{session.DeviceIcon} {session.DeviceName}"
+            };
+
+            var lblBadge = new Label
+            {
+                Name = "lblClientBadge",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.Highlight,
+                Location = new Point(170, 4),
+                Size = new Size(166, 16),
+                TextAlign = ContentAlignment.MiddleRight,
+                Text = session.ViewMode
+            };
+
+            var lblDetails = new Label
+            {
+                Name = "lblClientDetails",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.GrayText,
+                Location = new Point(6, 22),
+                Size = new Size(330, 15),
+                Text = $"{session.RemoteIp} • {session.BrowserName}"
+            };
+
+            var lblMetrics = new Label
+            {
+                Name = "lblClientMetrics",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(6, 44),
+                Size = new Size(185, 20),
+                Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}"
+            };
+
+            var btnMute = new ScreenTask.UI.Controls.FluentButton
+            {
+                Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(198, 42),
+                Size = new Size(70, 24),
+                Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute",
+                UseVisualStyleBackColor = true
+            };
+
+            var btnKick = new ScreenTask.UI.Controls.FluentButton
+            {
+                Name = index == 0 ? "btnKickClient1" : $"btnKick_{session.Id}",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(272, 42),
+                Size = new Size(64, 24),
+                Text = "✕ Kick",
+                UseVisualStyleBackColor = true
+            };
+
             btnMute.Click += (s, e) =>
             {
-                bool isMuted = btnMute.Text.Contains("Unmute");
-                btnMute.Text = isMuted ? "🔊 Mute" : "🔇 Unmute";
-                Log($"Audio {(isMuted ? "unmuted" : "muted")} for client: {clientName}");
+                bool newMuted = !session.IsAudioMuted;
+                _broadcaster.SetClientAudioMuted(session.Id, newMuted);
+                btnMute.Text = newMuted ? "🔇 Unmute" : "🔊 Mute";
+                Log($"Audio {(newMuted ? "muted" : "unmuted")} for viewer: {session.DeviceName} ({session.RemoteIp})");
             };
 
             btnKick.Click += (s, e) =>
             {
-                cardPanel.Visible = false;
-                _activeDemoClientsCount = Math.Max(0, _activeDemoClientsCount - 1);
-                lblMetricViewersVal.Text = $"{_activeDemoClientsCount} / 32 Active";
-                pbViewerCapacity.Value = _activeDemoClientsCount;
-                lblFleetHeader.Text = $"Live Client Sessions ({_activeDemoClientsCount} Connected):";
-                Log($"Client disconnected and session terminated: {clientName}");
+                _ = _broadcaster.KickClientAsync(session.Id);
+                Log($"Disconnected viewer session: {session.DeviceName} ({session.RemoteIp})");
             };
+
+            panel.Controls.Add(lblTitle);
+            panel.Controls.Add(lblBadge);
+            panel.Controls.Add(lblDetails);
+            panel.Controls.Add(lblMetrics);
+            panel.Controls.Add(btnMute);
+            panel.Controls.Add(btnKick);
+
+            return panel;
+        }
+
+        private void RefreshSessionCardData(ViewerSession session)
+        {
+            if (_sessionCardPanels.TryGetValue(session.Id, out var panel))
+            {
+                if (panel.InvokeRequired)
+                {
+                    try { panel.BeginInvoke(() => RefreshSessionCardData(session)); } catch { }
+                    return;
+                }
+
+                foreach (Control ctrl in panel.Controls)
+                {
+                    if (ctrl.Name == "lblClientBadge")
+                    {
+                        ctrl.Text = session.ViewMode;
+                    }
+                    else if (ctrl.Name == "lblClientMetrics")
+                    {
+                        ctrl.Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}";
+                    }
+                    else if (ctrl.Name.StartsWith("btnMute"))
+                    {
+                        ctrl.Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute";
+                    }
+                }
+            }
         }
 
         private async void btnStartServer_Click(object? sender, EventArgs e)
@@ -657,6 +912,7 @@ namespace ScreenTask
                 lblChipViewers.Text = "0 Connected";
                 lblChipFps.Text = "0.0 FPS";
                 lblChipUptime.Text = "00:00:00";
+                UpdateSessionCards();
 
                 Log("ScreenTask server stopped.");
                 appNotify.ShowBalloonTip(1000, "ScreenTask", "Server stopped.", ToolTipIcon.Info);
@@ -691,9 +947,7 @@ namespace ScreenTask
             lblChipData.Text = $"{mbTransferred} MB";
             lblChipUptime.Text = uptime;
 
-            int activeCount = viewers > 0 ? viewers : _activeDemoClientsCount;
-            lblMetricViewersVal.Text = $"{activeCount} / 32 Active";
-            pbViewerCapacity.Value = Math.Clamp(activeCount, 0, 32);
+            UpdateSessionCards();
         }
 
         private void btnCopyUrl_Click(object? sender, EventArgs e)
@@ -1130,6 +1384,10 @@ namespace ScreenTask
             if (!_isExitingExplicitly && cbCloseToTray.Checked && e.CloseReason == CloseReason.UserClosing)
             {
                 e.Cancel = true;
+                if (_isCompactMode)
+                {
+                    _miniBarForm.Hide();
+                }
                 this.WindowState = FormWindowState.Minimized;
                 this.ShowInTaskbar = false;
                 appNotify.Visible = true;
@@ -1144,6 +1402,7 @@ namespace ScreenTask
             _ = _webServer.StopAsync();
             _ = _captureEngine.StopAsync();
             _broadcaster.Dispose();
+            _miniBarForm.Dispose();
         }
     }
 }

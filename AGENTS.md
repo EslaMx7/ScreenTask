@@ -16,13 +16,17 @@ supporting iOS Safari, Android Chrome, and desktop browsers.
     * `Audio/` - NAudio 3 WASAPI audio capture service for loopback and microphone devices.
     * `Capture/` - Capture abstraction, Win32 GDI interop, and capture timer engine.
     * `Network/` - Network adapter enumeration, firewall rule helpers, and QR code generation.
-    * `Streaming/` - In-memory JPEG encoding, frame-dropping protection, and WebSocket broadcaster.
-  * `UI/` - Secondary Windows Forms dialogs for QR code pairing and audio diagnostics.
+    * `Streaming/` - In-memory JPEG encoding, frame-dropping protection, WebSocket broadcaster, and `ViewerSession` fleet telemetry.
+  * `UI/` - Windows Forms views, controls, and dialogs.
+    * `Views/` - Decoupled `UserControl` views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`, `PreferencesView`).
+    * `Controls/` - Custom controls (`FluentSideNav`, `FluentCard`, `FluentMonitorPreview`, `FluentAudioMeter`, etc.).
+    * `MiniBarForm.cs` - Dedicated floating compact toolbar form.
+    * Dialogs (`QrCodeForm`, `AudioDiagnosticsForm`).
   * `WebServer/` - Embedded ASP.NET Core server, REST endpoints, and static web viewer assets.
 * `ScreenTask.Tests/` - Automated xUnit test suite containing unit, integration, and UI tests.
   * `Core/` - Unit tests for settings, capture clipping, adapters, QR codes, and audio.
   * `Integration/` - Integration tests for embedded Kestrel server, WebSockets, and static assets.
-  * `UI/` - STA-threaded Windows Forms UI validation tests for forms, controls, and events.
+  * `UI/` - STA-threaded Windows Forms UI validation tests for forms, views, controls, and events.
 * `ScreenTask.sln` - Visual Studio solution file uniting the application and test projects.
 
 ## Build & Development Commands
@@ -108,10 +112,13 @@ dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contain
 ```mermaid
 flowchart TD
     subgraph Host["Host PC (ScreenTask.exe)"]
-        UI["frmMain (WinForms Host UI)"] -->|Configure| ENGINE["ScreenCaptureEngine"]
-        UI -->|Configure| AUDIO["WasapiAudioCaptureService"]
+        UI["frmMain (WinForms Host UI)"] -->|Hosts| VIEWS["UserControl Views (Broadcast, Viewers, Capture, Network, Prefs)"]
+        UI <-->|Toggle| MINI["MiniBarForm (Floating Compact Bar)"]
+        VIEWS -->|Configure| ENGINE["ScreenCaptureEngine"]
+        VIEWS -->|Configure| AUDIO["WasapiAudioCaptureService"]
         ENGINE -->|Frames| BROADCASTER["StreamBroadcaster"]
         AUDIO -->|PCM Chunks| BROADCASTER
+        BROADCASTER <-->|Fleet Telemetry| SESS["ConcurrentDictionary<string, ViewerSession>"]
         BROADCASTER -->|Dual WS Channels| KESTREL["EmbeddedWebServer (Kestrel)"]
     end
 
@@ -119,26 +126,33 @@ flowchart TD
         KESTREL -->|/stream/ws| WS_VIDEO["wsVideo (Canvas 2D)"]
         KESTREL -->|/stream/audio| WS_AUDIO["wsAudio (Web Audio API)"]
         KESTREL -->|Static Assets| STATIC["index.html + viewer.css + viewer.js"]
-        KESTREL -->|/api/status| POLL["Status Poller (3s)"]
+        WS_VIDEO -->|Ping Heartbeat + Zoom/Mode Telemetry| KESTREL
+        KESTREL -->|0x04 Broadcast Announcements| TOAST["Toast Alerts"]
     end
 ```
 
 ### Component Breakdown & Data Flow
-1. **ScreenCaptureEngine**: Driven by an asynchronous high-resolution timer loop. Captures frames
+1. **UserControl Views & MiniBarForm**: UI is broken down into 5 independent WinForms `UserControl`
+   views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`,
+   `PreferencesView`) plus a standalone `MiniBarForm` floating toolbar. This guarantees complete Visual
+   Studio Designer support with zero panel occlusion or designer Z-order fighting.
+2. **ScreenCaptureEngine**: Driven by an asynchronous high-resolution timer loop. Captures frames
    from `ICaptureSource` (`ScreenCaptureSource` or `WindowCaptureSource`) using GDI32 BitBlt or
    PrintWindow, conditionally draws the hardware mouse cursor, and pushes bitmaps to broadcaster.
-2. **WasapiAudioCaptureService**: Captures system output loopback or microphone audio via modern
+3. **WasapiAudioCaptureService**: Captures system output loopback or microphone audio via modern
    NAudio 3 `WasapiRecorderBuilder`. Converts multi-channel audio to normalized PCM, calculates
    real-time VU levels for UI metering, and dispatches buffers to `StreamBroadcaster`.
-3. **StreamBroadcaster**: Encodes incoming bitmaps into memory-buffered JPEGs using
+4. **StreamBroadcaster**: Encodes incoming bitmaps into memory-buffered JPEGs using
    `System.Drawing.Imaging`. Implements drop-frame protection for slow network clients and pushes
-   binary packets over `/stream/ws` (video) and `/stream/audio` (audio).
-4. **EmbeddedWebServer**: In-process ASP.NET Core Kestrel instance. Hosts static viewer assets,
+   binary packets over `/stream/ws` (video) and `/stream/audio` (audio). Manages real-time viewer
+   sessions (`ViewerSession`), measuring fleet RTT ping latency, handling individual audio muting,
+   and dispatching broadcast announcements.
+5. **EmbeddedWebServer**: In-process ASP.NET Core Kestrel instance. Hosts static viewer assets,
    serves REST endpoints (`/api/status`, `/api/auth`, `/api/qrcode`), and handles WebSocket
    connections with optional PIN session authentication.
-5. **Web Viewer**: Pure HTML5/CSS3/JS client. Renders video onto `<canvas>`, streams audio through
-   the Web Audio API with a jitter buffer, supports double-tap zoom, simulated iOS fullscreen,
-   and auto-hiding floating controls.
+6. **Web Viewer**: Pure HTML5/CSS3/JS client (`viewer.js`). Renders video onto `<canvas>`, streams audio
+   through the Web Audio API with a jitter buffer, supports double-tap zoom, pinch-to-zoom (up to 5x),
+   simulated iOS fullscreen, ping/pong heartbeats, and on-screen broadcast alert toasts.
 
 ## Testing Strategy
 

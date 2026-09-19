@@ -205,7 +205,7 @@ ScreenTask.Tests/
 ```
 
 ### Verification Results
-* **Test Suite**: `dotnet test` -> **45 / 45 Passed (100% success rate)**.
+* **Test Suite**: `dotnet test` -> **46 / 46 Passed (100% success rate)**.
 * **Release Build**: `dotnet build -c Release` -> **0 Warnings, 0 Errors**.
 * **Code Formatting**: `dotnet format --verify-no-changes` -> **Clean, 0 format changes**.
 * **JavaScript Syntax**: `node -c ScreenTask/WebServer/viewer.js` -> **Valid ES6 syntax**.
@@ -220,14 +220,16 @@ ScreenTask.Tests/
 | **Kestrel Embedded Server** | ✅ Completed | Embedded ASP.NET Core server hosting WebSockets & static viewer. |
 | **Dual-Channel WebSockets** | ✅ Completed | Separate `/stream/ws` (JPEG) and `/stream/audio` (PCM) channels. |
 | **NAudio 3 WASAPI Capture** | ✅ Completed | Loopback & microphone audio streaming with peak volume calculation. |
-| **HTML5/CSS3 Web Viewer 2.0**| ✅ Completed | Canvas rendering, Web Audio player, pinch-zoom, HUD overlay. |
+| **HTML5/CSS3 Web Viewer 2.0**| ✅ Completed | Canvas rendering, Web Audio player, pinch-zoom, HUD overlay, toasts. |
+| **Connected Viewers & Fleet**| ✅ Completed | Live concurrency gauge, ping RTT latency, mute/kick, and announcements. |
+| **Component UserControl Architecture**| ✅ Completed | Extracted 5 decoupled views with 100% Visual Studio Designer support. |
 | **Zero-Disk In-Memory Compression** | ✅ Completed | Replaced physical JPEG file writing with `ArrayPool<byte>` memory buffers. |
 | **Display & Window Capture** | ✅ Completed | GDI32 `BitBlt` for screens and User32 `PrintWindow` for windows. |
-| **Vertical Side Navigation** | ✅ Completed | Native vertical sidebar with branding, active indicators, and bottom-pinned mute. |
-| **Compact Mini Bar Overlay** | ✅ Completed | Height-collapsible floating bar with live metrics and instant restore. |
+| **Vertical Side Navigation** | ✅ Completed | Native vertical sidebar with branding, active indicators, and 5 tab groups. |
+| **Standalone Mini Bar Form** | ✅ Completed | Dedicated top-level floating toolbar form with drag support and full view restore. |
 | **Native Windows Theming** | ✅ Completed | Replaced custom colors with native system colors and solid borders. |
 | **Terminology Harmonization**| ✅ Completed | Removed developer jargon across all controls, forms, dialogs, and tooltips. |
-| **Automated Test Suite (45 tests)** | ✅ Completed | Unit, integration, and STA UI tests passing with 100% coverage. |
+| **Automated Test Suite (46 tests)** | ✅ Completed | Unit, integration, and STA UI tests passing with 100% coverage. |
 | **DirectX Desktop Duplication (DXGI)** | ⏳ Future | Planned GPU-accelerated capture pipeline for ultra-low CPU overhead. |
 | **Opus Audio Compression** | ⏳ Future | Planned optional audio codec for ultra-low bandwidth WAN streaming. |
 | **GitHub Actions CI/CD** | ⏳ Future | Automated Windows test and release publish workflow. |
@@ -236,14 +238,22 @@ ScreenTask.Tests/
 
 ## 8. Summary of Active Files
 
-* `ScreenTask/frmMain.cs` - Main desktop form runtime orchestration, timer loops, and event handlers.
-* `ScreenTask/frmMain.Designer.cs` - Native WinForms component layout, container definitions, and tooltips.
+* `ScreenTask/frmMain.cs` - Main desktop form orchestrator, navigation dispatcher, and event forwarder.
+* `ScreenTask/frmMain.Designer.cs` - Lightweight WinForms shell (293 lines) hosting navigation and content container.
+* `ScreenTask/UI/Views/` - Decoupled page UserControls with full Visual Studio Designer support:
+  * `BroadcastView.cs` & `.Designer.cs` - Monitor preview, broadcast controls, URL card, and telemetry chips.
+  * `ConnectedViewersView.cs` & `.Designer.cs` - Live concurrency gauges, session plate cards, and pairing pass.
+  * `CaptureSettingsView.cs` & `.Designer.cs` - Video source selection, audio devices, framerate, and quality.
+  * `NetworkSettingsView.cs` & `.Designer.cs` - Network adapter enumeration, port binding, and PIN session security.
+  * `PreferencesView.cs` & `.Designer.cs` - Startup preferences, tray minimization, and activity log.
+* `ScreenTask/UI/MiniBarForm.cs` & `.Designer.cs` - Standalone floating compact bar form with dragging support.
+* `ScreenTask/Core/Streaming/ViewerSession.cs` - Thread-safe session tracking model and zero-dependency user agent parser.
 * `ScreenTask/UI/Controls/FluentCard.cs` - Native container panel with `BorderStyle.FixedSingle` framing.
 * `ScreenTask/UI/Controls/FluentMonitorPreview.cs` - Live stream confidence monitor with `● LIVE` / `● IDLE` OSD badge.
 * `ScreenTask/UI/Controls/FluentAudioMeter.cs` - Native progress bar VU meter for audio input levels.
 * `ScreenTask/UI/QrCodeForm.cs` - Secondary dialog for instant smartphone pairing via QR code camera scan.
 * `ScreenTask/UI/AudioDiagnosticsForm.cs` - Secondary dialog for microphone testing and device diagnostics.
-* `ScreenTask/WebServer/viewer.js` - Client-side WebSocket receiver, Canvas renderer, and Web Audio API player.
+* `ScreenTask/WebServer/viewer.js` - Client-side WebSocket receiver, Canvas renderer, Web Audio player, and telemetry reporter.
 * `ScreenTask/WebServer/viewer.css` - Responsive mobile-first stylesheet with simulated fullscreen and floating HUD.
 * `ScreenTask/WebServer/index.html` - Minimal semantic viewer shell.
 * `ScreenTask.Tests/` - Full automated test suite verifying core engines, Kestrel endpoints, and UI controls.

@@ -1,7 +1,9 @@
 using System;
 using System.Drawing;
+using System.Net.WebSockets;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using ScreenTask;
 using ScreenTask.Core.Audio;
@@ -207,11 +209,11 @@ namespace ScreenTask.Tests.UI
                 form.Show();
 
                 var sideNav = FindControl<FluentSideNav>(form, "sideNav");
-                var panelBroadcast = FindControl<Panel>(form, "panelTabBroadcast");
-                var panelClients = FindControl<Panel>(form, "panelTabClients");
-                var panelCapture = FindControl<Panel>(form, "panelTabCapture");
-                var panelNetwork = FindControl<Panel>(form, "panelTabNetwork");
-                var panelPreferences = FindControl<Panel>(form, "panelTabPreferences");
+                var panelBroadcast = FindControl<Control>(form, "viewBroadcast");
+                var panelClients = FindControl<Control>(form, "viewClients");
+                var panelCapture = FindControl<Control>(form, "viewCapture");
+                var panelNetwork = FindControl<Control>(form, "viewNetwork");
+                var panelPreferences = FindControl<Control>(form, "viewPreferences");
 
                 Assert.NotNull(sideNav);
                 Assert.NotNull(panelBroadcast);
@@ -268,27 +270,34 @@ namespace ScreenTask.Tests.UI
                 // Switch to Connected Viewers & QR tab
                 sideNav.SelectedIndex = 1;
 
-                var panelClients = FindControl<Panel>(form, "panelTabClients");
+                var panelClients = FindControl<Control>(form, "viewClients");
                 Assert.NotNull(panelClients);
                 Assert.True(panelClients.Visible);
 
-                // 1. Top Metric Gauges
+                // 1. Top Metric Gauges - Initially 0 active clients
                 var cardMetricViewers = FindControl<Control>(form, "cardMetricViewers");
                 var cardMetricLatency = FindControl<Control>(form, "cardMetricLatency");
                 var cardMetricSync = FindControl<Control>(form, "cardMetricSync");
                 var pbViewerCapacity = FindControl<ProgressBar>(form, "pbViewerCapacity");
                 var lblMetricViewersVal = FindControl<Label>(form, "lblMetricViewersVal");
+                var panelSessionList = FindControl<Panel>(form, "panelSessionList");
 
                 Assert.NotNull(cardMetricViewers);
                 Assert.NotNull(cardMetricLatency);
                 Assert.NotNull(cardMetricSync);
                 Assert.NotNull(pbViewerCapacity);
                 Assert.NotNull(lblMetricViewersVal);
-                Assert.Contains("4", lblMetricViewersVal.Text);
-                Assert.Equal(4, pbViewerCapacity.Value);
+                Assert.NotNull(panelSessionList);
+
+                Assert.Contains("0 / 32 Active", lblMetricViewersVal.Text);
+                Assert.Equal(0, pbViewerCapacity.Value);
                 Assert.Equal(32, pbViewerCapacity.Maximum);
 
-                // 2. Announcement Dispatcher
+                var lblNoClients = FindControl<Label>(panelSessionList, "lblNoClientsPlaceholder");
+                Assert.NotNull(lblNoClients);
+                Assert.True(lblNoClients.Visible);
+
+                // 2. Announcement Dispatcher with no clients
                 var txtAnnouncement = FindControl<TextBox>(form, "txtAnnouncement");
                 var btnSendAnnouncement = FindControl<Button>(form, "btnSendAnnouncement");
                 var lblAnnouncementStatus = FindControl<Label>(form, "lblAnnouncementStatus");
@@ -299,8 +308,8 @@ namespace ScreenTask.Tests.UI
 
                 txtAnnouncement.Text = "Attention viewers: Stream quality optimized!";
                 btnSendAnnouncement.PerformClick();
-                Assert.Contains("Dispatched", lblAnnouncementStatus.Text);
-                Assert.Equal(string.Empty, txtAnnouncement.Text);
+                Assert.Contains("No viewers connected", lblAnnouncementStatus.Text);
+                Assert.Equal("Attention viewers: Stream quality optimized!", txtAnnouncement.Text);
 
                 // 3. Pairing Pass & QR Code
                 var picPairingQr = FindControl<PictureBox>(form, "picPairingQr");
@@ -321,27 +330,69 @@ namespace ScreenTask.Tests.UI
                 btnPairingRegen.PerformClick();
                 Assert.Contains("PIN", lblPairingPin.Text);
 
-                // 4. Client Session Cards Mute & Kick Controls
-                var btnMuteClient1 = FindControl<Button>(form, "btnMuteClient1");
-                var btnKickClient1 = FindControl<Button>(form, "btnKickClient1");
-                var panelClientItem1 = FindControl<Panel>(form, "panelClientItem1");
+                // 4. Connect a simulated live client session
+                using var dummyWs = new DummyWebSocket();
+                form.Broadcaster.AddVideoClient(
+                    "session-iphone-1",
+                    dummyWs,
+                    "192.168.1.182",
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+                );
+                Application.DoEvents();
 
-                Assert.NotNull(btnMuteClient1);
-                Assert.NotNull(btnKickClient1);
+                // Capacity gauge and placeholder update dynamically
+                Assert.Contains("1 / 32 Active", lblMetricViewersVal.Text);
+                Assert.Equal(1, pbViewerCapacity.Value);
+                Assert.False(lblNoClients.Visible);
+
+                // Dynamic card is generated
+                var panelClientItem1 = FindControl<Panel>(panelSessionList, "panelClientItem1");
                 Assert.NotNull(panelClientItem1);
 
-                // Test Mute toggle
+                var lblTitle = FindControl<Label>(panelClientItem1, "lblClientTitle");
+                var lblDetails = FindControl<Label>(panelClientItem1, "lblClientDetails");
+                Assert.NotNull(lblTitle);
+                Assert.NotNull(lblDetails);
+                Assert.Contains("iPhone", lblTitle.Text);
+                Assert.Contains("192.168.1.182", lblDetails.Text);
+                Assert.Contains("Safari", lblDetails.Text);
+
+                // Telemetry update reflection
+                form.Broadcaster.UpdateTelemetry("session-iphone-1", 18.2, "Touch Zoom 2.0x");
+                Application.DoEvents();
+                var lblBadge = FindControl<Label>(panelClientItem1, "lblClientBadge");
+                Assert.NotNull(lblBadge);
+                Assert.Equal("Touch Zoom 2.0x", lblBadge.Text);
+
+                // Dispatch announcement to the 1 connected client
+                txtAnnouncement.Text = "Welcome iPhone viewer!";
+                btnSendAnnouncement.PerformClick();
+                Assert.Contains("Dispatched to 1 connected viewer", lblAnnouncementStatus.Text);
+                Assert.Equal(string.Empty, txtAnnouncement.Text);
+
+                // Audio Mute toggle
+                var btnMuteClient1 = FindControl<Button>(panelClientItem1, "btnMuteClient1");
+                Assert.NotNull(btnMuteClient1);
                 Assert.Contains("Mute", btnMuteClient1.Text);
+
                 btnMuteClient1.PerformClick();
                 Assert.Contains("Unmute", btnMuteClient1.Text);
+
                 btnMuteClient1.PerformClick();
                 Assert.Contains("Mute", btnMuteClient1.Text);
 
-                // Test Kick client
+                // Kick client
+                var btnKickClient1 = FindControl<Button>(panelClientItem1, "btnKickClient1");
+                Assert.NotNull(btnKickClient1);
                 btnKickClient1.PerformClick();
-                Assert.False(panelClientItem1.Visible);
-                Assert.Contains("3", lblMetricViewersVal.Text);
-                Assert.Equal(3, pbViewerCapacity.Value);
+                Application.DoEvents();
+
+                // Session card removed and gauges return to 0
+                panelClientItem1 = FindControl<Panel>(panelSessionList, "panelClientItem1");
+                Assert.Null(panelClientItem1);
+                Assert.Contains("0 / 32 Active", lblMetricViewersVal.Text);
+                Assert.Equal(0, pbViewerCapacity.Value);
+                Assert.True(lblNoClients.Visible);
             });
         }
 
@@ -354,37 +405,36 @@ namespace ScreenTask.Tests.UI
                 form.Show();
 
                 var btnMiniMode = FindControl<Button>(form, "btnMiniMode");
-                var btnCompactExpand = FindControl<Button>(form, "btnCompactExpand");
-                var btnCompactStop = FindControl<Button>(form, "btnCompactStop");
-                var btnCompactCopy = FindControl<Button>(form, "btnCompactCopy");
-                var panelCompactBar = FindControl<Panel>(form, "panelCompactBar");
-
                 Assert.NotNull(btnMiniMode);
+                Assert.NotNull(form.MiniBarForm);
+                Assert.False(form.MiniBarForm.Visible);
+                Assert.True(form.Visible);
+                Assert.Equal(620, form.ClientSize.Height);
+
+                // Click Mini Mode to enter compact toolbar form
+                btnMiniMode.PerformClick();
+                Assert.True(form.MiniBarForm.Visible);
+                Assert.True(form.MiniBarForm.TopMost);
+                Assert.Equal(68, form.MiniBarForm.ClientSize.Height);
+
+                var btnCompactExpand = FindControl<Button>(form.MiniBarForm, "btnCompactExpand");
+                var btnCompactStop = FindControl<Button>(form.MiniBarForm, "btnCompactStop");
+                var btnCompactCopy = FindControl<Button>(form.MiniBarForm, "btnCompactCopy");
                 Assert.NotNull(btnCompactExpand);
                 Assert.NotNull(btnCompactStop);
                 Assert.NotNull(btnCompactCopy);
-                Assert.NotNull(panelCompactBar);
-
-                Assert.False(panelCompactBar.Visible);
-                Assert.Equal(620, form.ClientSize.Height);
-
-                // Click Mini Mode to enter compact toolbar
-                btnMiniMode.PerformClick();
-                Assert.True(panelCompactBar.Visible);
-                Assert.True(form.TopMost);
-                Assert.Equal(68, form.ClientSize.Height);
 
                 // Verify controls are visible and within bounds inside the compact bar
                 Assert.True(btnCompactExpand.Visible);
                 Assert.True(btnCompactStop.Visible);
                 Assert.True(btnCompactCopy.Visible);
-                Assert.True(btnCompactExpand.Right <= panelCompactBar.Width);
-                Assert.True(btnCompactExpand.Bottom <= panelCompactBar.Height);
+                Assert.True(btnCompactExpand.Right <= form.MiniBarForm.ClientSize.Width);
+                Assert.True(btnCompactExpand.Bottom <= form.MiniBarForm.ClientSize.Height);
 
                 // Click Expand to return to full window
                 btnCompactExpand.PerformClick();
-                Assert.False(panelCompactBar.Visible);
-                Assert.False(form.TopMost);
+                Assert.False(form.MiniBarForm.Visible);
+                Assert.True(form.Visible);
                 Assert.Equal(620, form.ClientSize.Height);
             });
         }
@@ -480,6 +530,35 @@ namespace ScreenTask.Tests.UI
                 if (found != null) return found;
             }
             return null;
+        }
+
+        private class DummyWebSocket : WebSocket
+        {
+            private WebSocketState _state = WebSocketState.Open;
+            public override WebSocketCloseStatus? CloseStatus => WebSocketCloseStatus.NormalClosure;
+            public override string? CloseStatusDescription => "Normal";
+            public override WebSocketState State => _state;
+            public override string? SubProtocol => null;
+            public override void Abort() { _state = WebSocketState.Aborted; }
+            public override Task CloseAsync(WebSocketCloseStatus closeStatus, string? statusDescription, CancellationToken cancellationToken)
+            {
+                _state = WebSocketState.Closed;
+                return Task.CompletedTask;
+            }
+            public override Task CloseOutputAsync(WebSocketCloseStatus closeStatus, string? statusDescription, CancellationToken cancellationToken)
+            {
+                _state = WebSocketState.Closed;
+                return Task.CompletedTask;
+            }
+            public override void Dispose() { }
+            public override Task<WebSocketReceiveResult> ReceiveAsync(ArraySegment<byte> buffer, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new WebSocketReceiveResult(0, WebSocketMessageType.Close, true));
+            }
+            public override Task SendAsync(ArraySegment<byte> buffer, WebSocketMessageType messageType, bool endOfMessage, CancellationToken cancellationToken)
+            {
+                return Task.CompletedTask;
+            }
         }
     }
 }
