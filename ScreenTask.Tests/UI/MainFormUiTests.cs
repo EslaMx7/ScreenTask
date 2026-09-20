@@ -566,11 +566,14 @@ namespace ScreenTask.Tests.UI
                 var btnTabWindows = FindControl<Button>(form, "btnTabWindows");
                 var flowSourceCards = FindControl<FlowLayoutPanel>(form, "flowSourceCards");
                 var comboScreens = FindControl<ComboBox>(form, "comboScreens");
+                var lblSelectedSource = FindControl<Label>(form, "lblSelectedSource");
 
                 Assert.NotNull(btnTabDisplays);
                 Assert.NotNull(btnTabWindows);
                 Assert.NotNull(flowSourceCards);
                 Assert.NotNull(comboScreens);
+                Assert.NotNull(lblSelectedSource);
+                Assert.True(lblSelectedSource.Visible);
 
                 Assert.Contains("Displays", btnTabDisplays.Text);
                 Assert.Contains("Windows", btnTabWindows.Text);
@@ -585,13 +588,35 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(firstDisplayCard.IconImage);
                 Assert.False(string.IsNullOrWhiteSpace(firstDisplayCard.Title));
 
-                // Switch to Windows tab
+                // Persistent selected source label check
+                Assert.Contains("Selected:", lblSelectedSource.Text);
+                Assert.Contains("Display 1", lblSelectedSource.Text);
+                Assert.Equal(captureView.SelectedSourceText, lblSelectedSource.Text);
+
+                // Switch to Windows tab - selected source label must still show the display!
                 btnTabWindows.PerformClick();
                 Assert.Equal(CaptureSettingsView.SourceFilterTab.Windows, captureView.ActiveTab);
+                Assert.Contains("Display 1", lblSelectedSource.Text);
 
-                // Switch back to Displays tab
-                btnTabDisplays.PerformClick();
-                Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
+                // If window cards exist, selecting one updates lblSelectedSource
+                if (captureView.WindowCards.Count > 0)
+                {
+                    var firstWindowCard = captureView.WindowCards[0];
+                    firstWindowCard.PerformClick();
+                    Assert.Contains("Selected:", lblSelectedSource.Text);
+                    Assert.Contains(firstWindowCard.Title, lblSelectedSource.Text);
+
+                    // Switch back to Displays tab - selected source label must still show the window!
+                    btnTabDisplays.PerformClick();
+                    Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
+                    Assert.Contains(firstWindowCard.Title, lblSelectedSource.Text);
+                }
+                else
+                {
+                    // Switch back to Displays tab
+                    btnTabDisplays.PerformClick();
+                    Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
+                }
 
                 // Test thumbnail update
                 using var dummyThumb = new Bitmap(180, 100);

@@ -42,6 +42,8 @@ namespace ScreenTask.UI.Controls
             set => picIcon.Image = value;
         }
 
+        public void PerformClick() => CardClicked?.Invoke(this, EventArgs.Empty);
+
         public SourceCardControl()
         {
             InitializeComponent();

@@ -101,6 +101,7 @@ namespace ScreenTask
         internal Button btnTabDisplays => viewCapture.btnTabDisplays;
         internal Button btnTabWindows => viewCapture.btnTabWindows;
         internal FlowLayoutPanel flowSourceCards => viewCapture.flowSourceCards;
+        internal Label lblSelectedSource => viewCapture.lblSelectedSource;
         internal CheckBox cbCaptureMouse => viewCapture.cbCaptureMouse;
         internal Panel cardAudio => viewCapture.cardAudio;
         internal CheckBox cbAudio => viewCapture.cbAudio;

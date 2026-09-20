@@ -42,6 +42,8 @@ namespace ScreenTask.UI.Views
         public IReadOnlyList<SourceCardControl> DisplayCards => _displayCards;
         public IReadOnlyList<SourceCardControl> WindowCards => _windowCards;
         public SourceCardControl? SelectedCard => _selectedCard;
+        public Label SelectedSourceLabel => lblSelectedSource;
+        public string SelectedSourceText => lblSelectedSource.Text;
 
         public CaptureSettingsView()
         {
@@ -185,6 +187,7 @@ namespace ScreenTask.UI.Views
                 comboScreens.SelectedIndex = selectedIndex;
             }
 
+            UpdateSelectedSourceLabel();
             UpdateTabButtonsState();
             RenderActiveTabCards();
             TriggerThumbnailUpdate();
@@ -232,6 +235,7 @@ namespace ScreenTask.UI.Views
 
             card.IsSelected = true;
             _selectedCard = card;
+            UpdateSelectedSourceLabel();
 
             // Synchronize with comboScreens
             if (card.Source != null)
@@ -247,6 +251,26 @@ namespace ScreenTask.UI.Views
                     SourceCardSelected?.Invoke(card.Source);
                     ScreenSelectionChanged?.Invoke(this, EventArgs.Empty);
                 }
+            }
+        }
+
+        private void UpdateSelectedSourceLabel()
+        {
+            if (lblSelectedSource.InvokeRequired)
+            {
+                lblSelectedSource.BeginInvoke(UpdateSelectedSourceLabel);
+                return;
+            }
+
+            if (_selectedCard?.Source != null)
+            {
+                var src = _selectedCard.Source;
+                string icon = src is ScreenCaptureSource ? "🖥️" : "🪟";
+                lblSelectedSource.Text = $"Selected: {icon} {src.DisplayName}";
+            }
+            else
+            {
+                lblSelectedSource.Text = "Selected: None";
             }
         }
 
