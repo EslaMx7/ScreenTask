@@ -72,7 +72,6 @@ namespace ScreenTask.UI.Views
             this.cardVideoSource.Controls.Add(this.flowSourceCards);
             this.cardVideoSource.Controls.Add(this.lblSelectedSource);
             this.cardVideoSource.Controls.Add(this.comboScreens);
-            this.cardVideoSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.cardVideoSource.Location = new System.Drawing.Point(0, 0);
             this.cardVideoSource.Name = "cardVideoSource";
             this.cardVideoSource.Size = new System.Drawing.Size(652, 340);
@@ -132,7 +131,6 @@ namespace ScreenTask.UI.Views
             // 
             // flowSourceCards
             // 
-            this.flowSourceCards.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.flowSourceCards.AutoScroll = true;
             this.flowSourceCards.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.flowSourceCards.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -180,7 +178,6 @@ namespace ScreenTask.UI.Views
             // 
             // cardAudio
             // 
-            this.cardAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.cardAudio.BackColor = System.Drawing.SystemColors.Control;
             this.cardAudio.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardAudio.Controls.Add(this.lblAudioPill);
@@ -270,7 +267,6 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
             this.groupBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox1.Controls.Add(this.label8);

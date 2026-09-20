@@ -80,11 +80,13 @@ namespace ScreenTask.UI.Views
 
             flowSourceCards.Resize += (s, e) => UpdateHeaderWidths();
 
+            this.Resize += (s, e) => UpdateLayout();
             _thumbnailTimer.Tick += OnThumbnailTimerTick;
             this.VisibleChanged += (s, e) =>
             {
                 if (this.Visible)
                 {
+                    UpdateLayout();
                     _thumbnailTimer.Start();
                     TriggerThumbnailUpdate();
                 }
@@ -93,6 +95,56 @@ namespace ScreenTask.UI.Views
                     _thumbnailTimer.Stop();
                 }
             };
+        }
+
+        private void UpdateLayout()
+        {
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
+            int totalWidth = this.ClientSize.Width;
+            int totalHeight = this.ClientSize.Height;
+
+            int bottomH = 160;
+            int bottomY = Math.Max(260, totalHeight - bottomH);
+
+            // Card Video Source (Grid of Display/App Source Cards)
+            cardVideoSource.Location = new Point(0, 0);
+            cardVideoSource.Size = new Size(totalWidth, bottomY - 8);
+
+            flowSourceCards.Location = new Point(10, 38);
+            flowSourceCards.Size = new Size(Math.Max(300, cardVideoSource.ClientSize.Width - 20), Math.Max(180, cardVideoSource.ClientSize.Height - 74));
+
+            lblSelectedSource.Location = new Point(12, cardVideoSource.ClientSize.Height - 28);
+            lblSelectedSource.Width = Math.Max(200, cardVideoSource.ClientSize.Width - 24);
+
+            // Audio Card and Quality/Framerate Card
+            if (totalWidth >= 640)
+            {
+                int halfW = (totalWidth - 8) / 2;
+                cardAudio.Location = new Point(0, bottomY);
+                cardAudio.Size = new Size(halfW, bottomH);
+
+                groupBox1.Location = new Point(halfW + 8, bottomY);
+                groupBox1.Size = new Size(totalWidth - (halfW + 8), bottomH);
+            }
+            else
+            {
+                cardAudio.Location = new Point(0, bottomY);
+                cardAudio.Size = new Size(totalWidth, bottomH);
+
+                groupBox1.Location = new Point(0, bottomY + bottomH + 8);
+                groupBox1.Size = new Size(totalWidth, bottomH);
+            }
+
+            // Internal Audio controls
+            lblAudioPill.Location = new Point(Math.Max(160, cardAudio.ClientSize.Width - lblAudioPill.Width - 12), 10);
+            btnRefreshAudio.Location = new Point(cardAudio.ClientSize.Width - btnRefreshAudio.Width - 12, 69);
+            comboAudioDevices.Location = new Point(16, 70);
+            comboAudioDevices.Width = Math.Max(120, btnRefreshAudio.Left - comboAudioDevices.Left - 8);
+
+            // Internal Quality controls
+            qualitySlider.Location = new Point(16, 126);
+            qualitySlider.Width = Math.Max(150, groupBox1.ClientSize.Width - 32);
+            comboFps.Width = Math.Min(240, groupBox1.ClientSize.Width - 32);
         }
 
         public void SwitchTab(SourceFilterTab tab)

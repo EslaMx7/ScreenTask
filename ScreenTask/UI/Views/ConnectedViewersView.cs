@@ -29,7 +29,7 @@ namespace ScreenTask.UI.Views
 
         private void UpdateLayout()
         {
-            if (this.ClientSize.Width <= 0) return;
+            if (this.ClientSize.Width <= 0 || this.ClientSize.Height <= 0) return;
             int totalWidth = this.ClientSize.Width;
             int totalHeight = this.ClientSize.Height;
 
@@ -38,25 +38,70 @@ namespace ScreenTask.UI.Views
             int metricWidth = Math.Max(150, (totalWidth - (2 * gap)) / 3);
             cardMetricViewers.Location = new Point(0, 0);
             cardMetricViewers.Width = metricWidth;
+            lblMetricViewersVal.Width = Math.Max(100, cardMetricViewers.ClientSize.Width - 16);
+            pbViewerCapacity.Width = Math.Max(100, cardMetricViewers.ClientSize.Width - 16);
 
             cardMetricLatency.Location = new Point(metricWidth + gap, 0);
             cardMetricLatency.Width = metricWidth;
+            lblMetricLatencyVal.Width = Math.Max(100, cardMetricLatency.ClientSize.Width - 16);
+            lblMetricLatencySub.Width = Math.Max(100, cardMetricLatency.ClientSize.Width - 16);
 
             cardMetricSync.Location = new Point((metricWidth + gap) * 2, 0);
             cardMetricSync.Width = totalWidth - cardMetricSync.Left;
+            lblMetricSyncVal.Width = Math.Max(100, cardMetricSync.ClientSize.Width - 16);
+            lblMetricSyncSub.Width = Math.Max(100, cardMetricSync.ClientSize.Width - 16);
 
             // 2. Bottom 2 Panels: Fleet Terminal (left) and Pairing Pass (right)
-            int rightCardWidth = 260;
+            int rightCardWidth = Math.Min(320, Math.Max(260, (int)(totalWidth * 0.32)));
             cardPairingPass.Location = new Point(Math.Max(380, totalWidth - rightCardWidth), 80);
             cardPairingPass.Width = rightCardWidth;
             cardPairingPass.Height = Math.Max(400, totalHeight - 80);
 
+            // Respect 1:1 Square Aspect Ratio for QR Code
+            int qrSize = Math.Min(180, Math.Max(120, cardPairingPass.ClientSize.Width - 40));
+            picPairingQr.Size = new Size(qrSize, qrSize);
+            picPairingQr.Location = new Point((cardPairingPass.ClientSize.Width - qrSize) / 2, 20);
+            picPairingQr.SizeMode = PictureBoxSizeMode.Zoom;
+
+            // Pairing controls below QR
+            lblPairingUrlTitle.Location = new Point(10, picPairingQr.Bottom + 10);
+            btnPairingCopy.Location = new Point(cardPairingPass.ClientSize.Width - btnPairingCopy.Width - 10, lblPairingUrlTitle.Bottom + 2);
+            txtPairingUrl.Location = new Point(10, lblPairingUrlTitle.Bottom + 4);
+            txtPairingUrl.Width = Math.Max(100, btnPairingCopy.Left - 16);
+
+            btnPairingRegen.Location = new Point(cardPairingPass.ClientSize.Width - btnPairingRegen.Width - 10, txtPairingUrl.Bottom + 8);
+            lblPairingPin.Location = new Point(10, txtPairingUrl.Bottom + 10);
+            lblPairingPin.Width = Math.Max(100, btnPairingRegen.Left - 14);
+
+            lblZeroConf.Location = new Point(10, btnPairingRegen.Bottom + 6);
+            lblZeroConf.Width = cardPairingPass.ClientSize.Width - 20;
+
+            int spotlightTop = lblZeroConf.Bottom + 6;
+            panelSpotlight.Location = new Point(10, spotlightTop);
+            panelSpotlight.Width = cardPairingPass.ClientSize.Width - 20;
+            panelSpotlight.Height = Math.Max(100, cardPairingPass.ClientSize.Height - spotlightTop - 10);
+            lblSpotlightTitle.Width = panelSpotlight.ClientSize.Width - 16;
+            lblSpotlight1.Width = panelSpotlight.ClientSize.Width - 16;
+            lblSpotlight2.Width = panelSpotlight.ClientSize.Width - 16;
+            lblSpotlight3.Width = panelSpotlight.ClientSize.Width - 16;
+            lblSpotlight4.Width = panelSpotlight.ClientSize.Width - 16;
+            lblSpotlight5.Width = panelSpotlight.ClientSize.Width - 16;
+
+            // Fleet Terminal Left Card
             cardFleetTerminal.Location = new Point(0, 80);
             cardFleetTerminal.Width = Math.Max(360, cardPairingPass.Left - 10);
             cardFleetTerminal.Height = Math.Max(400, totalHeight - 80);
 
             panelSessionList.Width = cardFleetTerminal.Width - 20;
             panelSessionList.Height = Math.Max(150, cardFleetTerminal.Height - 110);
+            lblNoClientsPlaceholder.Width = panelSessionList.ClientSize.Width - 20;
+
+            // Synchronize existing session card widths
+            int currentListWidth = Math.Max(340, panelSessionList.ClientSize.Width - 10);
+            foreach (var pnl in _sessionCardPanels.Values)
+            {
+                pnl.Width = currentListWidth;
+            }
 
             lblAnnouncement.Top = cardFleetTerminal.Height - 88;
             txtAnnouncement.Top = cardFleetTerminal.Height - 68;
@@ -175,11 +220,13 @@ namespace ScreenTask.UI.Views
             Action<string, bool> onMuteToggle,
             Func<string, Task> onKick)
         {
+            int cardWidth = Math.Max(346, panelSessionList.ClientSize.Width - 10);
             var panel = new Panel
             {
                 Name = index == 0 ? "panelClientItem1" : $"panelClientItem_{session.Id}",
-                Size = new Size(346, 72),
+                Size = new Size(cardWidth, 72),
                 Location = new Point(4, index * 78 + 4),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 BackColor = SystemColors.Window,
                 BorderStyle = BorderStyle.FixedSingle,
                 Tag = session.Id
@@ -200,8 +247,9 @@ namespace ScreenTask.UI.Views
                 Name = "lblClientBadge",
                 Font = new Font("Segoe UI", 7.5F),
                 ForeColor = SystemColors.Highlight,
-                Location = new Point(170, 4),
+                Location = new Point(cardWidth - 176, 4),
                 Size = new Size(166, 16),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 TextAlign = ContentAlignment.MiddleRight,
                 Text = session.ViewMode
             };
@@ -212,7 +260,8 @@ namespace ScreenTask.UI.Views
                 Font = new Font("Segoe UI", 7.5F),
                 ForeColor = SystemColors.GrayText,
                 Location = new Point(6, 22),
-                Size = new Size(330, 15),
+                Size = new Size(cardWidth - 16, 15),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right,
                 Text = $"{session.RemoteIp} • {session.BrowserName}"
             };
 
@@ -226,25 +275,27 @@ namespace ScreenTask.UI.Views
                 Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}"
             };
 
-            var btnMute = new Button
-            {
-                Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.ControlText,
-                Location = new Point(198, 42),
-                Size = new Size(70, 24),
-                Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute",
-                UseVisualStyleBackColor = true
-            };
-
             var btnKick = new Button
             {
                 Name = index == 0 ? "btnKickClient1" : $"btnKick_{session.Id}",
                 Font = new Font("Segoe UI", 7.5F),
                 ForeColor = SystemColors.ControlText,
-                Location = new Point(272, 42),
+                Location = new Point(cardWidth - 72, 42),
                 Size = new Size(64, 24),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Text = "✕ Kick",
+                UseVisualStyleBackColor = true
+            };
+
+            var btnMute = new Button
+            {
+                Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(btnKick.Left - 76, 42),
+                Size = new Size(70, 24),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute",
                 UseVisualStyleBackColor = true
             };
 
