@@ -38,7 +38,7 @@ namespace ScreenTask.UI.Controls
             this.pnlBorder.Location = new System.Drawing.Point(0, 0);
             this.pnlBorder.Name = "pnlBorder";
             this.pnlBorder.Padding = new System.Windows.Forms.Padding(1);
-            this.pnlBorder.Size = new System.Drawing.Size(194, 146);
+            this.pnlBorder.Size = new System.Drawing.Size(188, 142);
             this.pnlBorder.TabIndex = 0;
             // 
             // pnlInner
@@ -52,15 +52,15 @@ namespace ScreenTask.UI.Controls
             this.pnlInner.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlInner.Location = new System.Drawing.Point(1, 1);
             this.pnlInner.Name = "pnlInner";
-            this.pnlInner.Size = new System.Drawing.Size(192, 144);
+            this.pnlInner.Size = new System.Drawing.Size(186, 140);
             this.pnlInner.TabIndex = 0;
             // 
             // picThumbnail
             // 
             this.picThumbnail.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(24)))), ((int)(((byte)(28)))));
-            this.picThumbnail.Location = new System.Drawing.Point(5, 5);
+            this.picThumbnail.Location = new System.Drawing.Point(4, 4);
             this.picThumbnail.Name = "picThumbnail";
-            this.picThumbnail.Size = new System.Drawing.Size(182, 94);
+            this.picThumbnail.Size = new System.Drawing.Size(178, 92);
             this.picThumbnail.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.picThumbnail.TabIndex = 0;
             this.picThumbnail.TabStop = false;
@@ -81,7 +81,7 @@ namespace ScreenTask.UI.Controls
             // 
             // picIcon
             // 
-            this.picIcon.Location = new System.Drawing.Point(6, 106);
+            this.picIcon.Location = new System.Drawing.Point(6, 100);
             this.picIcon.Name = "picIcon";
             this.picIcon.Size = new System.Drawing.Size(20, 20);
             this.picIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -93,22 +93,22 @@ namespace ScreenTask.UI.Controls
             this.lblTitle.AutoEllipsis = true;
             this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold);
             this.lblTitle.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblTitle.Location = new System.Drawing.Point(30, 104);
+            this.lblTitle.Location = new System.Drawing.Point(30, 98);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(154, 18);
+            this.lblTitle.Size = new System.Drawing.Size(150, 18);
             this.lblTitle.TabIndex = 3;
             this.lblTitle.Text = "Source Title";
             // 
             // lblSub
             // 
             this.lblSub.AutoEllipsis = true;
-            this.lblSub.Font = new System.Drawing.Font("Segoe UI", 7.25F);
+            this.lblSub.Font = new System.Drawing.Font("Segoe UI", 7.5F);
             this.lblSub.ForeColor = System.Drawing.SystemColors.GrayText;
-            this.lblSub.Location = new System.Drawing.Point(30, 122);
+            this.lblSub.Location = new System.Drawing.Point(6, 118);
             this.lblSub.Name = "lblSub";
-            this.lblSub.Size = new System.Drawing.Size(154, 16);
+            this.lblSub.Size = new System.Drawing.Size(174, 16);
             this.lblSub.TabIndex = 4;
-            this.lblSub.Text = "Resolution / Process";
+            this.lblSub.Text = "Process Name • Resolution";
             // 
             // SourceCardControl
             // 
@@ -118,7 +118,7 @@ namespace ScreenTask.UI.Controls
             this.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "SourceCardControl";
-            this.Size = new System.Drawing.Size(194, 146);
+            this.Size = new System.Drawing.Size(188, 142);
             this.pnlBorder.ResumeLayout(false);
             this.pnlInner.ResumeLayout(false);
             this.pnlInner.PerformLayout();

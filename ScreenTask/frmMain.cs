@@ -37,7 +37,7 @@ namespace ScreenTask
         private bool _isCompactMode = false;
         private bool _isExitingExplicitly = false;
         private int _currentTabIndex = 0;
-        private Size _fullModeClientSize = new Size(860, 620);
+        private Size _fullModeClientSize = new Size(1000, 700);
         private readonly MiniBarForm _miniBarForm = new();
 
         public MiniBarForm MiniBarForm => _miniBarForm;

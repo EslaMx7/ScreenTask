@@ -72,6 +72,7 @@ namespace ScreenTask.UI.Views
             this.cardVideoSource.Controls.Add(this.flowSourceCards);
             this.cardVideoSource.Controls.Add(this.lblSelectedSource);
             this.cardVideoSource.Controls.Add(this.comboScreens);
+            this.cardVideoSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.cardVideoSource.Location = new System.Drawing.Point(0, 0);
             this.cardVideoSource.Name = "cardVideoSource";
             this.cardVideoSource.Size = new System.Drawing.Size(652, 340);
@@ -131,6 +132,7 @@ namespace ScreenTask.UI.Views
             // 
             // flowSourceCards
             // 
+            this.flowSourceCards.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.flowSourceCards.AutoScroll = true;
             this.flowSourceCards.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.flowSourceCards.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -155,6 +157,7 @@ namespace ScreenTask.UI.Views
             // 
             // lblSelectedSource
             // 
+            this.lblSelectedSource.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.lblSelectedSource.AutoEllipsis = true;
             this.lblSelectedSource.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblSelectedSource.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -177,6 +180,7 @@ namespace ScreenTask.UI.Views
             // 
             // cardAudio
             // 
+            this.cardAudio.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.cardAudio.BackColor = System.Drawing.SystemColors.Control;
             this.cardAudio.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardAudio.Controls.Add(this.lblAudioPill);
@@ -192,6 +196,7 @@ namespace ScreenTask.UI.Views
             // 
             // lblAudioPill
             // 
+            this.lblAudioPill.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblAudioPill.AutoSize = true;
             this.lblAudioPill.BackColor = System.Drawing.Color.Transparent;
             this.lblAudioPill.Font = new System.Drawing.Font("Segoe UI", 7F, System.Drawing.FontStyle.Bold);
@@ -217,6 +222,7 @@ namespace ScreenTask.UI.Views
             // 
             // comboAudioDevices
             // 
+            this.comboAudioDevices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.comboAudioDevices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboAudioDevices.Enabled = false;
             this.comboAudioDevices.Font = new System.Drawing.Font("Segoe UI", 8.5F);
@@ -227,6 +233,7 @@ namespace ScreenTask.UI.Views
             // 
             // btnRefreshAudio
             // 
+            this.btnRefreshAudio.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefreshAudio.Enabled = false;
             this.btnRefreshAudio.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnRefreshAudio.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -263,6 +270,7 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox1
             // 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox1.BackColor = System.Drawing.SystemColors.Control;
             this.groupBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox1.Controls.Add(this.label8);
@@ -314,6 +322,7 @@ namespace ScreenTask.UI.Views
             // 
             // qualitySlider
             // 
+            this.qualitySlider.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.qualitySlider.Location = new System.Drawing.Point(14, 128);
             this.qualitySlider.Maximum = 100;
             this.qualitySlider.Minimum = 20;

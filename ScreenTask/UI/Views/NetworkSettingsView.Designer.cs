@@ -38,6 +38,8 @@ namespace ScreenTask.UI.Views
             // 
             // cardNetwork
             // 
+            this.cardNetwork.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cardNetwork.BackColor = System.Drawing.SystemColors.Control;
             this.cardNetwork.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardNetwork.Controls.Add(this.lblNetworkPill);
@@ -54,6 +56,7 @@ namespace ScreenTask.UI.Views
             // 
             // lblNetworkPill
             // 
+            this.lblNetworkPill.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblNetworkPill.AutoSize = true;
             this.lblNetworkPill.BackColor = System.Drawing.Color.Transparent;
             this.lblNetworkPill.Font = new System.Drawing.Font("Segoe UI", 7F, System.Drawing.FontStyle.Bold);
@@ -78,6 +81,8 @@ namespace ScreenTask.UI.Views
             // 
             // comboIPs
             // 
+            this.comboIPs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.comboIPs.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboIPs.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.comboIPs.Location = new System.Drawing.Point(16, 58);
@@ -87,6 +92,7 @@ namespace ScreenTask.UI.Views
             // 
             // btnRefreshIPs
             // 
+            this.btnRefreshIPs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRefreshIPs.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnRefreshIPs.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnRefreshIPs.Location = new System.Drawing.Point(540, 57);
@@ -134,6 +140,8 @@ namespace ScreenTask.UI.Views
             // 
             // gbOptions
             // 
+            this.gbOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.gbOptions.BackColor = System.Drawing.SystemColors.Control;
             this.gbOptions.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.gbOptions.Controls.Add(this.cbPrivate);

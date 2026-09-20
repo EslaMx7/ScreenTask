@@ -98,30 +98,31 @@ namespace ScreenTask
             // 
             // lblStatusBadge
             // 
+            this.lblStatusBadge.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStatusBadge.BackColor = System.Drawing.SystemColors.Control;
             this.lblStatusBadge.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lblStatusBadge.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
             this.lblStatusBadge.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblStatusBadge.Location = new System.Drawing.Point(604, 12);
+            this.lblStatusBadge.Location = new System.Drawing.Point(744, 12);
             this.lblStatusBadge.Name = "lblStatusBadge";
             this.lblStatusBadge.Size = new System.Drawing.Size(145, 25);
             this.lblStatusBadge.Text = "● Ready to Stream";
             this.lblStatusBadge.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-
             // 
             // btnMiniMode
             // 
+            this.btnMiniMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnMiniMode.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnMiniMode.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnMiniMode.Location = new System.Drawing.Point(758, 12);
+            this.btnMiniMode.Location = new System.Drawing.Point(898, 12);
             this.btnMiniMode.Name = "btnMiniMode";
             this.btnMiniMode.Size = new System.Drawing.Size(90, 25);
             this.btnMiniMode.Text = "🗖 Mini Bar";
             this.btnMiniMode.UseVisualStyleBackColor = true;
-
             // 
             // panelSideNav
             // 
+            this.panelSideNav.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left)));
             this.panelSideNav.BackColor = System.Drawing.SystemColors.Control;
             this.panelSideNav.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelSideNav.Controls.Add(this.picAppIcon);
@@ -134,7 +135,7 @@ namespace ScreenTask
             this.panelSideNav.Controls.Add(this.btnNavPrefs);
             this.panelSideNav.Location = new System.Drawing.Point(12, 12);
             this.panelSideNav.Name = "panelSideNav";
-            this.panelSideNav.Size = new System.Drawing.Size(174, 574);
+            this.panelSideNav.Size = new System.Drawing.Size(174, 654);
             // 
             // btnNavBroadcast
             // 
@@ -204,6 +205,7 @@ namespace ScreenTask
             // 
             // panelContentContainer
             // 
+            this.panelContentContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
             this.panelContentContainer.Controls.Add(this.viewBroadcast);
             this.panelContentContainer.Controls.Add(this.viewClients);
             this.panelContentContainer.Controls.Add(this.viewCapture);
@@ -211,7 +213,7 @@ namespace ScreenTask
             this.panelContentContainer.Controls.Add(this.viewPreferences);
             this.panelContentContainer.Location = new System.Drawing.Point(196, 44);
             this.panelContentContainer.Name = "panelContentContainer";
-            this.panelContentContainer.Size = new System.Drawing.Size(652, 544);
+            this.panelContentContainer.Size = new System.Drawing.Size(792, 624);
             this.panelContentContainer.TabIndex = 1;
 
             // 
@@ -362,16 +364,17 @@ namespace ScreenTask
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(860, 620);
+            this.ClientSize = new System.Drawing.Size(1000, 700);
+            this.MinimumSize = new System.Drawing.Size(880, 640);
             this.Controls.Add(this.panelContentContainer);
             this.Controls.Add(this.panelSideNav);
             this.Controls.Add(this.btnMiniMode);
             this.Controls.Add(this.lblStatusBadge);
             this.Controls.Add(this.statusStripMain);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MaximizeBox = false;
+            this.MaximizeBox = true;
             this.Name = "frmMain";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ScreenTask 2.0 – Offline & LAN Screen Sharing";

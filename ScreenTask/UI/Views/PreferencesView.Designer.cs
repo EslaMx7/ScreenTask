@@ -31,6 +31,8 @@ namespace ScreenTask.UI.Views
             // 
             // groupBox2 (Startup & Window Preferences Card)
             // 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox2.BackColor = System.Drawing.SystemColors.Control;
             this.groupBox2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.groupBox2.Controls.Add(this.cbAutoStart);
@@ -43,6 +45,8 @@ namespace ScreenTask.UI.Views
             // 
             // cbAutoStart
             // 
+            this.cbAutoStart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cbAutoStart.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbAutoStart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbAutoStart.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -55,6 +59,8 @@ namespace ScreenTask.UI.Views
             // 
             // cbMiniStart
             // 
+            this.cbMiniStart.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cbMiniStart.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbMiniStart.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.cbMiniStart.ForeColor = System.Drawing.SystemColors.ControlText;
@@ -67,6 +73,8 @@ namespace ScreenTask.UI.Views
             // 
             // cbCloseToTray
             // 
+            this.cbCloseToTray.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cbCloseToTray.Checked = true;
             this.cbCloseToTray.CheckState = System.Windows.Forms.CheckState.Checked;
             this.cbCloseToTray.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
@@ -81,6 +89,9 @@ namespace ScreenTask.UI.Views
             // 
             // cardLogs (Diagnostic Logs Card)
             // 
+            this.cardLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cardLogs.BackColor = System.Drawing.SystemColors.Control;
             this.cardLogs.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.cardLogs.Controls.Add(this.btnClearLog);
@@ -93,6 +104,7 @@ namespace ScreenTask.UI.Views
             // 
             // btnClearLog
             // 
+            this.btnClearLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClearLog.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnClearLog.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnClearLog.Location = new System.Drawing.Point(460, 8);
@@ -104,6 +116,7 @@ namespace ScreenTask.UI.Views
             // 
             // btnCopyLog
             // 
+            this.btnCopyLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCopyLog.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnCopyLog.ForeColor = System.Drawing.SystemColors.ControlText;
             this.btnCopyLog.Location = new System.Drawing.Point(550, 8);
@@ -115,6 +128,9 @@ namespace ScreenTask.UI.Views
             // 
             // txtLog
             // 
+            this.txtLog.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLog.BackColor = System.Drawing.SystemColors.Window;
             this.txtLog.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.txtLog.Font = new System.Drawing.Font("Consolas", 8F);

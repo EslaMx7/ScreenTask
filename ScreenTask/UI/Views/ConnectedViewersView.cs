@@ -23,6 +23,49 @@ namespace ScreenTask.UI.Views
             btnSendAnnouncement.Click += (s, e) => SendAnnouncementClicked?.Invoke(this, EventArgs.Empty);
             btnPairingCopy.Click += (s, e) => PairingCopyClicked?.Invoke(this, EventArgs.Empty);
             btnPairingRegen.Click += (s, e) => PairingRegenClicked?.Invoke(this, EventArgs.Empty);
+
+            this.Resize += (s, e) => UpdateLayout();
+        }
+
+        private void UpdateLayout()
+        {
+            if (this.ClientSize.Width <= 0) return;
+            int totalWidth = this.ClientSize.Width;
+            int totalHeight = this.ClientSize.Height;
+
+            // 1. Top 3 Metric Cards
+            int gap = 8;
+            int metricWidth = Math.Max(150, (totalWidth - (2 * gap)) / 3);
+            cardMetricViewers.Location = new Point(0, 0);
+            cardMetricViewers.Width = metricWidth;
+
+            cardMetricLatency.Location = new Point(metricWidth + gap, 0);
+            cardMetricLatency.Width = metricWidth;
+
+            cardMetricSync.Location = new Point((metricWidth + gap) * 2, 0);
+            cardMetricSync.Width = totalWidth - cardMetricSync.Left;
+
+            // 2. Bottom 2 Panels: Fleet Terminal (left) and Pairing Pass (right)
+            int rightCardWidth = 260;
+            cardPairingPass.Location = new Point(Math.Max(380, totalWidth - rightCardWidth), 80);
+            cardPairingPass.Width = rightCardWidth;
+            cardPairingPass.Height = Math.Max(400, totalHeight - 80);
+
+            cardFleetTerminal.Location = new Point(0, 80);
+            cardFleetTerminal.Width = Math.Max(360, cardPairingPass.Left - 10);
+            cardFleetTerminal.Height = Math.Max(400, totalHeight - 80);
+
+            panelSessionList.Width = cardFleetTerminal.Width - 20;
+            panelSessionList.Height = Math.Max(150, cardFleetTerminal.Height - 110);
+
+            lblAnnouncement.Top = cardFleetTerminal.Height - 88;
+            txtAnnouncement.Top = cardFleetTerminal.Height - 68;
+            btnSendAnnouncement.Top = cardFleetTerminal.Height - 70;
+            lblAnnouncementStatus.Top = cardFleetTerminal.Height - 40;
+            lblAnnouncementStatus.Width = cardFleetTerminal.Width - 20;
+
+            btnSendAnnouncement.Left = cardFleetTerminal.Width - btnSendAnnouncement.Width - 10;
+            txtAnnouncement.Width = Math.Max(100, btnSendAnnouncement.Left - txtAnnouncement.Left - 8);
         }
 
         public void UpdateMetricViewers(int activeCount, int capacity = 32)

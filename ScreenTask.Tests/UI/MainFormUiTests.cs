@@ -26,8 +26,10 @@ namespace ScreenTask.Tests.UI
 
                 Assert.NotNull(form);
                 Assert.Contains("ScreenTask 2.0", form.Text);
-                Assert.Equal(860, form.ClientSize.Width);
-                Assert.Equal(620, form.ClientSize.Height);
+                Assert.Equal(1000, form.ClientSize.Width);
+                Assert.Equal(700, form.ClientSize.Height);
+                Assert.Equal(880, form.MinimumSize.Width);
+                Assert.Equal(640, form.MinimumSize.Height);
 
                 var panelSideNav = FindControl<Panel>(form, "panelSideNav");
                 Assert.NotNull(panelSideNav);
@@ -421,7 +423,7 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(form.MiniBarForm);
                 Assert.False(form.MiniBarForm.Visible);
                 Assert.True(form.Visible);
-                Assert.Equal(620, form.ClientSize.Height);
+                Assert.Equal(700, form.ClientSize.Height);
 
                 // Click Mini Mode to enter compact toolbar form
                 btnMiniMode.PerformClick();
@@ -447,7 +449,7 @@ namespace ScreenTask.Tests.UI
                 btnCompactExpand.PerformClick();
                 Assert.False(form.MiniBarForm.Visible);
                 Assert.True(form.Visible);
-                Assert.Equal(620, form.ClientSize.Height);
+                Assert.Equal(700, form.ClientSize.Height);
             });
         }
 
