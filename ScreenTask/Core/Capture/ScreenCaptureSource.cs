@@ -40,6 +40,16 @@ namespace ScreenTask.Core.Capture
         }
 
         public string Id => $"Screen_{_screenIndex}";
+        public int ScreenIndex => _screenIndex;
+
+        public bool IsPrimary
+        {
+            get
+            {
+                var screens = Screen.AllScreens;
+                return _screenIndex >= 0 && _screenIndex < screens.Length && screens[_screenIndex].Primary;
+            }
+        }
 
         public string DisplayName
         {

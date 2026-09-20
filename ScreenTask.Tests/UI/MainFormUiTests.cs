@@ -9,6 +9,7 @@ using ScreenTask;
 using ScreenTask.Core.Audio;
 using ScreenTask.UI;
 using ScreenTask.UI.Controls;
+using ScreenTask.UI.Views;
 using Xunit;
 
 namespace ScreenTask.Tests.UI
@@ -546,6 +547,56 @@ namespace ScreenTask.Tests.UI
 
                 cbAudio.Checked = false;
                 Assert.Contains("Audio: Off", form.StatusLabelAudio.Text);
+            });
+        }
+
+        [Fact]
+        public void MainForm_CaptureSettingsView_SourceCardPicker_DisplaysTabsAndCards()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+                form.SelectTab(2);
+
+                var captureView = form.CaptureSettingsView;
+                Assert.NotNull(captureView);
+
+                var btnTabDisplays = FindControl<Button>(form, "btnTabDisplays");
+                var btnTabWindows = FindControl<Button>(form, "btnTabWindows");
+                var flowSourceCards = FindControl<FlowLayoutPanel>(form, "flowSourceCards");
+                var comboScreens = FindControl<ComboBox>(form, "comboScreens");
+
+                Assert.NotNull(btnTabDisplays);
+                Assert.NotNull(btnTabWindows);
+                Assert.NotNull(flowSourceCards);
+                Assert.NotNull(comboScreens);
+
+                Assert.Contains("Displays", btnTabDisplays.Text);
+                Assert.Contains("Windows", btnTabWindows.Text);
+
+                // Check display cards count
+                Assert.True(captureView.DisplayCards.Count > 0, "Should have at least 1 physical display card");
+                var firstDisplayCard = captureView.DisplayCards[0];
+                Assert.NotNull(firstDisplayCard);
+                Assert.True(firstDisplayCard.IsSelected);
+                Assert.True(firstDisplayCard.lblSelectedBadge.Visible);
+                Assert.Contains("Selected", firstDisplayCard.lblSelectedBadge.Text);
+                Assert.NotNull(firstDisplayCard.IconImage);
+                Assert.False(string.IsNullOrWhiteSpace(firstDisplayCard.Title));
+
+                // Switch to Windows tab
+                btnTabWindows.PerformClick();
+                Assert.Equal(CaptureSettingsView.SourceFilterTab.Windows, captureView.ActiveTab);
+
+                // Switch back to Displays tab
+                btnTabDisplays.PerformClick();
+                Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
+
+                // Test thumbnail update
+                using var dummyThumb = new Bitmap(180, 100);
+                firstDisplayCard.UpdateThumbnail(dummyThumb);
+                Assert.NotNull(firstDisplayCard.picThumbnail.Image);
             });
         }
 

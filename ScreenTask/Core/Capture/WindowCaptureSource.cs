@@ -8,6 +8,21 @@ namespace ScreenTask.Core.Capture
     {
         private readonly IntPtr _hWnd;
         private readonly string _title;
+        private readonly string _processName;
+        private readonly Icon? _icon;
+
+        public IntPtr WindowHandle => _hWnd;
+        public string Title => _title;
+        public string ProcessName => _processName;
+        public Icon? Icon => _icon;
+
+        public WindowCaptureSource(IntPtr hWnd, string title, string processName = "", Icon? icon = null)
+        {
+            _hWnd = hWnd;
+            _title = title;
+            _processName = processName;
+            _icon = icon;
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         private struct RECT
@@ -38,12 +53,6 @@ namespace ScreenTask.Core.Capture
 
         private const int DWMWA_EXTENDED_FRAME_BOUNDS = 9;
         private const uint PW_RENDERFULLCONTENT = 0x00000002;
-
-        public WindowCaptureSource(IntPtr hWnd, string title)
-        {
-            _hWnd = hWnd;
-            _title = title;
-        }
 
         public string Id => $"Window_{(long)_hWnd}";
 

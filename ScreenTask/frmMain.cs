@@ -44,6 +44,7 @@ namespace ScreenTask
         public StreamBroadcaster Broadcaster => _broadcaster;
         public EmbeddedWebServer WebServer => _webServer;
         public ScreenCaptureEngine CaptureEngine => _captureEngine;
+        public ScreenTask.UI.Views.CaptureSettingsView CaptureSettingsView => viewCapture;
 
         public StatusStrip StatusStrip => statusStripMain;
         public ToolStripStatusLabel StatusLabelServer => statusLabelServer;
@@ -97,6 +98,9 @@ namespace ScreenTask
         // CaptureSettingsView Forwarders
         internal ComboBox comboScreens => viewCapture.comboScreens;
         internal Button btnRefreshScreens => viewCapture.btnRefreshScreens;
+        internal Button btnTabDisplays => viewCapture.btnTabDisplays;
+        internal Button btnTabWindows => viewCapture.btnTabWindows;
+        internal FlowLayoutPanel flowSourceCards => viewCapture.flowSourceCards;
         internal CheckBox cbCaptureMouse => viewCapture.cbCaptureMouse;
         internal Panel cardAudio => viewCapture.cardAudio;
         internal CheckBox cbAudio => viewCapture.cbAudio;
@@ -262,6 +266,15 @@ namespace ScreenTask
             btnQr.Click += btnQr_Click;
 
             // Capture Controls
+            viewCapture.SourceCardSelected += source =>
+            {
+                _captureEngine.SetSource(source);
+                monitorPreview.SourceTitle = source.DisplayName;
+                if (_webServer.IsRunning)
+                {
+                    Log($"Switched capture source to: {source.DisplayName}");
+                }
+            };
             comboScreens.SelectedIndexChanged += comboScreens_SelectedIndexChanged;
             btnRefreshScreens.Click += btnRefreshScreens_Click;
             comboIPs.SelectedIndexChanged += (s, e) => UpdateUrlPreview();
@@ -526,7 +539,7 @@ namespace ScreenTask
                 var windows = WindowEnumerator.GetShareableWindows();
                 foreach (var win in windows)
                 {
-                    var src = new WindowCaptureSource(win.Handle, win.Title);
+                    var src = new WindowCaptureSource(win.Handle, win.Title, win.ProcessName, win.Icon);
                     _captureSources.Add(src);
                     comboScreens.Items.Add($"🪟 App: {win.Title}");
                 }
@@ -539,6 +552,9 @@ namespace ScreenTask
                 int found = _captureSources.FindIndex(s => s.DisplayName == previousSelection);
                 if (found >= 0) newIndex = found;
             }
+
+            ICaptureSource? selectedSource = newIndex >= 0 && newIndex < _captureSources.Count ? _captureSources[newIndex] : null;
+            viewCapture.PopulateSources(_captureSources, selectedSource);
 
             if (comboScreens.Items.Count > 0)
             {
