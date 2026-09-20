@@ -78,6 +78,8 @@ namespace ScreenTask.UI.Views
                 QualityChanged?.Invoke(this, EventArgs.Empty);
             };
 
+            flowSourceCards.Resize += (s, e) => UpdateHeaderWidths();
+
             _thumbnailTimer.Tick += OnThumbnailTimerTick;
             this.VisibleChanged += (s, e) =>
             {
@@ -97,8 +99,14 @@ namespace ScreenTask.UI.Views
         {
             _activeTab = tab;
             UpdateTabButtonsState();
-            RenderActiveTabCards();
-            TriggerThumbnailUpdate();
+            if (tab == SourceFilterTab.Windows && _windowCards.Count > 0)
+            {
+                flowSourceCards.ScrollControlIntoView(_windowCards[0]);
+            }
+            else if (tab == SourceFilterTab.Displays && _displayCards.Count > 0)
+            {
+                flowSourceCards.ScrollControlIntoView(_displayCards[0]);
+            }
         }
 
         private void UpdateTabButtonsState()
@@ -166,20 +174,28 @@ namespace ScreenTask.UI.Views
                 currentIndex++;
             }
 
-            // Update tab button counts
+            // Update tab button counts (retained for backward-compatible properties)
             btnTabDisplays.Text = $"🖥️ Entire Displays ({_displayCards.Count})";
             btnTabWindows.Text = $"🪟 App Windows ({_windowCards.Count})";
 
-            // If selected source is a window, automatically switch active tab to Windows
-            if (_selectedCard != null && _windowCards.Contains(_selectedCard))
+            if (_selectedCard == null)
+            {
+                if (_displayCards.Count > 0)
+                {
+                    _selectedCard = _displayCards[0];
+                    _selectedCard.IsSelected = true;
+                    selectedIndex = 0;
+                }
+                else if (_windowCards.Count > 0)
+                {
+                    _selectedCard = _windowCards[0];
+                    _selectedCard.IsSelected = true;
+                    selectedIndex = 0;
+                }
+            }
+            else if (_windowCards.Contains(_selectedCard))
             {
                 _activeTab = SourceFilterTab.Windows;
-            }
-            else if (_displayCards.Count > 0 && _selectedCard == null)
-            {
-                _selectedCard = _displayCards[0];
-                _selectedCard.IsSelected = true;
-                selectedIndex = 0;
             }
 
             if (selectedIndex >= 0 && selectedIndex < comboScreens.Items.Count)
@@ -193,28 +209,112 @@ namespace ScreenTask.UI.Views
             TriggerThumbnailUpdate();
         }
 
+        private Label CreateSectionHeader(string text, int topMargin = 4)
+        {
+            int targetWidth = flowSourceCards.ClientSize.Width > 24
+                ? Math.Max(560, flowSourceCards.ClientSize.Width - 24)
+                : 600;
+
+            return new Label
+            {
+                Text = text,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = SystemColors.ControlDarkDark,
+                AutoSize = false,
+                Width = targetWidth,
+                Height = 24,
+                Margin = new Padding(4, topMargin, 4, 4),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+        }
+
+        private Label CreatePlaceholderLabel(string text)
+        {
+            int targetWidth = flowSourceCards.ClientSize.Width > 24
+                ? Math.Max(560, flowSourceCards.ClientSize.Width - 24)
+                : 600;
+
+            return new Label
+            {
+                Text = text,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                ForeColor = SystemColors.GrayText,
+                AutoSize = false,
+                Width = targetWidth,
+                Height = 28,
+                Margin = new Padding(12, 2, 4, 4),
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+        }
+
+        private void UpdateHeaderWidths()
+        {
+            int targetWidth = flowSourceCards.ClientSize.Width > 24
+                ? Math.Max(560, flowSourceCards.ClientSize.Width - 24)
+                : 600;
+
+            foreach (Control c in flowSourceCards.Controls)
+            {
+                if (c is Label && c != lblNoSources && !(c is SourceCardControl))
+                {
+                    c.Width = targetWidth;
+                }
+            }
+        }
+
         private void RenderActiveTabCards()
         {
             flowSourceCards.SuspendLayout();
             flowSourceCards.Controls.Clear();
 
-            var currentList = _activeTab == SourceFilterTab.Displays ? _displayCards : _windowCards;
-
-            if (currentList.Count == 0)
+            if (_displayCards.Count == 0 && _windowCards.Count == 0)
             {
-                lblNoSources.Text = _activeTab == SourceFilterTab.Displays
-                    ? "No physical displays detected."
-                    : "No shareable application windows open.\nClick Refresh to re-scan open windows.";
+                lblNoSources.Text = "No capture sources found.\nClick Refresh to re-scan.";
                 lblNoSources.Visible = true;
                 flowSourceCards.Controls.Add(lblNoSources);
+                flowSourceCards.ResumeLayout(true);
+                return;
             }
-            else
+
+            lblNoSources.Visible = false;
+
+            // 1. Entire Displays Section
+            var headerDisplays = CreateSectionHeader($"🖥️ Physical Displays ({_displayCards.Count})", topMargin: 4);
+            flowSourceCards.Controls.Add(headerDisplays);
+            flowSourceCards.SetFlowBreak(headerDisplays, true);
+
+            if (_displayCards.Count > 0)
             {
-                lblNoSources.Visible = false;
-                foreach (var card in currentList)
+                foreach (var card in _displayCards)
                 {
                     flowSourceCards.Controls.Add(card);
                 }
+                flowSourceCards.SetFlowBreak(_displayCards.Last(), true);
+            }
+            else
+            {
+                var emptyDisplays = CreatePlaceholderLabel("No physical displays detected.");
+                flowSourceCards.Controls.Add(emptyDisplays);
+                flowSourceCards.SetFlowBreak(emptyDisplays, true);
+            }
+
+            // 2. Application Windows Section
+            var headerWindows = CreateSectionHeader($"🪟 Application Windows ({_windowCards.Count})", topMargin: 12);
+            flowSourceCards.Controls.Add(headerWindows);
+            flowSourceCards.SetFlowBreak(headerWindows, true);
+
+            if (_windowCards.Count > 0)
+            {
+                foreach (var card in _windowCards)
+                {
+                    flowSourceCards.Controls.Add(card);
+                }
+            }
+            else
+            {
+                var emptyWindows = CreatePlaceholderLabel("No shareable application windows open. Click Refresh to scan.");
+                flowSourceCards.Controls.Add(emptyWindows);
+                flowSourceCards.SetFlowBreak(emptyWindows, true);
             }
 
             flowSourceCards.ResumeLayout(true);
@@ -224,7 +324,7 @@ namespace ScreenTask.UI.Views
         {
             if (_selectedCard == card && card.IsSelected) return;
 
-            // Unselect all other cards
+            // Unselect all other cards across both physical displays and application windows
             foreach (var c in _displayCards.Concat(_windowCards))
             {
                 if (c != card)
@@ -282,17 +382,8 @@ namespace ScreenTask.UI.Views
                 var matchingCard = _displayCards.Concat(_windowCards).FirstOrDefault(c => c.Source == src);
                 if (matchingCard != null && matchingCard != _selectedCard)
                 {
-                    // Switch tab if necessary so the newly selected card is visible
-                    if (_windowCards.Contains(matchingCard) && _activeTab != SourceFilterTab.Windows)
-                    {
-                        SwitchTab(SourceFilterTab.Windows);
-                    }
-                    else if (_displayCards.Contains(matchingCard) && _activeTab != SourceFilterTab.Displays)
-                    {
-                        SwitchTab(SourceFilterTab.Displays);
-                    }
-
                     SelectCard(matchingCard, notifyEngine: false);
+                    flowSourceCards.ScrollControlIntoView(matchingCard);
                 }
             }
             ScreenSelectionChanged?.Invoke(this, EventArgs.Empty);

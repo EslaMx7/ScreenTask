@@ -74,7 +74,7 @@ namespace ScreenTask.UI.Views
             this.cardVideoSource.Controls.Add(this.comboScreens);
             this.cardVideoSource.Location = new System.Drawing.Point(0, 0);
             this.cardVideoSource.Name = "cardVideoSource";
-            this.cardVideoSource.Size = new System.Drawing.Size(652, 298);
+            this.cardVideoSource.Size = new System.Drawing.Size(652, 340);
             this.cardVideoSource.TabIndex = 0;
             // 
             // label7
@@ -90,33 +90,27 @@ namespace ScreenTask.UI.Views
             // 
             // btnTabDisplays
             // 
-            this.btnTabDisplays.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Bold);
-            this.btnTabDisplays.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnTabDisplays.Location = new System.Drawing.Point(105, 7);
+            this.btnTabDisplays.Location = new System.Drawing.Point(0, 0);
             this.btnTabDisplays.Name = "btnTabDisplays";
-            this.btnTabDisplays.Size = new System.Drawing.Size(145, 27);
+            this.btnTabDisplays.Size = new System.Drawing.Size(0, 0);
             this.btnTabDisplays.TabIndex = 1;
-            this.btnTabDisplays.Text = "🖥️ Entire Displays (0)";
-            this.btnTabDisplays.UseVisualStyleBackColor = true;
+            this.btnTabDisplays.Visible = false;
             // 
             // btnTabWindows
             // 
-            this.btnTabWindows.Font = new System.Drawing.Font("Segoe UI", 8.25F);
-            this.btnTabWindows.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnTabWindows.Location = new System.Drawing.Point(256, 7);
+            this.btnTabWindows.Location = new System.Drawing.Point(0, 0);
             this.btnTabWindows.Name = "btnTabWindows";
-            this.btnTabWindows.Size = new System.Drawing.Size(145, 27);
+            this.btnTabWindows.Size = new System.Drawing.Size(0, 0);
             this.btnTabWindows.TabIndex = 2;
-            this.btnTabWindows.Text = "🪟 App Windows (0)";
-            this.btnTabWindows.UseVisualStyleBackColor = true;
+            this.btnTabWindows.Visible = false;
             // 
             // btnRefreshScreens
             // 
             this.btnRefreshScreens.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.btnRefreshScreens.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.btnRefreshScreens.Location = new System.Drawing.Point(407, 7);
+            this.btnRefreshScreens.Location = new System.Drawing.Point(105, 6);
             this.btnRefreshScreens.Name = "btnRefreshScreens";
-            this.btnRefreshScreens.Size = new System.Drawing.Size(90, 27);
+            this.btnRefreshScreens.Size = new System.Drawing.Size(95, 27);
             this.btnRefreshScreens.TabIndex = 3;
             this.btnRefreshScreens.Text = "🔄 Refresh";
             this.btnRefreshScreens.UseVisualStyleBackColor = true;
@@ -128,9 +122,9 @@ namespace ScreenTask.UI.Views
             this.cbCaptureMouse.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
             this.cbCaptureMouse.Font = new System.Drawing.Font("Segoe UI", 8F);
             this.cbCaptureMouse.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.cbCaptureMouse.Location = new System.Drawing.Point(505, 9);
+            this.cbCaptureMouse.Location = new System.Drawing.Point(215, 10);
             this.cbCaptureMouse.Name = "cbCaptureMouse";
-            this.cbCaptureMouse.Size = new System.Drawing.Size(135, 22);
+            this.cbCaptureMouse.Size = new System.Drawing.Size(150, 20);
             this.cbCaptureMouse.TabIndex = 4;
             this.cbCaptureMouse.Text = "Show mouse cursor";
             this.cbCaptureMouse.UseVisualStyleBackColor = true;
@@ -141,10 +135,10 @@ namespace ScreenTask.UI.Views
             this.flowSourceCards.BackColor = System.Drawing.SystemColors.ControlLightLight;
             this.flowSourceCards.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.flowSourceCards.Controls.Add(this.lblNoSources);
-            this.flowSourceCards.Location = new System.Drawing.Point(10, 39);
+            this.flowSourceCards.Location = new System.Drawing.Point(10, 38);
             this.flowSourceCards.Name = "flowSourceCards";
             this.flowSourceCards.Padding = new System.Windows.Forms.Padding(6);
-            this.flowSourceCards.Size = new System.Drawing.Size(630, 224);
+            this.flowSourceCards.Size = new System.Drawing.Size(630, 266);
             this.flowSourceCards.TabIndex = 5;
             // 
             // lblNoSources
@@ -164,7 +158,7 @@ namespace ScreenTask.UI.Views
             this.lblSelectedSource.AutoEllipsis = true;
             this.lblSelectedSource.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblSelectedSource.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.lblSelectedSource.Location = new System.Drawing.Point(12, 268);
+            this.lblSelectedSource.Location = new System.Drawing.Point(12, 310);
             this.lblSelectedSource.Name = "lblSelectedSource";
             this.lblSelectedSource.Size = new System.Drawing.Size(626, 22);
             this.lblSelectedSource.TabIndex = 7;
@@ -175,7 +169,7 @@ namespace ScreenTask.UI.Views
             // 
             this.comboScreens.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboScreens.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.comboScreens.Location = new System.Drawing.Point(10, 270);
+            this.comboScreens.Location = new System.Drawing.Point(10, 312);
             this.comboScreens.Name = "comboScreens";
             this.comboScreens.Size = new System.Drawing.Size(10, 10);
             this.comboScreens.TabIndex = 6;
@@ -191,7 +185,7 @@ namespace ScreenTask.UI.Views
             this.cardAudio.Controls.Add(this.btnRefreshAudio);
             this.cardAudio.Controls.Add(this.btnTestAudio);
             this.cardAudio.Controls.Add(this.btnAudioDiag);
-            this.cardAudio.Location = new System.Drawing.Point(0, 308);
+            this.cardAudio.Location = new System.Drawing.Point(0, 350);
             this.cardAudio.Name = "cardAudio";
             this.cardAudio.Size = new System.Drawing.Size(652, 160);
             this.cardAudio.TabIndex = 1;
@@ -275,7 +269,7 @@ namespace ScreenTask.UI.Views
             this.groupBox1.Controls.Add(this.comboFps);
             this.groupBox1.Controls.Add(this.lblQuality);
             this.groupBox1.Controls.Add(this.qualitySlider);
-            this.groupBox1.Location = new System.Drawing.Point(0, 478);
+            this.groupBox1.Location = new System.Drawing.Point(0, 520);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(652, 190);
             this.groupBox1.TabIndex = 2;

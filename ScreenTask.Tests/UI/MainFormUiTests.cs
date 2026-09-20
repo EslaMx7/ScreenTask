@@ -593,29 +593,32 @@ namespace ScreenTask.Tests.UI
                 Assert.Contains("Display 1", lblSelectedSource.Text);
                 Assert.Equal(captureView.SelectedSourceText, lblSelectedSource.Text);
 
-                // Switch to Windows tab - selected source label must still show the display!
-                btnTabWindows.PerformClick();
-                Assert.Equal(CaptureSettingsView.SourceFilterTab.Windows, captureView.ActiveTab);
-                Assert.Contains("Display 1", lblSelectedSource.Text);
+                // Verify section headers exist in the unified grid
+                var headers = flowSourceCards.Controls.OfType<Label>().ToList();
+                Assert.Contains(headers, h => h.Text.Contains("Physical Displays"));
+                Assert.Contains(headers, h => h.Text.Contains("Application Windows"));
 
-                // If window cards exist, selecting one updates lblSelectedSource
+                // Verify display cards are inside flowSourceCards
+                Assert.Contains(firstDisplayCard, flowSourceCards.Controls.Cast<Control>());
+
+                // If window cards exist, verify they coexist in the same grid simultaneously
                 if (captureView.WindowCards.Count > 0)
                 {
                     var firstWindowCard = captureView.WindowCards[0];
+                    Assert.Contains(firstWindowCard, flowSourceCards.Controls.Cast<Control>());
+
+                    // Selecting a window card updates selection and persistent label without tab switching
                     firstWindowCard.PerformClick();
+                    Assert.True(firstWindowCard.IsSelected);
+                    Assert.False(firstDisplayCard.IsSelected);
                     Assert.Contains("Selected:", lblSelectedSource.Text);
                     Assert.Contains(firstWindowCard.Title, lblSelectedSource.Text);
 
-                    // Switch back to Displays tab - selected source label must still show the window!
-                    btnTabDisplays.PerformClick();
-                    Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
-                    Assert.Contains(firstWindowCard.Title, lblSelectedSource.Text);
-                }
-                else
-                {
-                    // Switch back to Displays tab
-                    btnTabDisplays.PerformClick();
-                    Assert.Equal(CaptureSettingsView.SourceFilterTab.Displays, captureView.ActiveTab);
+                    // Selecting display card updates selection back
+                    firstDisplayCard.PerformClick();
+                    Assert.True(firstDisplayCard.IsSelected);
+                    Assert.False(firstWindowCard.IsSelected);
+                    Assert.Contains("Display 1", lblSelectedSource.Text);
                 }
 
                 // Test thumbnail update
