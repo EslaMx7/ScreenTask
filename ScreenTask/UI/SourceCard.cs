@@ -3,9 +3,12 @@ using System.Drawing;
 using System.Windows.Forms;
 using ScreenTask.Core.Capture;
 
-namespace ScreenTask.UI.Controls
+namespace ScreenTask.UI
 {
-    public partial class SourceCardControl : UserControl
+    /// <summary>
+    /// A native WinForms Panel card representing a shareable physical display or application window.
+    /// </summary>
+    public class SourceCard : Panel
     {
         private ICaptureSource? _source;
         private bool _isSelected;
@@ -13,6 +16,14 @@ namespace ScreenTask.UI.Controls
         public event EventHandler? CardClicked;
 
         public ICaptureSource? Source => _source;
+
+        public Panel pnlBorder = null!;
+        public Panel pnlInner = null!;
+        public PictureBox picThumbnail = null!;
+        public Label lblSelectedBadge = null!;
+        public PictureBox picIcon = null!;
+        public Label lblTitle = null!;
+        public Label lblSub = null!;
 
         public bool IsSelected
         {
@@ -44,9 +55,9 @@ namespace ScreenTask.UI.Controls
 
         public void PerformClick() => CardClicked?.Invoke(this, EventArgs.Empty);
 
-        public SourceCardControl()
+        public SourceCard()
         {
-            InitializeComponent();
+            InitializeCustomComponents();
             WireClickEvents(this);
 
             lblSelectedBadge.Parent = picThumbnail;
@@ -55,9 +66,86 @@ namespace ScreenTask.UI.Controls
             UpdateSelectionState();
         }
 
-        public SourceCardControl(ICaptureSource source) : this()
+        public SourceCard(ICaptureSource source) : this()
         {
             SetSource(source);
+        }
+
+        private void InitializeCustomComponents()
+        {
+            this.Size = new Size(210, 160);
+            this.Cursor = Cursors.Hand;
+            this.Margin = new Padding(4);
+            this.Font = new Font("Segoe UI", 9F);
+
+            pnlBorder = new Panel
+            {
+                BackColor = SystemColors.ControlLight,
+                Dock = DockStyle.Fill,
+                Padding = new Padding(1)
+            };
+            this.Controls.Add(pnlBorder);
+
+            pnlInner = new Panel
+            {
+                BackColor = SystemColors.Window,
+                Dock = DockStyle.Fill
+            };
+            pnlBorder.Controls.Add(pnlInner);
+
+            picThumbnail = new PictureBox
+            {
+                BackColor = Color.FromArgb(24, 24, 28),
+                Location = new Point(4, 4),
+                Size = new Size(200, 106),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                TabStop = false
+            };
+            pnlInner.Controls.Add(picThumbnail);
+
+            lblSelectedBadge = new Label
+            {
+                AutoSize = true,
+                BackColor = SystemColors.Highlight,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
+                ForeColor = SystemColors.HighlightText,
+                Location = new Point(4, 4),
+                Padding = new Padding(3, 1, 3, 1),
+                Text = "✓ Selected",
+                Visible = false
+            };
+            pnlInner.Controls.Add(lblSelectedBadge);
+
+            picIcon = new PictureBox
+            {
+                Location = new Point(6, 114),
+                Size = new Size(20, 20),
+                SizeMode = PictureBoxSizeMode.Zoom,
+                TabStop = false
+            };
+            pnlInner.Controls.Add(picIcon);
+
+            lblTitle = new Label
+            {
+                AutoEllipsis = true,
+                Font = new Font("Segoe UI", 8.25F, FontStyle.Bold),
+                ForeColor = SystemColors.ControlText,
+                Location = new Point(30, 112),
+                Size = new Size(168, 18),
+                Text = "Source Title"
+            };
+            pnlInner.Controls.Add(lblTitle);
+
+            lblSub = new Label
+            {
+                AutoEllipsis = true,
+                Font = new Font("Segoe UI", 7.5F),
+                ForeColor = SystemColors.GrayText,
+                Location = new Point(6, 134),
+                Size = new Size(192, 16),
+                Text = "Process Name • Resolution"
+            };
+            pnlInner.Controls.Add(lblSub);
         }
 
         public void SetSource(ICaptureSource source)
@@ -84,7 +172,6 @@ namespace ScreenTask.UI.Controls
             }
             else if (source is ScreenCaptureSource scrSrc)
             {
-                var screens = Screen.AllScreens;
                 int idx = scrSrc.ScreenIndex;
                 string primaryStr = scrSrc.IsPrimary ? "(Primary)" : "";
                 lblTitle.Text = $"Display {idx + 1} {primaryStr}".Trim();
@@ -157,7 +244,6 @@ namespace ScreenTask.UI.Controls
             {
                 g.Clear(Color.Transparent);
                 using var pen = new Pen(SystemColors.ControlDarkDark, 1.5f);
-                using var brush = new SolidBrush(SystemColors.ControlDark);
                 // Monitor outline
                 g.DrawRectangle(pen, 2, 2, 15, 11);
                 // Stand

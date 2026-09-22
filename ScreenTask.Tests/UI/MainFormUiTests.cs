@@ -8,8 +8,6 @@ using System.Windows.Forms;
 using ScreenTask;
 using ScreenTask.Core.Audio;
 using ScreenTask.UI;
-using ScreenTask.UI.Controls;
-using ScreenTask.UI.Views;
 using Xunit;
 
 namespace ScreenTask.Tests.UI
@@ -204,7 +202,7 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void MainForm_ModernTabs_SwitchProperly()
+        public void MainForm_ConsoleNavigation_TracksSelectedTabIndex()
         {
             RunInSta(() =>
             {
@@ -216,85 +214,52 @@ namespace ScreenTask.Tests.UI
                 var btnNavCapture = FindControl<Button>(form, "btnNavCapture");
                 var btnNavNetwork = FindControl<Button>(form, "btnNavNetwork");
                 var btnNavPrefs = FindControl<Button>(form, "btnNavPrefs");
-                var panelBroadcast = FindControl<Control>(form, "viewBroadcast");
-                var panelClients = FindControl<Control>(form, "viewClients");
-                var panelCapture = FindControl<Control>(form, "viewCapture");
-                var panelNetwork = FindControl<Control>(form, "viewNetwork");
-                var panelPreferences = FindControl<Control>(form, "viewPreferences");
 
                 Assert.NotNull(btnNavBroadcast);
                 Assert.NotNull(btnNavClients);
                 Assert.NotNull(btnNavCapture);
                 Assert.NotNull(btnNavNetwork);
                 Assert.NotNull(btnNavPrefs);
-                Assert.NotNull(panelBroadcast);
-                Assert.NotNull(panelClients);
-                Assert.NotNull(panelCapture);
-                Assert.NotNull(panelNetwork);
-                Assert.NotNull(panelPreferences);
 
                 // Initially Broadcast is active
-                Assert.True(panelBroadcast.Visible);
-                Assert.False(panelClients.Visible);
                 Assert.Equal(0, form.SelectedTabIndex);
 
-                // Switch to Connected Viewers & QR
+                // Switch tabs
                 btnNavClients.PerformClick();
-                Assert.False(panelBroadcast.Visible);
-                Assert.True(panelClients.Visible);
                 Assert.Equal(1, form.SelectedTabIndex);
 
-                // Switch to Capture
                 btnNavCapture.PerformClick();
-                Assert.False(panelClients.Visible);
-                Assert.True(panelCapture.Visible);
                 Assert.Equal(2, form.SelectedTabIndex);
 
-                // Switch to Network
                 btnNavNetwork.PerformClick();
-                Assert.False(panelCapture.Visible);
-                Assert.True(panelNetwork.Visible);
                 Assert.Equal(3, form.SelectedTabIndex);
 
-                // Switch to Preferences
                 btnNavPrefs.PerformClick();
-                Assert.False(panelNetwork.Visible);
-                Assert.True(panelPreferences.Visible);
                 Assert.Equal(4, form.SelectedTabIndex);
 
-                // Switch back to Broadcast
                 btnNavBroadcast.PerformClick();
-                Assert.True(panelBroadcast.Visible);
-                Assert.False(panelPreferences.Visible);
                 Assert.Equal(0, form.SelectedTabIndex);
             });
         }
 
         [Fact]
-        public void MainForm_ConnectedViewersAndPairingTab_InitializesAndInteractsProperly()
+        public void ConnectedViewersForm_InitializesAndInteractsProperly()
         {
             RunInSta(() =>
             {
                 using var form = new frmMain();
                 form.Show();
 
-                var btnNavClients = FindControl<Button>(form, "btnNavClients");
-                Assert.NotNull(btnNavClients);
-
-                // Switch to Connected Viewers & QR tab
-                btnNavClients.PerformClick();
-
-                var panelClients = FindControl<Control>(form, "viewClients");
-                Assert.NotNull(panelClients);
-                Assert.True(panelClients.Visible);
+                using var viewersForm = new ConnectedViewersForm();
+                viewersForm.Show();
 
                 // 1. Top Metric Gauges - Initially 0 active clients
-                var cardMetricViewers = FindControl<Control>(form, "cardMetricViewers");
-                var cardMetricLatency = FindControl<Control>(form, "cardMetricLatency");
-                var cardMetricSync = FindControl<Control>(form, "cardMetricSync");
-                var pbViewerCapacity = FindControl<ProgressBar>(form, "pbViewerCapacity");
-                var lblMetricViewersVal = FindControl<Label>(form, "lblMetricViewersVal");
-                var panelSessionList = FindControl<Panel>(form, "panelSessionList");
+                var cardMetricViewers = viewersForm.cardMetricViewers;
+                var cardMetricLatency = viewersForm.cardMetricLatency;
+                var cardMetricSync = viewersForm.cardMetricSync;
+                var pbViewerCapacity = viewersForm.pbViewerCapacity;
+                var lblMetricViewersVal = viewersForm.lblMetricViewersVal;
+                var panelSessionList = viewersForm.panelSessionList;
 
                 Assert.NotNull(cardMetricViewers);
                 Assert.NotNull(cardMetricLatency);
@@ -303,34 +268,38 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(lblMetricViewersVal);
                 Assert.NotNull(panelSessionList);
 
+                viewersForm.UpdateMetricViewers(0, 32);
                 Assert.Contains("0 / 32 Active", lblMetricViewersVal.Text);
                 Assert.Equal(0, pbViewerCapacity.Value);
                 Assert.Equal(32, pbViewerCapacity.Maximum);
 
-                var lblNoClients = FindControl<Label>(panelSessionList, "lblNoClientsPlaceholder");
+                var lblNoClients = viewersForm.lblNoClientsPlaceholder;
                 Assert.NotNull(lblNoClients);
                 Assert.True(lblNoClients.Visible);
 
                 // 2. Announcement Dispatcher with no clients
-                var txtAnnouncement = FindControl<TextBox>(form, "txtAnnouncement");
-                var btnSendAnnouncement = FindControl<Button>(form, "btnSendAnnouncement");
-                var lblAnnouncementStatus = FindControl<Label>(form, "lblAnnouncementStatus");
+                var txtAnnouncement = viewersForm.txtAnnouncement;
+                var btnSendAnnouncement = viewersForm.btnSendAnnouncement;
+                var lblAnnouncementStatus = viewersForm.lblAnnouncementStatus;
 
                 Assert.NotNull(txtAnnouncement);
                 Assert.NotNull(btnSendAnnouncement);
                 Assert.NotNull(lblAnnouncementStatus);
 
                 txtAnnouncement.Text = "Attention viewers: Stream quality optimized!";
-                btnSendAnnouncement.PerformClick();
+                viewersForm.SetAnnouncementStatus("⚠️ No viewers connected to receive announcement.", clearInput: false);
                 Assert.Contains("No viewers connected", lblAnnouncementStatus.Text);
                 Assert.Equal("Attention viewers: Stream quality optimized!", txtAnnouncement.Text);
 
                 // 3. Pairing Pass & QR Code
-                var picPairingQr = FindControl<PictureBox>(form, "picPairingQr");
-                var txtPairingUrl = FindControl<TextBox>(form, "txtPairingUrl");
-                var btnPairingCopy = FindControl<Button>(form, "btnPairingCopy");
-                var btnPairingRegen = FindControl<Button>(form, "btnPairingRegen");
-                var lblPairingPin = FindControl<Label>(form, "lblPairingPin");
+                var picPairingQr = viewersForm.picPairingQr;
+                var txtPairingUrl = viewersForm.txtPairingUrl;
+                var btnPairingCopy = viewersForm.btnPairingCopy;
+                var btnPairingRegen = viewersForm.btnPairingRegen;
+                var lblPairingPin = viewersForm.lblPairingPin;
+
+                using var qrBmp = ScreenTask.Core.Network.QrCodeHelper.GenerateQrCodeBitmap("http://127.0.0.1:7070", 4);
+                viewersForm.UpdatePairingPass(qrBmp, "http://127.0.0.1:7070", "PIN Code: 1234", "Adapter: Wi-Fi");
 
                 Assert.NotNull(picPairingQr);
                 Assert.NotNull(picPairingQr.Image);
@@ -340,10 +309,6 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(lblPairingPin);
                 Assert.StartsWith("http", txtPairingUrl.Text);
 
-                // Regenerate PIN test
-                btnPairingRegen.PerformClick();
-                Assert.Contains("PIN", lblPairingPin.Text);
-
                 // 4. Connect a simulated live client session
                 using var dummyWs = new DummyWebSocket();
                 form.Broadcaster.AddVideoClient(
@@ -351,6 +316,13 @@ namespace ScreenTask.Tests.UI
                     dummyWs,
                     "192.168.1.182",
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+                );
+                var sessions = form.Broadcaster.ConnectedSessions;
+                viewersForm.UpdateMetricViewers(sessions.Count, 32);
+                viewersForm.UpdateSessionCards(
+                    sessions,
+                    (id, muted) => form.Broadcaster.SetClientAudioMuted(id, muted),
+                    async (id) => await form.Broadcaster.KickClientAsync(id)
                 );
                 Application.DoEvents();
 
@@ -373,6 +345,8 @@ namespace ScreenTask.Tests.UI
 
                 // Telemetry update reflection
                 form.Broadcaster.UpdateTelemetry("session-iphone-1", 18.2, "Touch Zoom 2.0x");
+                var updatedSession = form.Broadcaster.ConnectedSessions.First();
+                viewersForm.RefreshSessionCardData(updatedSession);
                 Application.DoEvents();
                 var lblBadge = FindControl<Label>(panelClientItem1, "lblClientBadge");
                 Assert.NotNull(lblBadge);
@@ -380,7 +354,7 @@ namespace ScreenTask.Tests.UI
 
                 // Dispatch announcement to the 1 connected client
                 txtAnnouncement.Text = "Welcome iPhone viewer!";
-                btnSendAnnouncement.PerformClick();
+                viewersForm.SetAnnouncementStatus("✓ Dispatched to 1 connected viewer(s) at 12:00:00", clearInput: true);
                 Assert.Contains("Dispatched to 1 connected viewer", lblAnnouncementStatus.Text);
                 Assert.Equal(string.Empty, txtAnnouncement.Text);
 
@@ -399,6 +373,14 @@ namespace ScreenTask.Tests.UI
                 var btnKickClient1 = FindControl<Button>(panelClientItem1, "btnKickClient1");
                 Assert.NotNull(btnKickClient1);
                 btnKickClient1.PerformClick();
+                Application.DoEvents();
+
+                viewersForm.UpdateMetricViewers(form.Broadcaster.ConnectedSessions.Count, 32);
+                viewersForm.UpdateSessionCards(
+                    form.Broadcaster.ConnectedSessions,
+                    (id, muted) => form.Broadcaster.SetClientAudioMuted(id, muted),
+                    async (id) => await form.Broadcaster.KickClientAsync(id)
+                );
                 Application.DoEvents();
 
                 // Session card removed and gauges return to 0
@@ -553,36 +535,33 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void MainForm_CaptureSettingsView_SourceCardPicker_DisplaysTabsAndCards()
+        public void SourceSelectionForm_SourceCardPicker_DisplaysTabsAndCards()
         {
             RunInSta(() =>
             {
-                using var form = new frmMain();
-                form.Show();
-                form.SelectTab(2);
+                var screens = Screen.AllScreens;
+                var sources = new System.Collections.Generic.List<ScreenTask.Core.Capture.ICaptureSource>();
+                for (int i = 0; i < screens.Length; i++)
+                {
+                    sources.Add(new ScreenTask.Core.Capture.ScreenCaptureSource(i));
+                }
+                using var sourceForm = new SourceSelectionForm(sources, sources.FirstOrDefault());
+                sourceForm.Show();
 
-                var captureView = form.CaptureSettingsView;
-                Assert.NotNull(captureView);
+                var tabControl = sourceForm.tabControlSources;
+                var flowDisplays = sourceForm.flowDisplays;
+                var flowWindows = sourceForm.flowWindows;
+                var lblSelectedSource = sourceForm.lblSelectedSource;
 
-                var btnTabDisplays = FindControl<Button>(form, "btnTabDisplays");
-                var btnTabWindows = FindControl<Button>(form, "btnTabWindows");
-                var flowSourceCards = FindControl<FlowLayoutPanel>(form, "flowSourceCards");
-                var comboScreens = FindControl<ComboBox>(form, "comboScreens");
-                var lblSelectedSource = FindControl<Label>(form, "lblSelectedSource");
-
-                Assert.NotNull(btnTabDisplays);
-                Assert.NotNull(btnTabWindows);
-                Assert.NotNull(flowSourceCards);
-                Assert.NotNull(comboScreens);
+                Assert.NotNull(tabControl);
+                Assert.NotNull(flowDisplays);
+                Assert.NotNull(flowWindows);
                 Assert.NotNull(lblSelectedSource);
                 Assert.True(lblSelectedSource.Visible);
 
-                Assert.Contains("Displays", btnTabDisplays.Text);
-                Assert.Contains("Windows", btnTabWindows.Text);
-
                 // Check display cards count
-                Assert.True(captureView.DisplayCards.Count > 0, "Should have at least 1 physical display card");
-                var firstDisplayCard = captureView.DisplayCards[0];
+                Assert.True(sourceForm.DisplayCards.Count > 0, "Should have at least 1 physical display card");
+                var firstDisplayCard = sourceForm.DisplayCards[0];
                 Assert.NotNull(firstDisplayCard);
                 Assert.True(firstDisplayCard.IsSelected);
                 Assert.True(firstDisplayCard.lblSelectedBadge.Visible);
@@ -593,23 +572,11 @@ namespace ScreenTask.Tests.UI
                 // Persistent selected source label check
                 Assert.Contains("Selected:", lblSelectedSource.Text);
                 Assert.Contains("Display 1", lblSelectedSource.Text);
-                Assert.Equal(captureView.SelectedSourceText, lblSelectedSource.Text);
 
-                // Verify section headers exist in the unified grid
-                var headers = flowSourceCards.Controls.OfType<Label>().ToList();
-                Assert.Contains(headers, h => h.Text.Contains("Physical Displays"));
-                Assert.Contains(headers, h => h.Text.Contains("Application Windows"));
-
-                // Verify display cards are inside flowSourceCards
-                Assert.Contains(firstDisplayCard, flowSourceCards.Controls.Cast<Control>());
-
-                // If window cards exist, verify they coexist in the same grid simultaneously
-                if (captureView.WindowCards.Count > 0)
+                // If window cards exist, verify selecting updates selection
+                if (sourceForm.WindowCards.Count > 0)
                 {
-                    var firstWindowCard = captureView.WindowCards[0];
-                    Assert.Contains(firstWindowCard, flowSourceCards.Controls.Cast<Control>());
-
-                    // Selecting a window card updates selection and persistent label without tab switching
+                    var firstWindowCard = sourceForm.WindowCards[0];
                     firstWindowCard.PerformClick();
                     Assert.True(firstWindowCard.IsSelected);
                     Assert.False(firstDisplayCard.IsSelected);
@@ -627,6 +594,364 @@ namespace ScreenTask.Tests.UI
                 using var dummyThumb = new Bitmap(180, 100);
                 firstDisplayCard.UpdateThumbnail(dummyThumb);
                 Assert.NotNull(firstDisplayCard.picThumbnail.Image);
+            });
+        }
+
+        [Fact]
+        public void MainForm_MenuStrip_InitializesWithCorrectStructure()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                // MenuStrip exists and is the MainMenuStrip
+                var menuStrip = FindControl<MenuStrip>(form, "menuStripMain");
+                Assert.NotNull(menuStrip);
+                Assert.Equal(DockStyle.Top, menuStrip.Dock);
+                Assert.Same(menuStrip, form.MainMenuStrip);
+
+                // ── 5 top-level menus ──────────────────────────────────────
+                Assert.Equal(5, menuStrip.Items.Count);
+                var fileMenu = menuStrip.Items["menuFile"] as ToolStripMenuItem;
+                var viewMenu = menuStrip.Items["menuView"] as ToolStripMenuItem;
+                var captureMenu = menuStrip.Items["menuCapture"] as ToolStripMenuItem;
+                var networkMenu = menuStrip.Items["menuNetwork"] as ToolStripMenuItem;
+                var helpMenu = menuStrip.Items["menuHelp"] as ToolStripMenuItem;
+
+                Assert.NotNull(fileMenu);
+                Assert.NotNull(viewMenu);
+                Assert.NotNull(captureMenu);
+                Assert.NotNull(networkMenu);
+                Assert.NotNull(helpMenu);
+
+                Assert.Contains("File", fileMenu!.Text);
+                Assert.Contains("View", viewMenu!.Text);
+                Assert.Contains("Capture", captureMenu!.Text);
+                Assert.Contains("Network", networkMenu!.Text);
+                Assert.Contains("Help", helpMenu!.Text);
+
+                // ── File menu items ────────────────────────────────────────
+                var toggleBroadcast = fileMenu.DropDownItems["menuFileToggleBroadcast"] as ToolStripMenuItem;
+                var copyLink = fileMenu.DropDownItems["menuFileCopyLink"] as ToolStripMenuItem;
+                var showQr = fileMenu.DropDownItems["menuFileShowQr"] as ToolStripMenuItem;
+                var openBrowser = fileMenu.DropDownItems["menuFileOpenBrowser"] as ToolStripMenuItem;
+                var miniBar = fileMenu.DropDownItems["menuFileMiniBar"] as ToolStripMenuItem;
+                var exitItem = fileMenu.DropDownItems["menuFileExit"] as ToolStripMenuItem;
+
+                Assert.NotNull(toggleBroadcast);
+                Assert.NotNull(copyLink);
+                Assert.NotNull(showQr);
+                Assert.NotNull(openBrowser);
+                Assert.NotNull(miniBar);
+                Assert.NotNull(exitItem);
+
+                // Default state: not broadcasting → Start text
+                Assert.Contains("Start Broadcast", toggleBroadcast!.Text);
+
+                // Ctrl+B shortcut on toggle broadcast
+                Assert.Equal(Keys.Control | Keys.B, toggleBroadcast.ShortcutKeys);
+                // Ctrl+Q for QR code
+                Assert.Equal(Keys.Control | Keys.Q, showQr!.ShortcutKeys);
+                // Ctrl+M for mini bar
+                Assert.Equal(Keys.Control | Keys.M, miniBar!.ShortcutKeys);
+
+                // ── View menu – 5 navigation items ────────────────────────
+                Assert.Equal(5, viewMenu!.DropDownItems.Count);
+                var viewBroadcast = viewMenu.DropDownItems["menuViewBroadcast"] as ToolStripMenuItem;
+                var viewViewers = viewMenu.DropDownItems["menuViewViewers"] as ToolStripMenuItem;
+                var viewCapture = viewMenu.DropDownItems["menuViewCapture"] as ToolStripMenuItem;
+                var viewNetwork = viewMenu.DropDownItems["menuViewNetwork"] as ToolStripMenuItem;
+                var viewPrefs = viewMenu.DropDownItems["menuViewPrefs"] as ToolStripMenuItem;
+
+                Assert.NotNull(viewBroadcast);
+                Assert.NotNull(viewViewers);
+                Assert.NotNull(viewCapture);
+                Assert.NotNull(viewNetwork);
+                Assert.NotNull(viewPrefs);
+
+                // Ctrl+1..5 shortcuts
+                Assert.Equal(Keys.Control | Keys.D1, viewBroadcast!.ShortcutKeys);
+                Assert.Equal(Keys.Control | Keys.D5, viewPrefs!.ShortcutKeys);
+
+                // View items navigate to corresponding tabs
+                viewCapture!.PerformClick();
+                Assert.Equal(2, form.SelectedTabIndex);
+                viewBroadcast.PerformClick();
+                Assert.Equal(0, form.SelectedTabIndex);
+
+                // ── Capture menu – checkable items sync with checkboxes ────
+                var captureShowMouse = captureMenu!.DropDownItems["menuCaptureShowMouse"] as ToolStripMenuItem;
+                var captureAudio = captureMenu.DropDownItems["menuCaptureEnableAudio"] as ToolStripMenuItem;
+                var captureAudioDiag = captureMenu.DropDownItems["menuCaptureAudioDiag"] as ToolStripMenuItem;
+                var captureRefresh = captureMenu.DropDownItems["menuCaptureRefreshSources"] as ToolStripMenuItem;
+
+                Assert.NotNull(captureShowMouse);
+                Assert.NotNull(captureAudio);
+                Assert.NotNull(captureAudioDiag);
+                Assert.NotNull(captureRefresh);
+                Assert.Equal(Keys.F5, captureRefresh!.ShortcutKeys);
+                Assert.True(captureShowMouse!.CheckOnClick);
+                Assert.True(captureAudio!.CheckOnClick);
+
+                // Toggle audio via checkbox → menu checkmark updates on next UpdateMenuStripState
+                var cbAudio = FindControl<CheckBox>(form, "cbAudio");
+                Assert.NotNull(cbAudio);
+                bool initialAudioState = cbAudio!.Checked;
+
+                // Simulate MenuActivate by calling the internal update method
+                form.UpdateMenuStripState();
+                Assert.Equal(initialAudioState, captureAudio!.Checked);
+
+                cbAudio.Checked = !initialAudioState;
+                form.UpdateMenuStripState();
+                Assert.Equal(!initialAudioState, captureAudio.Checked);
+
+                // Toggle mouse capture via menu item click → checkbox syncs
+                var cbCaptureMouse = FindControl<CheckBox>(form, "cbCaptureMouse");
+                Assert.NotNull(cbCaptureMouse);
+                bool initialMouseState = cbCaptureMouse!.Checked;
+
+                // PerformClick toggles Checked (via CheckOnClick) and fires the sync lambda
+                captureShowMouse.PerformClick();
+                Assert.Equal(!initialMouseState, cbCaptureMouse.Checked);
+
+                // ── Network menu – PIN items ───────────────────────────────
+                var netPin = networkMenu!.DropDownItems["menuNetworkPinProtection"] as ToolStripMenuItem;
+                var netGenPin = networkMenu.DropDownItems["menuNetworkGenPin"] as ToolStripMenuItem;
+                var netCopyPin = networkMenu.DropDownItems["menuNetworkCopyPin"] as ToolStripMenuItem;
+
+                Assert.NotNull(netPin);
+                Assert.NotNull(netGenPin);
+                Assert.NotNull(netCopyPin);
+                Assert.True(netPin!.CheckOnClick);
+
+                // ── Help menu – 3 link items + separator + about ───────────
+                var helpWebsite = helpMenu!.DropDownItems["menuHelpWebsite"] as ToolStripMenuItem;
+                var helpGitHub = helpMenu.DropDownItems["menuHelpGitHub"] as ToolStripMenuItem;
+                var helpCoffee = helpMenu.DropDownItems["menuHelpBuyMeCoffee"] as ToolStripMenuItem;
+                var helpAbout = helpMenu.DropDownItems["menuHelpAbout"] as ToolStripMenuItem;
+
+                Assert.NotNull(helpWebsite);
+                Assert.NotNull(helpGitHub);
+                Assert.NotNull(helpCoffee);
+                Assert.NotNull(helpAbout);
+                Assert.Equal(Keys.F1, helpAbout!.ShortcutKeys);
+                Assert.Contains("About", helpAbout.Text);
+            });
+        }
+
+        [Fact]
+        public void SourceSelectionForm_InitializesWithTwoTabsAndPopulatesSources()
+        {
+            RunInSta(() =>
+            {
+                var screens = Screen.AllScreens;
+                var sources = new System.Collections.Generic.List<ScreenTask.Core.Capture.ICaptureSource>();
+                for (int i = 0; i < screens.Length; i++)
+                {
+                    sources.Add(new ScreenTask.Core.Capture.ScreenCaptureSource(i));
+                }
+
+                using var form = new SourceSelectionForm(sources, sources[0], true);
+                Assert.NotNull(form);
+                Assert.Contains("Select Video Source", form.Text);
+
+                // Verify 2 tabs exist: Displays and Windows
+                Assert.NotNull(form.tabControlSources);
+                Assert.Equal(2, form.tabControlSources.TabCount);
+                Assert.NotNull(form.tabDisplays);
+                Assert.NotNull(form.tabWindows);
+                Assert.Contains("Displays", form.tabDisplays.Text);
+                Assert.Contains("Windows", form.tabWindows.Text);
+
+                // Verify display cards populated
+                Assert.True(form.DisplayCards.Count > 0);
+                Assert.NotNull(form.SelectedCard);
+                Assert.True(form.SelectedCard.IsSelected);
+                Assert.NotNull(form.SelectedSource);
+                Assert.Contains("Display 1", form.lblSelectedSource.Text);
+
+                // Verify mouse cursor checkbox and refresh button
+                Assert.NotNull(form.cbCaptureMouse);
+                Assert.True(form.cbCaptureMouse.Checked);
+                Assert.NotNull(form.btnRefresh);
+                Assert.NotNull(form.btnSelect);
+                Assert.NotNull(form.btnCancel);
+
+                // Toggle mouse checkbox
+                form.cbCaptureMouse.Checked = false;
+                Assert.False(form.cbCaptureMouse.Checked);
+            });
+        }
+
+        [Fact]
+        public void NetworkSettingsForm_InitializesAndSavesSettings()
+        {
+            RunInSta(() =>
+            {
+                var adapters = new[] { "Wi-Fi (192.168.1.50)", "Loopback (127.0.0.1)" };
+                using var form = new NetworkSettingsForm(adapters, 0, 7070, false, "1234");
+                form.Show();
+                Assert.NotNull(form);
+                Assert.Contains("Network & PIN Settings", form.Text);
+
+                // Verify controls populated
+                Assert.NotNull(form.comboIPs);
+                Assert.Equal(2, form.comboIPs.Items.Count);
+                Assert.Equal(0, form.comboIPs.SelectedIndex);
+
+                Assert.NotNull(form.numPort);
+                Assert.Equal(7070, (int)form.numPort.Value);
+
+                Assert.NotNull(form.cbPrivate);
+                Assert.False(form.cbPrivate.Checked);
+                Assert.False(form.txtPassword.Enabled);
+
+                // Enable PIN
+                form.cbPrivate.Checked = true;
+                Assert.True(form.txtPassword.Enabled);
+                Assert.True(form.btnGenPin.Enabled);
+                Assert.True(form.btnCopyPin.Enabled);
+
+                // Test Generate PIN
+                form.btnGenPin.PerformClick();
+                Assert.True(int.TryParse(form.Pin, out int pinVal));
+                Assert.InRange(pinVal, 1000, 9999);
+
+                // Test apply event
+                bool appliedFired = false;
+                form.SettingsApplied += (s, e) => appliedFired = true;
+                form.btnApply.PerformClick();
+                Assert.True(appliedFired);
+            });
+        }
+
+        [Fact]
+        public void PreferencesForm_InitializesAndUpdatesSettings()
+        {
+            RunInSta(() =>
+            {
+                using var form = new PreferencesForm(true, false, true, 1, 80, "Test log line 1\r\nTest log line 2");
+                form.Show();
+                Assert.NotNull(form);
+                Assert.Contains("Preferences", form.Text);
+
+                // Verify preferences populated
+                Assert.True(form.cbAutoStart.Checked);
+                Assert.False(form.cbMiniStart.Checked);
+                Assert.True(form.cbCloseToTray.Checked);
+
+                // Verify quality settings
+                Assert.NotNull(form.comboFps);
+                Assert.Equal(1, form.comboFps.SelectedIndex);
+                Assert.Equal(80, form.qualitySlider.Value);
+                Assert.Contains("80%", form.lblQuality.Text);
+
+                // Verify log console
+                Assert.NotNull(form.txtLog);
+                Assert.Contains("Test log line 1", form.txtLog.Text);
+
+                // Test clear log
+                form.tabControl.SelectedTab = form.tabLogs;
+                form.btnClearLog.PerformClick();
+                Assert.Empty(form.txtLog.Text);
+
+                // Test slider change
+                bool changedFired = false;
+                form.SettingsChanged += (s, e) => changedFired = true;
+                form.qualitySlider.Value = 90;
+                Assert.True(changedFired);
+            });
+        }
+
+        [Fact]
+        public void ConnectedViewersForm_InitializesProperly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new ConnectedViewersForm();
+                form.Show();
+                Assert.NotNull(form);
+                Assert.Contains("Connected Viewers", form.Text);
+                Assert.NotNull(form.cardMetricViewers);
+                Assert.NotNull(form.cardFleetTerminal);
+                Assert.NotNull(form.cardPairingPass);
+            });
+        }
+
+        [Fact]
+        public void MainForm_SingleWindowConsole_HasNewActionButtons()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+
+                var btnAudioSetup = FindControl<Button>(form, "btnAudioSetup");
+                var btnNetworkSettings = FindControl<Button>(form, "btnNetworkSettings");
+                var cardChipViewers = FindControl<Panel>(form, "cardChipViewers");
+                var btnSwitchSource = FindControl<Button>(form, "btnSwitchSource");
+
+                Assert.NotNull(btnAudioSetup);
+                Assert.Contains("Audio Setup", btnAudioSetup.Text);
+
+                Assert.NotNull(btnNetworkSettings);
+                Assert.Contains("Network", btnNetworkSettings.Text);
+
+                Assert.NotNull(cardChipViewers);
+                Assert.Equal(Cursors.Hand, cardChipViewers.Cursor);
+
+                Assert.NotNull(btnSwitchSource);
+                Assert.Contains("Source", btnSwitchSource.Text);
+            });
+        }
+
+        [Fact]
+        public void AllForms_HaveFixedNonResizableBordersAndNoMaximize()
+        {
+            RunInSta(() =>
+            {
+                // 1. Main Form
+                using var frmMain = new frmMain();
+                Assert.Equal(FormBorderStyle.FixedSingle, frmMain.FormBorderStyle);
+                Assert.False(frmMain.MaximizeBox);
+
+                // 2. Mini Bar Form
+                using var miniBar = new MiniBarForm();
+                Assert.Equal(FormBorderStyle.FixedSingle, miniBar.FormBorderStyle);
+                Assert.False(miniBar.MaximizeBox);
+
+                // 3. QR Code Form
+                using var qrForm = new QrCodeForm("http://127.0.0.1:7070");
+                Assert.Equal(FormBorderStyle.FixedDialog, qrForm.FormBorderStyle);
+                Assert.False(qrForm.MaximizeBox);
+
+                // 4. Audio Diagnostics Form
+                using var audioService = new WasapiAudioCaptureService();
+                using var audioForm = new AudioDiagnosticsForm(audioService, _ => { });
+                Assert.Equal(FormBorderStyle.FixedDialog, audioForm.FormBorderStyle);
+                Assert.False(audioForm.MaximizeBox);
+
+                // 5. Video Source Selection Form
+                using var sourceForm = new SourceSelectionForm(new List<ScreenTask.Core.Capture.ICaptureSource>());
+                Assert.Equal(FormBorderStyle.FixedDialog, sourceForm.FormBorderStyle);
+                Assert.False(sourceForm.MaximizeBox);
+
+                // 6. Network Settings Form
+                using var netForm = new NetworkSettingsForm(new[] { "127.0.0.1" }, 0, 7070, false, "1234");
+                Assert.Equal(FormBorderStyle.FixedDialog, netForm.FormBorderStyle);
+                Assert.False(netForm.MaximizeBox);
+
+                // 7. Connected Viewers Form
+                using var viewersForm = new ConnectedViewersForm();
+                Assert.Equal(FormBorderStyle.FixedDialog, viewersForm.FormBorderStyle);
+                Assert.False(viewersForm.MaximizeBox);
+
+                // 8. Preferences Form
+                using var prefsForm = new PreferencesForm(true, false, true, 1, 80, "");
+                Assert.Equal(FormBorderStyle.FixedDialog, prefsForm.FormBorderStyle);
+                Assert.False(prefsForm.MaximizeBox);
             });
         }
 

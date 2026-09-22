@@ -14,7 +14,6 @@ using ScreenTask.Core.Capture;
 using ScreenTask.Core.Network;
 using ScreenTask.Core.Streaming;
 using ScreenTask.UI;
-using ScreenTask.UI.Controls;
 using ScreenTask.WebServer;
 
 namespace ScreenTask
@@ -44,7 +43,6 @@ namespace ScreenTask
         public StreamBroadcaster Broadcaster => _broadcaster;
         public EmbeddedWebServer WebServer => _webServer;
         public ScreenCaptureEngine CaptureEngine => _captureEngine;
-        public ScreenTask.UI.Views.CaptureSettingsView CaptureSettingsView => viewCapture;
 
         public StatusStrip StatusStrip => statusStripMain;
         public ToolStripStatusLabel StatusLabelServer => statusLabelServer;
@@ -54,89 +52,7 @@ namespace ScreenTask
         public ToolStripStatusLabel StatusLabelUptime => statusLabelUptime;
         public ToolStripStatusLabel StatusLabelAudio => statusLabelAudio;
         public ToolStripStatusLabel StatusLabelCopyright => statusLabelCopyright;
-
-        #region View Control Forwarders
-        // BroadcastView Forwarders
-        internal MonitorPreviewControl monitorPreview => viewBroadcast.monitorPreview;
-        internal Label lblCursorStatus => viewBroadcast.lblCursorStatus;
-        internal Button btnSwitchSource => viewBroadcast.btnSwitchSource;
-        internal Button btnStartServer => viewBroadcast.btnStartServer;
-        internal Button btnQuickMute => viewBroadcast.btnQuickMute;
-        internal Label lblAudioMeterText => viewBroadcast.lblAudioMeterText;
-        internal ProgressBar pbAudioMeter => viewBroadcast.pbAudioMeter;
-        internal Label lblLiveStats => viewBroadcast.lblLiveStats;
-        internal Label lblPinDisplay => viewBroadcast.lblPinDisplay;
-        internal TextBox txtURL => viewBroadcast.txtURL;
-        internal Button btnCopyUrl => viewBroadcast.btnCopyUrl;
-        internal Button btnQr => viewBroadcast.btnQr;
-        internal Button btnLaunch => viewBroadcast.btnLaunch;
-        internal Label lblChipViewers => viewBroadcast.lblChipViewers;
-        internal Label lblChipFps => viewBroadcast.lblChipFps;
-        internal Label lblChipData => viewBroadcast.lblChipData;
-        internal Label lblChipUptime => viewBroadcast.lblChipUptime;
-
-        // ConnectedViewersView Forwarders
-        internal Label lblMetricViewersVal => viewClients.lblMetricViewersVal;
-        internal ProgressBar pbViewerCapacity => viewClients.pbViewerCapacity;
-        internal Label lblMetricLatencyVal => viewClients.lblMetricLatencyVal;
-        internal Label lblMetricLatencySub => viewClients.lblMetricLatencySub;
-        internal Label lblMetricSyncVal => viewClients.lblMetricSyncVal;
-        internal Label lblMetricSyncSub => viewClients.lblMetricSyncSub;
-        internal Label lblFleetHeader => viewClients.lblFleetHeader;
-        internal Panel panelSessionList => viewClients.panelSessionList;
-        internal Label lblNoClientsPlaceholder => viewClients.lblNoClientsPlaceholder;
-        internal TextBox txtAnnouncement => viewClients.txtAnnouncement;
-        internal Button btnSendAnnouncement => viewClients.btnSendAnnouncement;
-        internal Label lblAnnouncementStatus => viewClients.lblAnnouncementStatus;
-        internal PictureBox picPairingQr => viewClients.picPairingQr;
-        internal TextBox txtPairingUrl => viewClients.txtPairingUrl;
-        internal Button btnPairingCopy => viewClients.btnPairingCopy;
-        internal Label lblPairingPin => viewClients.lblPairingPin;
-        internal Button btnPairingRegen => viewClients.btnPairingRegen;
-        internal Label lblZeroConf => viewClients.lblZeroConf;
-
-        // CaptureSettingsView Forwarders
-        internal ComboBox comboScreens => viewCapture.comboScreens;
-        internal Button btnRefreshScreens => viewCapture.btnRefreshScreens;
-        internal Button btnTabDisplays => viewCapture.btnTabDisplays;
-        internal Button btnTabWindows => viewCapture.btnTabWindows;
-        internal FlowLayoutPanel flowSourceCards => viewCapture.flowSourceCards;
-        internal Label lblSelectedSource => viewCapture.lblSelectedSource;
-        internal CheckBox cbCaptureMouse => viewCapture.cbCaptureMouse;
-        internal Panel cardAudio => viewCapture.cardAudio;
-        internal CheckBox cbAudio => viewCapture.cbAudio;
-        internal ComboBox comboAudioDevices => viewCapture.comboAudioDevices;
-        internal Button btnRefreshAudio => viewCapture.btnRefreshAudio;
-        internal Button btnTestAudio => viewCapture.btnTestAudio;
-        internal Button btnAudioDiag => viewCapture.btnAudioDiag;
-        internal Panel groupBox1 => viewCapture.groupBox1;
-        internal ComboBox comboFps => viewCapture.comboFps;
-        internal Label lblQuality => viewCapture.lblQuality;
-        internal TrackBar qualitySlider => viewCapture.qualitySlider;
-
-        // NetworkSettingsView Forwarders
-        internal Panel cardNetwork => viewNetwork.cardNetwork;
-        internal ComboBox comboIPs => viewNetwork.comboIPs;
-        internal Button btnRefreshIPs => viewNetwork.btnRefreshIPs;
-        internal NumericUpDown numPort => viewNetwork.numPort;
-        internal Label lblPortStatus => viewNetwork.lblPortStatus;
-        internal Panel gbOptions => viewNetwork.gbOptions;
-        internal CheckBox cbPrivate => viewNetwork.cbPrivate;
-        internal TextBox txtPassword => viewNetwork.txtPassword;
-        internal Button btnGenPin => viewNetwork.btnGenPin;
-        internal Button btnCopyPin => viewNetwork.btnCopyPin;
-
-        // PreferencesView Forwarders
-        internal Panel groupBox2 => viewPreferences.groupBox2;
-        internal CheckBox cbAutoStart => viewPreferences.cbAutoStart;
-        internal CheckBox cbMiniStart => viewPreferences.cbMiniStart;
-        internal CheckBox cbCloseToTray => viewPreferences.cbCloseToTray;
-        internal Panel cardLogs => viewPreferences.cardLogs;
-        internal TextBox txtLog => viewPreferences.txtLog;
-        internal Button btnClearLog => viewPreferences.btnClearLog;
-        internal Button btnCopyLog => viewPreferences.btnCopyLog;
-
-        // MiniBarForm Controls Forwarders
+        #region MiniBar Form Forwarders
         internal Button btnCompactStop => _miniBarForm.btnCompactStop;
         internal Button btnCompactCopy => _miniBarForm.btnCompactCopy;
         internal Button btnCompactExpand => _miniBarForm.btnCompactExpand;
@@ -170,6 +86,7 @@ namespace ScreenTask
             };
 
             WireEvents();
+            WireMenuEvents();
             InitializeTrayContextMenu();
         }
 
@@ -179,49 +96,24 @@ namespace ScreenTask
             this.FormClosing += frmMain_FormClosing;
             this.Resize += frmMain_Resize;
 
-            // Navigation Tabs
+            // Navigation Tabs (compatibility) & Action Dialogs
             btnNavBroadcast.Click += (s, e) => SelectTab(0);
             btnNavClients.Click += (s, e) => SelectTab(1);
             btnNavCapture.Click += (s, e) => SelectTab(2);
             btnNavNetwork.Click += (s, e) => SelectTab(3);
             btnNavPrefs.Click += (s, e) => SelectTab(4);
-            btnSwitchSource.Click += (s, e) => SelectTab(2);
 
-            // Connected Viewers & Pairing Pass Controls
-            btnSendAnnouncement.Click += async (s, e) =>
-            {
-                var msg = txtAnnouncement.Text.Trim();
-                if (string.IsNullOrEmpty(msg)) return;
+            btnSwitchSource.Click += (s, e) => ShowSourceSelectionDialog();
+            btnAudioSetup.Click += (s, e) => ShowAudioSettingsDialog();
+            btnNetworkSettings.Click += (s, e) => ShowNetworkSettingsDialog();
 
-                int clientCount = _broadcaster.ConnectedClientsCount;
-                if (clientCount > 0)
-                {
-                    int notified = await _broadcaster.BroadcastAnnouncementAsync(msg);
-                    Log($"Broadcast announcement dispatched to {notified} viewer(s): \"{msg}\"");
-                    lblAnnouncementStatus.Text = $"✓ Dispatched to {notified} connected viewer(s) at {DateTime.Now:HH:mm:ss}";
-                    txtAnnouncement.Clear();
-                }
-                else
-                {
-                    lblAnnouncementStatus.Text = "⚠️ No viewers connected to receive announcement.";
-                }
-            };
+            cardChipViewers.Cursor = Cursors.Hand;
+            cardChipViewers.Click += (s, e) => ShowConnectedViewersDialog();
+            lblIconViewers.Click += (s, e) => ShowConnectedViewersDialog();
+            lblTitleViewers.Click += (s, e) => ShowConnectedViewersDialog();
+            lblChipViewers.Click += (s, e) => ShowConnectedViewersDialog();
 
-            btnPairingCopy.Click += (s, e) =>
-            {
-                try
-                {
-                    Clipboard.SetText(txtPairingUrl.Text);
-                    Log("Direct stream URL copied to clipboard.");
-                }
-                catch { }
-            };
-
-            btnPairingRegen.Click += (s, e) =>
-            {
-                btnGenPin.PerformClick();
-                SyncPairingInfo();
-            };
+            panelContentContainer.Resize += (s, e) => UpdateLayout();
 
             // Broadcaster real session tracking events
             _broadcaster.SessionConnected += (session) =>
@@ -237,14 +129,6 @@ namespace ScreenTask
                 if (this.IsHandleCreated && !this.IsDisposed)
                 {
                     try { this.BeginInvoke(() => UpdateSessionCards()); } catch { }
-                }
-            };
-
-            _broadcaster.SessionUpdated += (session) =>
-            {
-                if (this.IsHandleCreated && !this.IsDisposed)
-                {
-                    try { this.BeginInvoke(() => RefreshSessionCardData(session)); } catch { }
                 }
             };
 
@@ -265,17 +149,6 @@ namespace ScreenTask
             btnLaunch.Click += btnLaunch_Click;
             btnCopyUrl.Click += btnCopyUrl_Click;
             btnQr.Click += btnQr_Click;
-
-            // Capture Controls
-            viewCapture.SourceCardSelected += source =>
-            {
-                _captureEngine.SetSource(source);
-                monitorPreview.SourceTitle = source.DisplayName;
-                if (_webServer.IsRunning)
-                {
-                    Log($"Switched capture source to: {source.DisplayName}");
-                }
-            };
             comboScreens.SelectedIndexChanged += comboScreens_SelectedIndexChanged;
             btnRefreshScreens.Click += btnRefreshScreens_Click;
             comboIPs.SelectedIndexChanged += (s, e) => UpdateUrlPreview();
@@ -386,15 +259,118 @@ namespace ScreenTask
             }
         }
 
+        private void WireMenuEvents()
+        {
+            // File menu
+            menuFileToggleBroadcast.Click += btnStartServer_Click;
+            menuFileCopyLink.Click += btnCopyUrl_Click;
+            menuFileShowQr.Click += btnQr_Click;
+            menuFileOpenBrowser.Click += btnLaunch_Click;
+            menuFileMiniBar.Click += (s, e) => ToggleCompactMode();
+            menuFileExit.Click += (s, e) =>
+            {
+                _isExitingExplicitly = true;
+                Close();
+            };
+
+            // View menu — navigate to views
+            menuViewBroadcast.Click += (s, e) => SelectTab(0);
+            menuViewViewers.Click += (s, e) => SelectTab(1);
+            menuViewCapture.Click += (s, e) => SelectTab(2);
+            menuViewNetwork.Click += (s, e) => SelectTab(3);
+            menuViewPrefs.Click += (s, e) => SelectTab(4);
+
+            // Capture menu
+            menuCaptureRefreshSources.Click += btnRefreshScreens_Click;
+            menuCaptureShowMouse.Click += (s, e) =>
+            {
+                // Sync to checkbox; CheckOnClick already toggled the menu item
+                cbCaptureMouse.Checked = menuCaptureShowMouse.Checked;
+            };
+            menuCaptureEnableAudio.Click += (s, e) =>
+            {
+                cbAudio.Checked = menuCaptureEnableAudio.Checked;
+            };
+            menuCaptureAudioDiag.Click += btnAudioDiag_Click;
+
+            // Network menu
+            menuNetworkRefreshAdapters.Click += btnRefreshIPs_Click;
+            menuNetworkPinProtection.Click += (s, e) =>
+            {
+                cbPrivate.Checked = menuNetworkPinProtection.Checked;
+            };
+            menuNetworkGenPin.Click += btnGenPin_Click;
+            menuNetworkCopyPin.Click += btnCopyPin_Click;
+
+            // Help menu
+            menuHelpWebsite.Click += (s, e) =>
+            {
+                try { Process.Start(new ProcessStartInfo(Constants.WebsiteUrl) { UseShellExecute = true }); } catch { }
+            };
+            menuHelpGitHub.Click += (s, e) =>
+            {
+                try { Process.Start(new ProcessStartInfo(Constants.GitHubUrl) { UseShellExecute = true }); } catch { }
+            };
+            menuHelpBuyMeCoffee.Click += (s, e) =>
+            {
+                try { Process.Start(new ProcessStartInfo(Constants.BuyMeACoffeeUrl) { UseShellExecute = true }); } catch { }
+            };
+            menuHelpAbout.Click += (s, e) => ShowAboutDialog();
+
+            // Keep menu state fresh when any menu opens
+            menuStripMain.MenuActivate += (s, e) => UpdateMenuStripState();
+        }
+
+        internal void UpdateMenuStripState()
+        {
+            bool isLive = _webServer?.IsRunning == true;
+
+            // File > Toggle Broadcast
+            menuFileToggleBroadcast.Text = isLive ? "⏹ &Stop Broadcast" : "▶ &Start Broadcast";
+
+            // File > stream-dependent items (only meaningful while live)
+            menuFileCopyLink.Enabled = !string.IsNullOrEmpty(txtURL.Text);
+            menuFileOpenBrowser.Enabled = txtURL.Text.StartsWith("http");
+
+            // Capture > checkable items — sync from checkboxes
+            menuCaptureShowMouse.Checked = cbCaptureMouse.Checked;
+            menuCaptureEnableAudio.Checked = cbAudio.Checked;
+            menuCaptureAudioDiag.Enabled = cbAudio.Checked;
+
+            // Network > checkable PIN
+            menuNetworkPinProtection.Checked = cbPrivate.Checked;
+            menuNetworkGenPin.Enabled = cbPrivate.Checked;
+            menuNetworkCopyPin.Enabled = cbPrivate.Checked && !string.IsNullOrEmpty(txtPassword.Text);
+        }
+
+        private void ShowAboutDialog()
+        {
+            MessageBox.Show(this,
+                $"ScreenTask 2.0  (v{Constants.AppVersion})\n\n" +
+                "Instant, zero-configuration local screen sharing\n" +
+                "over Wi-Fi, Ethernet, or mobile hotspot.\n\n" +
+                "Author:   Eslam Hamouda\n" +
+                "License:  GNU General Public License v3.0\n" +
+                "Website:  screentask.eslamx.com\n" +
+                "GitHub:   github.com/EslaMx7/ScreenTask",
+                "About ScreenTask 2.0",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+
+
         private void frmMain_Load(object? sender, EventArgs e)
         {
             PopulateNetworkAdapters();
             PopulateCaptureSources();
             PopulateAudioDevices();
             LoadSettings();
+            cbAudio_CheckedChanged(this, EventArgs.Empty);
+            cbPrivate_CheckedChanged(this, EventArgs.Empty);
             SyncPairingInfo();
             UpdateSessionCards();
             SelectTab(0);
+            UpdateLayout();
 
             statusLabelServer.Text = "● Ready to stream";
             statusLabelViewers.Text = "👥 0 viewers";
@@ -424,23 +400,324 @@ namespace ScreenTask
         {
             _currentTabIndex = index;
             UpdateNavButtons(index);
+        }
 
-            viewBroadcast.Visible = index == 0;
-            viewClients.Visible = index == 1;
-            viewCapture.Visible = index == 2;
-            viewNetwork.Visible = index == 3;
-            viewPreferences.Visible = index == 4;
+        private void UpdateLayout()
+        {
+            if (panelContentContainer.ClientSize.Width <= 0 || panelContentContainer.ClientSize.Height <= 0) return;
+            int totalWidth = panelContentContainer.ClientSize.Width;
+            int totalHeight = panelContentContainer.ClientSize.Height;
 
-            if (index == 0) viewBroadcast.BringToFront();
-            else if (index == 1)
+            // 1. Bottom Section (4 Stat Chips) - Pinned to bottom
+            int gap = 8;
+            int chipHeight = 72;
+            int chipWidth = Math.Max(130, (totalWidth - (3 * gap)) / 4);
+            int chipsTop = Math.Max(260, totalHeight - chipHeight - 4);
+
+            cardChipViewers.Location = new Point(0, chipsTop);
+            cardChipViewers.Size = new Size(chipWidth, chipHeight);
+            lblTitleViewers.Width = Math.Max(60, chipWidth - 44);
+            lblChipViewers.Width = Math.Max(60, chipWidth - 16);
+
+            cardChipFps.Location = new Point(chipWidth + gap, chipsTop);
+            cardChipFps.Size = new Size(chipWidth, chipHeight);
+            lblTitleFps.Width = Math.Max(60, chipWidth - 44);
+            lblChipFps.Width = Math.Max(60, chipWidth - 16);
+
+            cardChipData.Location = new Point((chipWidth + gap) * 2, chipsTop);
+            cardChipData.Size = new Size(chipWidth, chipHeight);
+            lblTitleData.Width = Math.Max(60, chipWidth - 44);
+            lblChipData.Width = Math.Max(60, chipWidth - 16);
+
+            int lastChipLeft = (chipWidth + gap) * 3;
+            cardChipUptime.Location = new Point(lastChipLeft, chipsTop);
+            cardChipUptime.Size = new Size(totalWidth - lastChipLeft, chipHeight);
+            lblTitleUptime.Width = Math.Max(60, cardChipUptime.Width - 44);
+            lblChipUptime.Width = Math.Max(60, cardChipUptime.Width - 16);
+
+            // 2. Middle Section (Stream URL Card)
+            int urlCardHeight = 86;
+            int urlCardTop = Math.Max(180, chipsTop - urlCardHeight - 8);
+            cardUrl.Location = new Point(0, urlCardTop);
+            cardUrl.Size = new Size(totalWidth, urlCardHeight);
+            btnNetworkSettings.Left = cardUrl.Width - btnNetworkSettings.Width - 12;
+            lblPinDisplay.Left = Math.Max(200, btnNetworkSettings.Left - lblPinDisplay.Width - 8);
+            btnLaunch.Left = cardUrl.Width - btnLaunch.Width - 10;
+            btnQr.Left = btnLaunch.Left - btnQr.Width - 6;
+            btnCopyUrl.Left = btnQr.Left - btnCopyUrl.Width - 6;
+            txtURL.Width = Math.Max(150, btnCopyUrl.Left - txtURL.Left - 8);
+
+            // 3. Top Section (Preview & Control Card)
+            int controlCardWidth = 270;
+            int topHeight = Math.Max(200, urlCardTop - 10);
+
+            groupBox3.Location = new Point(Math.Max(384, totalWidth - controlCardWidth), 0);
+            groupBox3.Size = new Size(controlCardWidth, topHeight);
+            lblBroadcastDesc.Width = groupBox3.ClientSize.Width - 24;
+            btnStartServer.Width = groupBox3.ClientSize.Width - 24;
+
+            int halfBtnW = (groupBox3.ClientSize.Width - 30) / 2;
+            btnQuickMute.Width = halfBtnW;
+            btnAudioSetup.Location = new Point(btnQuickMute.Right + 6, btnQuickMute.Top);
+            btnAudioSetup.Width = groupBox3.ClientSize.Width - btnAudioSetup.Left - 12;
+
+            pbAudioMeter.Width = groupBox3.ClientSize.Width - 24;
+            lblLiveStats.Width = groupBox3.ClientSize.Width - 24;
+            if (groupBox3.ClientSize.Height - lblLiveStats.Top - 10 > 40)
             {
-                viewClients.BringToFront();
-                SyncPairingInfo();
-                UpdateSessionCards();
+                lblLiveStats.Height = groupBox3.ClientSize.Height - lblLiveStats.Top - 10;
             }
-            else if (index == 2) viewCapture.BringToFront();
-            else if (index == 3) viewNetwork.BringToFront();
-            else if (index == 4) viewPreferences.BringToFront();
+
+            cardPreview.Location = new Point(0, 0);
+            cardPreview.Size = new Size(Math.Max(380, groupBox3.Left - 10), topHeight);
+
+            // Respect 16:9 Display Aspect Ratio for monitorPreview
+            int availW = Math.Max(100, cardPreview.ClientSize.Width - 24);
+            int availH = Math.Max(80, cardPreview.ClientSize.Height - 48);
+            const double targetRatio = 16.0 / 9.0;
+            int previewW, previewH;
+
+            if ((double)availW / availH > targetRatio)
+            {
+                previewH = availH;
+                previewW = Math.Min(availW, (int)(previewH * targetRatio));
+            }
+            else
+            {
+                previewW = availW;
+                previewH = Math.Min(availH, (int)(previewW / targetRatio));
+            }
+
+            int previewX = Math.Max(12, (cardPreview.ClientSize.Width - previewW) / 2);
+            int previewY = Math.Max(8, (cardPreview.ClientSize.Height - 40 - previewH) / 2 + 4);
+            monitorPreview.Location = new Point(previewX, previewY);
+            monitorPreview.Size = new Size(previewW, previewH);
+
+            lblCursorStatus.Location = new Point(14, cardPreview.ClientSize.Height - 26);
+            btnSwitchSource.Width = 145;
+            btnSwitchSource.Location = new Point(cardPreview.ClientSize.Width - btnSwitchSource.Width - 14, cardPreview.ClientSize.Height - 32);
+        }
+
+        public void ShowSourceSelectionDialog()
+        {
+            PopulateCaptureSources();
+            var currentSource = comboScreens.SelectedIndex >= 0 && comboScreens.SelectedIndex < _captureSources.Count
+                ? _captureSources[comboScreens.SelectedIndex]
+                : null;
+
+            using var dlg = new ScreenTask.UI.SourceSelectionForm(_captureSources, currentSource, cbCaptureMouse.Checked);
+            dlg.btnRefresh.Click += (s, e) =>
+            {
+                PopulateCaptureSources();
+                dlg.PopulateSources(_captureSources, currentSource);
+            };
+            dlg.cbCaptureMouse.CheckedChanged += (s, e) =>
+            {
+                cbCaptureMouse.Checked = dlg.cbCaptureMouse.Checked;
+            };
+
+            if (dlg.ShowDialog(this) == DialogResult.OK && dlg.SelectedSource != null)
+            {
+                var idx = _captureSources.FindIndex(s => s.Id == dlg.SelectedSource.Id || s.DisplayName == dlg.SelectedSource.DisplayName);
+                if (idx >= 0)
+                {
+                    comboScreens.SelectedIndex = idx;
+                }
+            }
+        }
+
+        public void ShowAudioSettingsDialog()
+        {
+            btnAudioDiag_Click(this, EventArgs.Empty);
+        }
+
+        public void ShowNetworkSettingsDialog()
+        {
+            PopulateNetworkAdapters();
+            var adapterList = _adapters.Select(a => a.DisplayName).ToList();
+            using var dlg = new ScreenTask.UI.NetworkSettingsForm(adapterList, comboIPs.SelectedIndex, (int)numPort.Value, cbPrivate.Checked, txtPassword.Text);
+            dlg.RefreshAdaptersRequested += (s, e) =>
+            {
+                PopulateNetworkAdapters();
+                var refreshed = _adapters.Select(a => a.DisplayName).ToList();
+                dlg.PopulateAdapters(refreshed, comboIPs.SelectedIndex);
+            };
+            dlg.SettingsApplied += (s, e) =>
+            {
+                if (dlg.SelectedAdapterIndex >= 0 && dlg.SelectedAdapterIndex < comboIPs.Items.Count)
+                {
+                    comboIPs.SelectedIndex = dlg.SelectedAdapterIndex;
+                }
+                numPort.Value = dlg.Port;
+                cbPrivate.Checked = dlg.RequirePin;
+                txtPassword.Text = dlg.Pin;
+                UpdateUrlPreview();
+                SaveSettings();
+            };
+            dlg.ShowDialog(this);
+        }
+
+        public void ShowConnectedViewersDialog()
+        {
+            using var dlg = new ScreenTask.UI.ConnectedViewersForm();
+
+            // Initial pairing pass data
+            var url = !string.IsNullOrEmpty(txtURL.Text) ? txtURL.Text : $"http://127.0.0.1:{numPort.Value}";
+            var pinText = cbPrivate.Checked ? $"PIN Code: {txtPassword.Text}" : "PIN: Not Required";
+            var adapterName = comboIPs.SelectedItem?.ToString() ?? "Wi-Fi";
+            var adapterInfo = $"📡 ZeroConf / mDNS: screentask.local\nAdapter: {adapterName}";
+            Image? qrImg = null;
+            try { qrImg = QrCodeHelper.GenerateQrCodeBitmap(url, 4); } catch { }
+
+            dlg.UpdatePairingPass(qrImg, url, pinText, adapterInfo);
+
+            void SyncDlgMetrics()
+            {
+                var sessions = _broadcaster.ConnectedSessions;
+                dlg.UpdateMetricViewers(sessions.Count, 32);
+                dlg.UpdateMetricLatency(_broadcaster.AverageFleetLatencyMs, _broadcaster.FrameDropPercentage);
+                dlg.UpdateMetricSync(_captureEngine.AudioEnabled, 0, 0.0);
+            }
+
+            SyncDlgMetrics();
+            dlg.UpdateSessionCards(
+                _broadcaster.ConnectedSessions,
+                (id, muted) => _broadcaster.SetClientAudioMuted(id, muted),
+                async (id) =>
+                {
+                    await _broadcaster.KickClientAsync(id);
+                    Log($"Disconnected viewer session: {id}");
+                });
+
+            // Wire announcement dispatcher
+            dlg.SendAnnouncementClicked += async (s, e) =>
+            {
+                var msg = dlg.AnnouncementMessage;
+                if (string.IsNullOrEmpty(msg)) return;
+
+                int clientCount = _broadcaster.ConnectedClientsCount;
+                if (clientCount > 0)
+                {
+                    int notified = await _broadcaster.BroadcastAnnouncementAsync(msg);
+                    Log($"Broadcast announcement dispatched to {notified} viewer(s): \"{msg}\"");
+                    dlg.SetAnnouncementStatus($"✓ Dispatched to {notified} connected viewer(s) at {DateTime.Now:HH:mm:ss}", clearInput: true);
+                }
+                else
+                {
+                    dlg.SetAnnouncementStatus("⚠️ No viewers connected to receive announcement.", clearInput: false);
+                }
+            };
+
+            dlg.PairingCopyClicked += (s, e) =>
+            {
+                try
+                {
+                    Clipboard.SetText(dlg.txtPairingUrl.Text);
+                    Log("Direct stream URL copied to clipboard.");
+                }
+                catch { }
+            };
+
+            dlg.PairingRegenClicked += (s, e) =>
+            {
+                btnGenPin.PerformClick();
+                var newPinText = cbPrivate.Checked ? $"PIN Code: {txtPassword.Text}" : "PIN: Not Required";
+                dlg.lblPairingPin.Text = newPinText;
+            };
+
+            // Live event subscriptions while dialog is open
+            Action<ViewerSession> onConnected = (sess) =>
+            {
+                if (dlg.IsHandleCreated && !dlg.IsDisposed)
+                {
+                    try
+                    {
+                        dlg.BeginInvoke(() =>
+                        {
+                            SyncDlgMetrics();
+                            dlg.UpdateSessionCards(
+                                _broadcaster.ConnectedSessions,
+                                (id, muted) => _broadcaster.SetClientAudioMuted(id, muted),
+                                async (id) =>
+                                {
+                                    await _broadcaster.KickClientAsync(id);
+                                    Log($"Disconnected viewer session: {id}");
+                                });
+                        });
+                    }
+                    catch { }
+                }
+            };
+
+            Action<string> onDisconnected = (id) =>
+            {
+                if (dlg.IsHandleCreated && !dlg.IsDisposed)
+                {
+                    try
+                    {
+                        dlg.BeginInvoke(() =>
+                        {
+                            SyncDlgMetrics();
+                            dlg.UpdateSessionCards(
+                                _broadcaster.ConnectedSessions,
+                                (id2, muted) => _broadcaster.SetClientAudioMuted(id2, muted),
+                                async (id2) =>
+                                {
+                                    await _broadcaster.KickClientAsync(id2);
+                                    Log($"Disconnected viewer session: {id2}");
+                                });
+                        });
+                    }
+                    catch { }
+                }
+            };
+
+            Action<ViewerSession> onUpdated = (sess) =>
+            {
+                if (dlg.IsHandleCreated && !dlg.IsDisposed)
+                {
+                    try
+                    {
+                        dlg.BeginInvoke(() =>
+                        {
+                            SyncDlgMetrics();
+                            dlg.RefreshSessionCardData(sess);
+                        });
+                    }
+                    catch { }
+                }
+            };
+
+            _broadcaster.SessionConnected += onConnected;
+            _broadcaster.SessionDisconnected += onDisconnected;
+            _broadcaster.SessionUpdated += onUpdated;
+
+            try
+            {
+                dlg.ShowDialog(this);
+            }
+            finally
+            {
+                _broadcaster.SessionConnected -= onConnected;
+                _broadcaster.SessionDisconnected -= onDisconnected;
+                _broadcaster.SessionUpdated -= onUpdated;
+                qrImg?.Dispose();
+            }
+        }
+
+        public void ShowPreferencesDialog()
+        {
+            using var dlg = new ScreenTask.UI.PreferencesForm(cbAutoStart.Checked, cbMiniStart.Checked, cbCloseToTray.Checked, comboFps.SelectedIndex, qualitySlider.Value, txtLog.Text);
+            dlg.SettingsChanged += (s, e) =>
+            {
+                cbAutoStart.Checked = dlg.cbAutoStart.Checked;
+                cbMiniStart.Checked = dlg.cbMiniStart.Checked;
+                cbCloseToTray.Checked = dlg.cbCloseToTray.Checked;
+                if (dlg.comboFps.SelectedIndex >= 0) comboFps.SelectedIndex = dlg.comboFps.SelectedIndex;
+                qualitySlider.Value = dlg.qualitySlider.Value;
+                SaveSettings();
+            };
+            dlg.ShowDialog(this);
         }
 
         private void UpdateNavButtons(int activeIndex)
@@ -554,9 +831,6 @@ namespace ScreenTask
                 if (found >= 0) newIndex = found;
             }
 
-            ICaptureSource? selectedSource = newIndex >= 0 && newIndex < _captureSources.Count ? _captureSources[newIndex] : null;
-            viewCapture.PopulateSources(_captureSources, selectedSource);
-
             if (comboScreens.Items.Count > 0)
             {
                 comboScreens.SelectedIndex = newIndex;
@@ -599,206 +873,15 @@ namespace ScreenTask
         private void SyncPairingInfo()
         {
             var url = !string.IsNullOrEmpty(txtURL.Text) ? txtURL.Text : $"http://127.0.0.1:{numPort.Value}";
-            txtPairingUrl.Text = url;
-            lblPairingPin.Text = cbPrivate.Checked ? $"PIN Code: {txtPassword.Text}" : "PIN: Not Required";
-            var adapterName = comboIPs.SelectedItem?.ToString() ?? "Wi-Fi";
-            lblZeroConf.Text = $"📡 ZeroConf / mDNS: screentask.local\nAdapter: {adapterName}";
-            try
-            {
-                picPairingQr.Image?.Dispose();
-                picPairingQr.Image = QrCodeHelper.GenerateQrCodeBitmap(url, 4);
-            }
-            catch { }
+            lblPinDisplay.Text = cbPrivate.Checked ? $"PIN: {txtPassword.Text}" : "PIN: Not Required";
         }
-
-        private readonly Dictionary<string, Panel> _sessionCardPanels = new();
 
         private void UpdateSessionCards()
         {
-            if (panelSessionList.InvokeRequired)
-            {
-                try { panelSessionList.BeginInvoke(() => UpdateSessionCards()); } catch { }
-                return;
-            }
-
             var sessions = _broadcaster.ConnectedSessions;
             int count = sessions.Count;
-
-            lblNoClientsPlaceholder.Visible = count == 0;
-            lblFleetHeader.Text = $"Live Client Sessions ({count} Connected):";
-
-            lblMetricViewersVal.Text = $"{count} / 32 Active";
             statusLabelViewers.Text = $"👥 {count} {(count == 1 ? "viewer" : "viewers")}";
-            pbViewerCapacity.Value = Math.Clamp(count, 0, 32);
-
-            double avgRtt = _broadcaster.AverageFleetLatencyMs;
-            lblMetricLatencyVal.Text = count > 0 ? $"{avgRtt:0.0} ms Avg" : "0.0 ms Avg";
-            double dropPct = _broadcaster.FrameDropPercentage;
-            lblMetricLatencySub.Text = $"<50ms pipeline • {dropPct:0.0}% drop";
-
-            lblMetricSyncVal.Text = _captureEngine.AudioEnabled ? "100% Locked" : "Audio Inactive";
-            lblMetricSyncSub.Text = _captureEngine.AudioEnabled ? "WASAPI + Display (0 drop, ±0.0ms)" : "Display Only (Audio muted)";
-
-            // Remove panels for disconnected sessions
-            var currentIds = new HashSet<string>(sessions.Select(s => s.Id));
-            var toRemove = _sessionCardPanels.Keys.Where(k => !currentIds.Contains(k)).ToList();
-            foreach (var id in toRemove)
-            {
-                if (_sessionCardPanels.TryGetValue(id, out var panel))
-                {
-                    panelSessionList.Controls.Remove(panel);
-                    panel.Dispose();
-                    _sessionCardPanels.Remove(id);
-                }
-            }
-
-            // Create or position panels
-            panelSessionList.SuspendLayout();
-            int index = 0;
-            foreach (var session in sessions)
-            {
-                if (!_sessionCardPanels.TryGetValue(session.Id, out var cardPanel))
-                {
-                    cardPanel = CreateSessionCard(session, index);
-                    _sessionCardPanels[session.Id] = cardPanel;
-                    panelSessionList.Controls.Add(cardPanel);
-                }
-                else
-                {
-                    cardPanel.Location = new Point(4, index * 78 + 4);
-                    if (index == 0) cardPanel.Name = "panelClientItem1";
-                }
-                RefreshSessionCardData(session);
-                index++;
-            }
-            panelSessionList.ResumeLayout(true);
-        }
-
-        private Panel CreateSessionCard(ViewerSession session, int index)
-        {
-            var panel = new Panel
-            {
-                Name = index == 0 ? "panelClientItem1" : $"panelClientItem_{session.Id}",
-                Size = new Size(346, 72),
-                Location = new Point(4, index * 78 + 4),
-                BackColor = SystemColors.Window,
-                BorderStyle = BorderStyle.FixedSingle,
-                Tag = session.Id
-            };
-
-            var lblTitle = new Label
-            {
-                Name = "lblClientTitle",
-                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
-                ForeColor = SystemColors.ControlText,
-                Location = new Point(6, 4),
-                Size = new Size(160, 16),
-                Text = $"{session.DeviceIcon} {session.DeviceName}"
-            };
-
-            var lblBadge = new Label
-            {
-                Name = "lblClientBadge",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.Highlight,
-                Location = new Point(170, 4),
-                Size = new Size(166, 16),
-                TextAlign = ContentAlignment.MiddleRight,
-                Text = session.ViewMode
-            };
-
-            var lblDetails = new Label
-            {
-                Name = "lblClientDetails",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.GrayText,
-                Location = new Point(6, 22),
-                Size = new Size(330, 15),
-                Text = $"{session.RemoteIp} • {session.BrowserName}"
-            };
-
-            var lblMetrics = new Label
-            {
-                Name = "lblClientMetrics",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.ControlText,
-                Location = new Point(6, 44),
-                Size = new Size(185, 20),
-                Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}"
-            };
-
-            var btnMute = new Button
-            {
-                Name = index == 0 ? "btnMuteClient1" : $"btnMute_{session.Id}",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.ControlText,
-                Location = new Point(198, 42),
-                Size = new Size(70, 24),
-                Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute",
-                UseVisualStyleBackColor = true
-            };
-
-            var btnKick = new Button
-            {
-                Name = index == 0 ? "btnKickClient1" : $"btnKick_{session.Id}",
-                Font = new Font("Segoe UI", 7.5F),
-                ForeColor = SystemColors.ControlText,
-                Location = new Point(272, 42),
-                Size = new Size(64, 24),
-                Text = "✕ Kick",
-                UseVisualStyleBackColor = true
-            };
-
-            btnMute.Click += (s, e) =>
-            {
-                bool newMuted = !session.IsAudioMuted;
-                _broadcaster.SetClientAudioMuted(session.Id, newMuted);
-                btnMute.Text = newMuted ? "🔇 Unmute" : "🔊 Mute";
-                Log($"Audio {(newMuted ? "muted" : "unmuted")} for viewer: {session.DeviceName} ({session.RemoteIp})");
-            };
-
-            btnKick.Click += (s, e) =>
-            {
-                _ = _broadcaster.KickClientAsync(session.Id);
-                Log($"Disconnected viewer session: {session.DeviceName} ({session.RemoteIp})");
-            };
-
-            panel.Controls.Add(lblTitle);
-            panel.Controls.Add(lblBadge);
-            panel.Controls.Add(lblDetails);
-            panel.Controls.Add(lblMetrics);
-            panel.Controls.Add(btnMute);
-            panel.Controls.Add(btnKick);
-
-            return panel;
-        }
-
-        private void RefreshSessionCardData(ViewerSession session)
-        {
-            if (_sessionCardPanels.TryGetValue(session.Id, out var panel))
-            {
-                if (panel.InvokeRequired)
-                {
-                    try { panel.BeginInvoke(() => RefreshSessionCardData(session)); } catch { }
-                    return;
-                }
-
-                foreach (Control ctrl in panel.Controls)
-                {
-                    if (ctrl.Name == "lblClientBadge")
-                    {
-                        ctrl.Text = session.ViewMode;
-                    }
-                    else if (ctrl.Name == "lblClientMetrics")
-                    {
-                        ctrl.Text = $"RTT: {(session.RttMs > 0 ? $"{session.RttMs:0} ms" : "<1 ms")} • Up: {session.FormattedUptime}";
-                    }
-                    else if (ctrl.Name.StartsWith("btnMute"))
-                    {
-                        ctrl.Text = session.IsAudioMuted ? "🔇 Unmute" : "🔊 Mute";
-                    }
-                }
-            }
+            lblChipViewers.Text = $"{count} Connected";
         }
 
         private async void btnStartServer_Click(object? sender, EventArgs e)
