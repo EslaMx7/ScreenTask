@@ -275,10 +275,15 @@ namespace ScreenTask.Core.Audio
         public void Dispose()
         {
             Stop();
-            _testPlayer?.Dispose();
+            var player = _testPlayer;
             _testPlayer = null;
-            _recorder?.Dispose();
-            _recorder = null;
+            if (player != null)
+            {
+                Task.Run(() =>
+                {
+                    try { player.Dispose(); } catch { }
+                });
+            }
         }
     }
 }

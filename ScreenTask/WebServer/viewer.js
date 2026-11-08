@@ -8,6 +8,7 @@
   const fpsDisplay = document.getElementById('fpsValue');
   const resolutionDisplay = document.getElementById('resValue');
   const latencyDisplay = document.getElementById('latencyValue');
+  const btnScreenshot = document.getElementById('btnScreenshot');
   const btnFullscreen = document.getElementById('btnFullscreen');
   const btnAudio = document.getElementById('btnAudio');
   const audioSlider = document.getElementById('audioSlider');
@@ -384,6 +385,9 @@
           const msg = JSON.parse(event.data);
           if (msg.type === 'pong' && typeof msg.t === 'number') {
             currentRtt = Math.max(1, Math.round(performance.now() - msg.t));
+            if (latencyDisplay) {
+              latencyDisplay.textContent = `${currentRtt} ms`;
+            }
             sendTelemetry();
           }
         } catch (e) {}
@@ -634,6 +638,7 @@
 
   window.addEventListener('mousemove', showToolbar, { passive: true });
   window.addEventListener('touchstart', showToolbar, { passive: true });
+  window.addEventListener('keydown', showToolbar, { passive: true });
   toolbar?.addEventListener('mouseenter', () => clearTimeout(toolbarHideTimeout));
   toolbar?.addEventListener('mouseleave', resetToolbarHideTimer);
 
@@ -888,6 +893,86 @@
   }
 
   setInterval(pollStatus, 3000);
+
+  // One-click Screenshot Capture
+  function takeScreenshot() {
+    if (!canvas || canvas.width === 0 || canvas.height === 0) {
+      showToast('⚠️ No video frame to capture');
+      return;
+    }
+    try {
+      const now = new Date();
+      const pad = (n) => String(n).padStart(2, '0');
+      const timestamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+      const filename = `screentask-${timestamp}.png`;
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          showToast('⚠️ Failed to export screenshot');
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        showToast(`📸 Screenshot saved: ${filename}`);
+      }, 'image/png');
+    } catch (e) {
+      showToast('⚠️ Screenshot error: ' + (e.message || 'unknown'));
+    }
+  }
+
+  btnScreenshot?.addEventListener('click', takeScreenshot);
+
+  // Keyboard Shortcuts (F = Fullscreen, M = Mute, 0/Esc = Zoom Reset, +/- = Zoom, S = Screenshot)
+  window.addEventListener('keydown', (e) => {
+    const activeEl = document.activeElement;
+    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+      return;
+    }
+
+    if (e.key === 'f' || e.key === 'F') {
+      e.preventDefault();
+      toggleFullscreen();
+    } else if (e.key === 'm' || e.key === 'M') {
+      e.preventDefault();
+      initAudio();
+      isAudioMuted = !isAudioMuted;
+      updateAudioBtn();
+      if (!isAudioMuted && audioBanner) audioBanner.style.display = 'none';
+      showToast(isAudioMuted ? "🔇 Audio Muted" : "🔊 Audio Unmuted");
+    } else if (e.key === 's' || e.key === 'S') {
+      e.preventDefault();
+      takeScreenshot();
+    } else if (e.key === '0' || e.key === 'Escape') {
+      if (scale > 1) {
+        e.preventDefault();
+        scale = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform();
+        showToast("🔍 Zoom Reset (100%)");
+      }
+    } else if (e.key === '+' || e.key === '=') {
+      e.preventDefault();
+      scale = Math.min(5, scale + 0.25);
+      applyTransform();
+      showToast(`🔍 Zoom ${Math.round(scale * 100)}%`);
+    } else if (e.key === '-' || e.key === '_') {
+      e.preventDefault();
+      scale = Math.max(1, scale - 0.25);
+      if (scale === 1) {
+        panX = 0;
+        panY = 0;
+      }
+      applyTransform();
+      showToast(`🔍 Zoom ${Math.round(scale * 100)}%`);
+    }
+  });
 
   btnSubmitPin?.addEventListener('click', submitPin);
   pinInput?.addEventListener('keydown', (e) => {

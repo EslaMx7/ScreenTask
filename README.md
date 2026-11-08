@@ -22,7 +22,6 @@ ScreenTask 2.0 is a ground-up modernization of the original 2015 utility:
 * 🪟 **Window & Application Sharing**: Share individual open applications (e.g. Visual Studio Code, PowerPoint, browser tabs) instead of exposing your entire desktop.
 * 📱 **Instant QR Code Pairing**: Desktop app generates a crisp vector QR code—point your phone camera at your PC screen to immediately start viewing.
 * 👥 **Connected Viewers & Fleet Management**: Real-time LAN concurrency tracker with capacity gauge, device & browser identification, live RTT ping measurement, active view mode detection (Pinch Zoom, Fullscreen), individual viewer audio mute, disconnect/kick controls, and on-screen broadcast announcements.
-* 🗖 **Compact Floating Mini Bar**: Sleek, non-intrusive 68px floating toolbar with live broadcast indicator, stream time, viewer count, and quick controls.
 * 🧩 **Modular Component Architecture**: Decoupled WinForms `UserControl` views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`, `PreferencesView`) with full Visual Studio Designer support.
 * 💾 **Zero-Disk Architecture**: Video frames and audio chunks are processed entirely in-memory (`ArrayPool<byte>`); zero files are written to SSD/HDD.
 * 🔒 **Lock Screen & Sleep Resilience**: Handles Windows lock screen (`Win + L`) and desktop session switching gracefully without freezing or terminating.

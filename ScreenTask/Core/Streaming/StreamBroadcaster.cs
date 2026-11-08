@@ -302,16 +302,24 @@ namespace ScreenTask.Core.Streaming
         {
             if (bitmap == null) return;
 
-            byte[] jpegBytes;
-            using (var ms = new MemoryStream(64 * 1024))
-            {
-                bitmap.Save(ms, _jpegEncoder, _encoderParams);
-                jpegBytes = ms.ToArray();
-            }
+            using var stream = new PooledBufferWriterStream(64 * 1024);
+            // Reserve byte 0 for video packet header (0x01)
+            stream.Position = 1;
+            bitmap.Save(stream, _jpegEncoder, _encoderParams);
 
+            int totalLength = (int)stream.Length;
+            int jpegLength = totalLength - 1;
+            if (jpegLength <= 0) return;
+
+            // Stamp 0x01 video frame type at byte 0
+            stream.Buffer[0] = 0x01;
+
+            // Cache snapshot for REST endpoint /api/status or /preview
+            var snapshot = new byte[jpegLength];
+            Buffer.BlockCopy(stream.Buffer, 1, snapshot, 0, jpegLength);
             lock (_snapshotLock)
             {
-                _latestJpegSnapshot = jpegBytes;
+                _latestJpegSnapshot = snapshot;
             }
 
             Interlocked.Increment(ref _frameCounter);
@@ -328,19 +336,15 @@ namespace ScreenTask.Core.Streaming
 
             if (_videoClients.IsEmpty) return;
 
-            // Construct binary packet: [0x01 (Video), ...jpeg bytes]
-            var packet = new byte[jpegBytes.Length + 1];
-            packet[0] = 0x01; // Video frame type
-            Buffer.BlockCopy(jpegBytes, 0, packet, 1, jpegBytes.Length);
-
-            Interlocked.Add(ref _totalBytesTransferred, packet.Length * _videoClients.Count);
+            var packetSegment = new ArraySegment<byte>(stream.Buffer, 0, totalLength);
+            Interlocked.Add(ref _totalBytesTransferred, (long)totalLength * _videoClients.Count);
 
             // Broadcast concurrently to all connected video clients
             var sendTasks = new Task[_videoClients.Count];
             int i = 0;
             foreach (var kvp in _videoClients)
             {
-                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packet, isAudio: false);
+                sendTasks[i++] = SendToClientAsync(kvp.Key, kvp.Value.Socket, kvp.Value.Lock, packetSegment, isAudio: false);
             }
 
             await Task.WhenAll(sendTasks);
@@ -404,7 +408,7 @@ namespace ScreenTask.Core.Streaming
             await Task.WhenAll(sendTasks);
         }
 
-        private async Task SendToClientAsync(string clientId, WebSocket socket, SemaphoreSlim clientLock, byte[] data, bool isAudio)
+        private async Task SendToClientAsync(string clientId, WebSocket socket, SemaphoreSlim clientLock, ArraySegment<byte> data, bool isAudio)
         {
             if (socket.State != WebSocketState.Open)
             {
@@ -432,7 +436,7 @@ namespace ScreenTask.Core.Streaming
 
             try
             {
-                await socket.SendAsync(new ArraySegment<byte>(data), WebSocketMessageType.Binary, true, CancellationToken.None);
+                await socket.SendAsync(data, WebSocketMessageType.Binary, true, CancellationToken.None);
             }
             catch (Exception)
             {
@@ -444,6 +448,9 @@ namespace ScreenTask.Core.Streaming
                 clientLock.Release();
             }
         }
+
+        private Task SendToClientAsync(string clientId, WebSocket socket, SemaphoreSlim clientLock, byte[] data, bool isAudio)
+            => SendToClientAsync(clientId, socket, clientLock, new ArraySegment<byte>(data), isAudio);
 
         private static ImageCodecInfo? GetEncoder(ImageFormat format)
         {

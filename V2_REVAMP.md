@@ -129,12 +129,6 @@ The desktop user interface was completely redesigned from the ground up to achie
 * **Startup & Window Preferences**: Options to auto-start broadcast on launch, launch minimized to tray, and minimize to tray upon closing.
 * **Activity & Connection Log**: Real-time event feed tracking connections, disconnections, device changes, and errors, with `Clear Log` and `📋 Copy Log`.
 
-### Compact Floating Mini Bar
-When toggled via `🗖 Mini Bar` or when double-clicking headers, the window shrinks to a sleek, non-intrusive 68px floating overlay:
-* Keeps the exact window width to prevent horizontal visual jumps.
-* Displays live broadcast indicator, active framerate, viewer count, stream time, and stream URL.
-* Quick-action buttons: `📋 Copy Link`, `Stop` / `Start`, and `🗖 Full View` to restore the full application view.
-
 ---
 
 ## 5. User-Friendly Terminology Harmonization
@@ -200,7 +194,7 @@ ScreenTask.Tests/
 │       ├── PIN security validation, 401/403 rejection & PolicyViolation disconnect
 │       └── Node.js static syntax validation of viewer.js
 └── UI/
-    ├── MainFormUiTests.cs            # Form sizing, control lookup, compact mode, tabs
+    ├── MainFormUiTests.cs            # Form sizing, control lookup, navigation tabs
     └── AudioDiagnosticsFormUiTests.cs # Audio dialog controls, timers, device list
 ```
 
@@ -226,7 +220,6 @@ ScreenTask.Tests/
 | **Zero-Disk In-Memory Compression** | ✅ Completed | Replaced physical JPEG file writing with `ArrayPool<byte>` memory buffers. |
 | **Display & Window Capture** | ✅ Completed | GDI32 `BitBlt` for screens and User32 `PrintWindow` for windows. |
 | **Vertical Side Navigation** | ✅ Completed | Native vertical sidebar with branding, active indicators, and 5 tab groups. |
-| **Standalone Mini Bar Form** | ✅ Completed | Dedicated top-level floating toolbar form with drag support and full view restore. |
 | **Native Windows Theming** | ✅ Completed | Replaced custom colors with native system colors and solid borders. |
 | **Native Control Standardization** | ✅ Completed | Removed redundant Fluent wrapper controls; standardized on native WinForms controls. |
 | **Terminology Harmonization**| ✅ Completed | Removed developer jargon across all controls, forms, dialogs, and tooltips. |
@@ -247,7 +240,6 @@ ScreenTask.Tests/
   * `CaptureSettingsView.cs` & `.Designer.cs` - Video source selection, audio devices, framerate, and quality.
   * `NetworkSettingsView.cs` & `.Designer.cs` - Network adapter enumeration, port binding, and PIN session security.
   * `PreferencesView.cs` & `.Designer.cs` - Startup preferences, tray minimization, and activity log.
-* `ScreenTask/UI/MiniBarForm.cs` & `.Designer.cs` - Standalone floating compact bar form with dragging support.
 * `ScreenTask/UI/Controls/MonitorPreviewControl.cs` & `.Designer.cs` - Composite UserControl confidence monitor (native PictureBox + Labels with zero custom GDI+ drawing).
 * `ScreenTask/UI/QrCodeForm.cs` - Secondary dialog for instant smartphone pairing via QR code camera scan.
 * `ScreenTask/UI/AudioDiagnosticsForm.cs` - Secondary dialog for microphone testing and device diagnostics.

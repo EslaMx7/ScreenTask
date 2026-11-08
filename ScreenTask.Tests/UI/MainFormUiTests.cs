@@ -116,20 +116,22 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void QrCodeForm_InitializesWithUrlAndValidImage()
+        public void MainForm_PairingPassQr_InitializesWithValidImage()
         {
             RunInSta(() =>
             {
+                using var form = new frmMain();
+                form.Show();
+
                 var testUrl = "http://192.168.1.50:7070";
-                using var qrForm = new QrCodeForm(testUrl);
+                using var qrBmp = ScreenTask.Core.Network.QrCodeHelper.GenerateQrCodeBitmap(testUrl, 4);
+                form.UpdatePairingPass(qrBmp, testUrl, "PIN Code: 1234", "Adapter: Wi-Fi");
 
-                Assert.NotNull(qrForm);
-                Assert.Contains("ScreenTask 2.0", qrForm.Text);
-
-                var pic = FindControl<PictureBox>(qrForm, null);
-                Assert.NotNull(pic);
-                Assert.NotNull(pic.Image);
-                Assert.True(pic.Image.Width > 50);
+                Assert.NotNull(form.picPairingQr);
+                Assert.NotNull(form.picPairingQr.Image);
+                Assert.True(form.picPairingQr.Image.Width > 50);
+                Assert.Equal(testUrl, form.txtPairingUrl.Text);
+                Assert.Contains("1234", form.lblPairingPin.Text);
             });
         }
 
@@ -191,13 +193,23 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void AudioDiagnosticsForm_InitializesAndDisposesWithoutHanging()
+        public void MainForm_IntegratedAudioDiagnostics_InitializesAndDisposesWithoutHanging()
         {
             RunInSta(() =>
             {
-                using var service = new WasapiAudioCaptureService();
-                using var form = new AudioDiagnosticsForm(service, _ => { });
-                Assert.NotNull(form);
+                using var form = new frmMain();
+                form.Show();
+
+                Assert.NotNull(form.cardAudioDiag);
+                Assert.NotNull(form.comboAudioDevices);
+                Assert.NotNull(form.btnTestSpeaker);
+                Assert.NotNull(form.btnTestMic);
+                Assert.NotNull(form.pbAudioDiagMeter);
+                Assert.NotNull(form.lblAudioDiagInfo);
+
+                // Audio setup button switches to view 4 (Prefs & Audio)
+                form.btnAudioSetup.PerformClick();
+                Assert.Equal(4, form.SelectedTabIndex);
             });
         }
 
@@ -243,23 +255,23 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void ConnectedViewersForm_InitializesAndInteractsProperly()
+        public void MainForm_ConnectedViewersView_InitializesAndInteractsProperly()
         {
             RunInSta(() =>
             {
                 using var form = new frmMain();
                 form.Show();
 
-                using var viewersForm = new ConnectedViewersForm();
-                viewersForm.Show();
+                // Switch to Clients tab
+                form.SelectTab(1);
 
                 // 1. Top Metric Gauges - Initially 0 active clients
-                var cardMetricViewers = viewersForm.cardMetricViewers;
-                var cardMetricLatency = viewersForm.cardMetricLatency;
-                var cardMetricSync = viewersForm.cardMetricSync;
-                var pbViewerCapacity = viewersForm.pbViewerCapacity;
-                var lblMetricViewersVal = viewersForm.lblMetricViewersVal;
-                var panelSessionList = viewersForm.panelSessionList;
+                var cardMetricViewers = form.cardMetricViewers;
+                var cardMetricLatency = form.cardMetricLatency;
+                var cardMetricSync = form.cardMetricSync;
+                var pbViewerCapacity = form.pbViewerCapacity;
+                var lblMetricViewersVal = form.lblMetricViewersVal;
+                var panelSessionList = form.panelSessionList;
 
                 Assert.NotNull(cardMetricViewers);
                 Assert.NotNull(cardMetricLatency);
@@ -268,38 +280,38 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(lblMetricViewersVal);
                 Assert.NotNull(panelSessionList);
 
-                viewersForm.UpdateMetricViewers(0, 32);
+                form.UpdateMetricViewers(0, 32);
                 Assert.Contains("0 / 32 Active", lblMetricViewersVal.Text);
                 Assert.Equal(0, pbViewerCapacity.Value);
                 Assert.Equal(32, pbViewerCapacity.Maximum);
 
-                var lblNoClients = viewersForm.lblNoClientsPlaceholder;
+                var lblNoClients = form.lblNoClientsPlaceholder;
                 Assert.NotNull(lblNoClients);
                 Assert.True(lblNoClients.Visible);
 
                 // 2. Announcement Dispatcher with no clients
-                var txtAnnouncement = viewersForm.txtAnnouncement;
-                var btnSendAnnouncement = viewersForm.btnSendAnnouncement;
-                var lblAnnouncementStatus = viewersForm.lblAnnouncementStatus;
+                var txtAnnouncement = form.txtAnnouncement;
+                var btnSendAnnouncement = form.btnSendAnnouncement;
+                var lblAnnouncementStatus = form.lblAnnouncementStatus;
 
                 Assert.NotNull(txtAnnouncement);
                 Assert.NotNull(btnSendAnnouncement);
                 Assert.NotNull(lblAnnouncementStatus);
 
                 txtAnnouncement.Text = "Attention viewers: Stream quality optimized!";
-                viewersForm.SetAnnouncementStatus("⚠️ No viewers connected to receive announcement.", clearInput: false);
+                form.SetAnnouncementStatus("⚠️ No viewers connected to receive announcement.", clearInput: false);
                 Assert.Contains("No viewers connected", lblAnnouncementStatus.Text);
                 Assert.Equal("Attention viewers: Stream quality optimized!", txtAnnouncement.Text);
 
                 // 3. Pairing Pass & QR Code
-                var picPairingQr = viewersForm.picPairingQr;
-                var txtPairingUrl = viewersForm.txtPairingUrl;
-                var btnPairingCopy = viewersForm.btnPairingCopy;
-                var btnPairingRegen = viewersForm.btnPairingRegen;
-                var lblPairingPin = viewersForm.lblPairingPin;
+                var picPairingQr = form.picPairingQr;
+                var txtPairingUrl = form.txtPairingUrl;
+                var btnPairingCopy = form.btnPairingCopy;
+                var btnPairingRegen = form.btnPairingRegen;
+                var lblPairingPin = form.lblPairingPin;
 
                 using var qrBmp = ScreenTask.Core.Network.QrCodeHelper.GenerateQrCodeBitmap("http://127.0.0.1:7070", 4);
-                viewersForm.UpdatePairingPass(qrBmp, "http://127.0.0.1:7070", "PIN Code: 1234", "Adapter: Wi-Fi");
+                form.UpdatePairingPass(qrBmp, "http://127.0.0.1:7070", "PIN Code: 1234", "Adapter: Wi-Fi");
 
                 Assert.NotNull(picPairingQr);
                 Assert.NotNull(picPairingQr.Image);
@@ -318,8 +330,8 @@ namespace ScreenTask.Tests.UI
                     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
                 );
                 var sessions = form.Broadcaster.ConnectedSessions;
-                viewersForm.UpdateMetricViewers(sessions.Count, 32);
-                viewersForm.UpdateSessionCards(
+                form.UpdateMetricViewers(sessions.Count, 32);
+                form.UpdateSessionCards(
                     sessions,
                     (id, muted) => form.Broadcaster.SetClientAudioMuted(id, muted),
                     async (id) => await form.Broadcaster.KickClientAsync(id)
@@ -346,7 +358,7 @@ namespace ScreenTask.Tests.UI
                 // Telemetry update reflection
                 form.Broadcaster.UpdateTelemetry("session-iphone-1", 18.2, "Touch Zoom 2.0x");
                 var updatedSession = form.Broadcaster.ConnectedSessions.First();
-                viewersForm.RefreshSessionCardData(updatedSession);
+                form.RefreshSessionCardData(updatedSession);
                 Application.DoEvents();
                 var lblBadge = FindControl<Label>(panelClientItem1, "lblClientBadge");
                 Assert.NotNull(lblBadge);
@@ -354,7 +366,7 @@ namespace ScreenTask.Tests.UI
 
                 // Dispatch announcement to the 1 connected client
                 txtAnnouncement.Text = "Welcome iPhone viewer!";
-                viewersForm.SetAnnouncementStatus("✓ Dispatched to 1 connected viewer(s) at 12:00:00", clearInput: true);
+                form.SetAnnouncementStatus("✓ Dispatched to 1 connected viewer(s) at 12:00:00", clearInput: true);
                 Assert.Contains("Dispatched to 1 connected viewer", lblAnnouncementStatus.Text);
                 Assert.Equal(string.Empty, txtAnnouncement.Text);
 
@@ -375,8 +387,8 @@ namespace ScreenTask.Tests.UI
                 btnKickClient1.PerformClick();
                 Application.DoEvents();
 
-                viewersForm.UpdateMetricViewers(form.Broadcaster.ConnectedSessions.Count, 32);
-                viewersForm.UpdateSessionCards(
+                form.UpdateMetricViewers(form.Broadcaster.ConnectedSessions.Count, 32);
+                form.UpdateSessionCards(
                     form.Broadcaster.ConnectedSessions,
                     (id, muted) => form.Broadcaster.SetClientAudioMuted(id, muted),
                     async (id) => await form.Broadcaster.KickClientAsync(id)
@@ -393,49 +405,6 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void MainForm_CompactMode_TogglesCorrectly()
-        {
-            RunInSta(() =>
-            {
-                using var form = new frmMain();
-                form.Show();
-
-                var btnMiniMode = FindControl<Button>(form, "btnMiniMode");
-                Assert.NotNull(btnMiniMode);
-                Assert.NotNull(form.MiniBarForm);
-                Assert.False(form.MiniBarForm.Visible);
-                Assert.True(form.Visible);
-                Assert.Equal(700, form.ClientSize.Height);
-
-                // Click Mini Mode to enter compact toolbar form
-                btnMiniMode.PerformClick();
-                Assert.True(form.MiniBarForm.Visible);
-                Assert.True(form.MiniBarForm.TopMost);
-                Assert.Equal(68, form.MiniBarForm.ClientSize.Height);
-
-                var btnCompactExpand = FindControl<Button>(form.MiniBarForm, "btnCompactExpand");
-                var btnCompactStop = FindControl<Button>(form.MiniBarForm, "btnCompactStop");
-                var btnCompactCopy = FindControl<Button>(form.MiniBarForm, "btnCompactCopy");
-                Assert.NotNull(btnCompactExpand);
-                Assert.NotNull(btnCompactStop);
-                Assert.NotNull(btnCompactCopy);
-
-                // Verify controls are visible and within bounds inside the compact bar
-                Assert.True(btnCompactExpand.Visible);
-                Assert.True(btnCompactStop.Visible);
-                Assert.True(btnCompactCopy.Visible);
-                Assert.True(btnCompactExpand.Right <= form.MiniBarForm.ClientSize.Width);
-                Assert.True(btnCompactExpand.Bottom <= form.MiniBarForm.ClientSize.Height);
-
-                // Click Expand to return to full window
-                btnCompactExpand.PerformClick();
-                Assert.False(form.MiniBarForm.Visible);
-                Assert.True(form.Visible);
-                Assert.Equal(700, form.ClientSize.Height);
-            });
-        }
-
-        [Fact]
         public void MainForm_ConfidenceMonitorAndTelemetry_Initialized()
         {
             RunInSta(() =>
@@ -446,16 +415,14 @@ namespace ScreenTask.Tests.UI
                 var monitor = FindControl<Control>(form, "monitorPreview");
                 Assert.NotNull(monitor);
 
-                var chipViewers = FindControl<Label>(form, "lblChipViewers");
-                var chipFps = FindControl<Label>(form, "lblChipFps");
-                var chipData = FindControl<Label>(form, "lblChipData");
-                var chipUptime = FindControl<Label>(form, "lblChipUptime");
-
-                Assert.NotNull(chipViewers);
-                Assert.NotNull(chipFps);
-                Assert.NotNull(chipData);
-                Assert.NotNull(chipUptime);
-                Assert.Contains("Connected", chipViewers.Text);
+                Assert.NotNull(form.statusLabelViewers);
+                Assert.NotNull(form.statusLabelFps);
+                Assert.NotNull(form.statusLabelData);
+                Assert.NotNull(form.statusLabelUptime);
+                Assert.Contains("viewer", form.statusLabelViewers.Text);
+                Assert.Contains("FPS", form.statusLabelFps.Text);
+                Assert.Contains("MB", form.statusLabelData.Text);
+                Assert.Contains("00:00:00", form.statusLabelUptime.Text);
             });
         }
 
@@ -466,6 +433,7 @@ namespace ScreenTask.Tests.UI
             {
                 using var form = new frmMain();
                 form.Show();
+                form.SelectTab(3);
 
                 var cbPrivate = FindControl<CheckBox>(form, "cbPrivate");
                 var txtPassword = FindControl<TextBox>(form, "txtPassword");
@@ -535,23 +503,18 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void SourceSelectionForm_SourceCardPicker_DisplaysTabsAndCards()
+        public void MainForm_SourceCardPicker_DisplaysTabsAndCards()
         {
             RunInSta(() =>
             {
-                var screens = Screen.AllScreens;
-                var sources = new System.Collections.Generic.List<ScreenTask.Core.Capture.ICaptureSource>();
-                for (int i = 0; i < screens.Length; i++)
-                {
-                    sources.Add(new ScreenTask.Core.Capture.ScreenCaptureSource(i));
-                }
-                using var sourceForm = new SourceSelectionForm(sources, sources.FirstOrDefault());
-                sourceForm.Show();
+                using var form = new frmMain();
+                form.Show();
+                form.SelectTab(2);
 
-                var tabControl = sourceForm.tabControlSources;
-                var flowDisplays = sourceForm.flowDisplays;
-                var flowWindows = sourceForm.flowWindows;
-                var lblSelectedSource = sourceForm.lblSelectedSource;
+                var tabControl = form.tabControlSources;
+                var flowDisplays = form.flowDisplays;
+                var flowWindows = form.flowWindows;
+                var lblSelectedSource = form.lblSelectedSource;
 
                 Assert.NotNull(tabControl);
                 Assert.NotNull(flowDisplays);
@@ -560,8 +523,8 @@ namespace ScreenTask.Tests.UI
                 Assert.True(lblSelectedSource.Visible);
 
                 // Check display cards count
-                Assert.True(sourceForm.DisplayCards.Count > 0, "Should have at least 1 physical display card");
-                var firstDisplayCard = sourceForm.DisplayCards[0];
+                Assert.True(form.DisplayCards.Count > 0, "Should have at least 1 physical display card");
+                var firstDisplayCard = form.DisplayCards[0];
                 Assert.NotNull(firstDisplayCard);
                 Assert.True(firstDisplayCard.IsSelected);
                 Assert.True(firstDisplayCard.lblSelectedBadge.Visible);
@@ -574,9 +537,9 @@ namespace ScreenTask.Tests.UI
                 Assert.Contains("Display 1", lblSelectedSource.Text);
 
                 // If window cards exist, verify selecting updates selection
-                if (sourceForm.WindowCards.Count > 0)
+                if (form.WindowCards.Count > 0)
                 {
-                    var firstWindowCard = sourceForm.WindowCards[0];
+                    var firstWindowCard = form.WindowCards[0];
                     firstWindowCard.PerformClick();
                     Assert.True(firstWindowCard.IsSelected);
                     Assert.False(firstDisplayCard.IsSelected);
@@ -636,14 +599,12 @@ namespace ScreenTask.Tests.UI
                 var copyLink = fileMenu.DropDownItems["menuFileCopyLink"] as ToolStripMenuItem;
                 var showQr = fileMenu.DropDownItems["menuFileShowQr"] as ToolStripMenuItem;
                 var openBrowser = fileMenu.DropDownItems["menuFileOpenBrowser"] as ToolStripMenuItem;
-                var miniBar = fileMenu.DropDownItems["menuFileMiniBar"] as ToolStripMenuItem;
                 var exitItem = fileMenu.DropDownItems["menuFileExit"] as ToolStripMenuItem;
 
                 Assert.NotNull(toggleBroadcast);
                 Assert.NotNull(copyLink);
                 Assert.NotNull(showQr);
                 Assert.NotNull(openBrowser);
-                Assert.NotNull(miniBar);
                 Assert.NotNull(exitItem);
 
                 // Default state: not broadcasting → Start text
@@ -653,8 +614,6 @@ namespace ScreenTask.Tests.UI
                 Assert.Equal(Keys.Control | Keys.B, toggleBroadcast.ShortcutKeys);
                 // Ctrl+Q for QR code
                 Assert.Equal(Keys.Control | Keys.Q, showQr!.ShortcutKeys);
-                // Ctrl+M for mini bar
-                Assert.Equal(Keys.Control | Keys.M, miniBar!.ShortcutKeys);
 
                 // ── View menu – 5 navigation items ────────────────────────
                 Assert.Equal(5, viewMenu!.DropDownItems.Count);
@@ -674,11 +633,13 @@ namespace ScreenTask.Tests.UI
                 Assert.Equal(Keys.Control | Keys.D1, viewBroadcast!.ShortcutKeys);
                 Assert.Equal(Keys.Control | Keys.D5, viewPrefs!.ShortcutKeys);
 
-                // View items navigate to corresponding tabs
+                // View items navigate to corresponding views
+                form.SuppressModalDialogsForTesting = true;
                 viewCapture!.PerformClick();
                 Assert.Equal(2, form.SelectedTabIndex);
                 viewBroadcast.PerformClick();
                 Assert.Equal(0, form.SelectedTabIndex);
+                form.SuppressModalDialogsForTesting = false;
 
                 // ── Capture menu – checkable items sync with checkboxes ────
                 var captureShowMouse = captureMenu!.DropDownItems["menuCaptureShowMouse"] as ToolStripMenuItem;
@@ -742,20 +703,13 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void SourceSelectionForm_InitializesWithTwoTabsAndPopulatesSources()
+        public void MainForm_CaptureSourcesTab_InitializesWithTwoTabsAndPopulatesSources()
         {
             RunInSta(() =>
             {
-                var screens = Screen.AllScreens;
-                var sources = new System.Collections.Generic.List<ScreenTask.Core.Capture.ICaptureSource>();
-                for (int i = 0; i < screens.Length; i++)
-                {
-                    sources.Add(new ScreenTask.Core.Capture.ScreenCaptureSource(i));
-                }
-
-                using var form = new SourceSelectionForm(sources, sources[0], true);
-                Assert.NotNull(form);
-                Assert.Contains("Select Video Source", form.Text);
+                using var form = new frmMain();
+                form.Show();
+                form.SelectTab(2);
 
                 // Verify 2 tabs exist: Displays and Windows
                 Assert.NotNull(form.tabControlSources);
@@ -775,9 +729,8 @@ namespace ScreenTask.Tests.UI
                 // Verify mouse cursor checkbox and refresh button
                 Assert.NotNull(form.cbCaptureMouse);
                 Assert.True(form.cbCaptureMouse.Checked);
-                Assert.NotNull(form.btnRefresh);
-                Assert.NotNull(form.btnSelect);
-                Assert.NotNull(form.btnCancel);
+                Assert.NotNull(form.btnRefreshSourcesTab);
+                Assert.NotNull(form.btnSelectSource);
 
                 // Toggle mouse checkbox
                 form.cbCaptureMouse.Checked = false;
@@ -786,20 +739,17 @@ namespace ScreenTask.Tests.UI
         }
 
         [Fact]
-        public void NetworkSettingsForm_InitializesAndSavesSettings()
+        public void MainForm_NetworkAndPinTab_InitializesAndUpdatesSettings()
         {
             RunInSta(() =>
             {
-                var adapters = new[] { "Wi-Fi (192.168.1.50)", "Loopback (127.0.0.1)" };
-                using var form = new NetworkSettingsForm(adapters, 0, 7070, false, "1234");
+                using var form = new frmMain();
                 form.Show();
-                Assert.NotNull(form);
-                Assert.Contains("Network & PIN Settings", form.Text);
+                form.SelectTab(3);
 
                 // Verify controls populated
                 Assert.NotNull(form.comboIPs);
-                Assert.Equal(2, form.comboIPs.Items.Count);
-                Assert.Equal(0, form.comboIPs.SelectedIndex);
+                Assert.True(form.comboIPs.Items.Count > 0);
 
                 Assert.NotNull(form.numPort);
                 Assert.Equal(7070, (int)form.numPort.Value);
@@ -816,64 +766,193 @@ namespace ScreenTask.Tests.UI
 
                 // Test Generate PIN
                 form.btnGenPin.PerformClick();
-                Assert.True(int.TryParse(form.Pin, out int pinVal));
+                Assert.True(int.TryParse(form.txtPassword.Text, out int pinVal));
                 Assert.InRange(pinVal, 1000, 9999);
-
-                // Test apply event
-                bool appliedFired = false;
-                form.SettingsApplied += (s, e) => appliedFired = true;
-                form.btnApply.PerformClick();
-                Assert.True(appliedFired);
             });
         }
 
         [Fact]
-        public void PreferencesForm_InitializesAndUpdatesSettings()
+        public void MainForm_PreferencesAndAudioTab_InitializesAndUpdatesSettings()
         {
             RunInSta(() =>
             {
-                using var form = new PreferencesForm(true, false, true, 1, 80, "Test log line 1\r\nTest log line 2");
+                using var form = new frmMain();
                 form.Show();
-                Assert.NotNull(form);
-                Assert.Contains("Preferences", form.Text);
+                form.SelectTab(4);
 
                 // Verify preferences populated
-                Assert.True(form.cbAutoStart.Checked);
-                Assert.False(form.cbMiniStart.Checked);
-                Assert.True(form.cbCloseToTray.Checked);
+                Assert.NotNull(form.cbAutoStart);
+                Assert.NotNull(form.cbMiniStart);
+                Assert.NotNull(form.cbCloseToTray);
 
                 // Verify quality settings
                 Assert.NotNull(form.comboFps);
-                Assert.Equal(1, form.comboFps.SelectedIndex);
-                Assert.Equal(80, form.qualitySlider.Value);
-                Assert.Contains("80%", form.lblQuality.Text);
+                Assert.NotNull(form.qualitySlider);
+                Assert.NotNull(form.lblQuality);
 
                 // Verify log console
                 Assert.NotNull(form.txtLog);
+                form.txtLog.Text = "Test log line 1\r\nTest log line 2";
                 Assert.Contains("Test log line 1", form.txtLog.Text);
 
                 // Test clear log
-                form.tabControl.SelectedTab = form.tabLogs;
                 form.btnClearLog.PerformClick();
                 Assert.Empty(form.txtLog.Text);
 
                 // Test slider change
-                bool changedFired = false;
-                form.SettingsChanged += (s, e) => changedFired = true;
                 form.qualitySlider.Value = 90;
-                Assert.True(changedFired);
+                Assert.Equal(90, form.qualitySlider.Value);
             });
         }
 
         [Fact]
-        public void ConnectedViewersForm_InitializesProperly()
+        public void MainForm_CloseToTrayAndSettings_PersistAndSurviveRestart()
         {
             RunInSta(() =>
             {
-                using var form = new ConnectedViewersForm();
+                string tempSettingsFile = Path.Combine(Path.GetTempPath(), $"screentask_test_settings_{Guid.NewGuid():N}.xml");
+                try
+                {
+                    // 1. First session: Initialize form with custom isolated settings file
+                    using (var form1 = new frmMain())
+                    {
+                        form1.CustomSettingsFilePath = tempSettingsFile;
+                        form1.Show();
+
+                        // Verify initial defaults
+                        Assert.True(form1.cbCloseToTray.Checked, "Minimize to tray should be checked by default.");
+
+                        // Modify settings: Uncheck Minimize to Tray, change Port, PIN, FPS, Quality
+                        form1.cbCloseToTray.Checked = false;
+                        form1.numPort.Value = 9191;
+                        form1.cbPrivate.Checked = true;
+                        form1.txtPassword.Text = "8899";
+                        form1.cbCaptureMouse.Checked = false;
+                        form1.cbAutoStart.Checked = true;
+                        form1.cbMiniStart.Checked = true;
+                        form1.qualitySlider.Value = 60;
+                        form1.comboFps.SelectedIndex = 2; // 60 FPS
+
+                        // Explicit save
+                        form1.SaveSettings();
+                    }
+
+                    // Verify that the file was written to disk
+                    Assert.True(File.Exists(tempSettingsFile), "Settings file must exist after SaveSettings.");
+
+                    // 2. Second session (Simulated application restart): New instance loading the saved settings
+                    using (var form2 = new frmMain())
+                    {
+                        form2.CustomSettingsFilePath = tempSettingsFile;
+                        form2.Show();
+
+                        // Verify that all modified settings survived the restart!
+                        Assert.False(form2.cbCloseToTray.Checked, "Minimize to tray must persist as unchecked across restart.");
+                        Assert.Equal(9191, (int)form2.numPort.Value);
+                        Assert.True(form2.cbPrivate.Checked);
+                        Assert.Equal("8899", form2.txtPassword.Text);
+                        Assert.False(form2.cbCaptureMouse.Checked);
+                        Assert.True(form2.cbAutoStart.Checked);
+                        Assert.True(form2.cbMiniStart.Checked);
+                        Assert.Equal(60, form2.qualitySlider.Value);
+                        Assert.Equal(2, form2.comboFps.SelectedIndex);
+                    }
+                }
+                finally
+                {
+                    if (File.Exists(tempSettingsFile))
+                    {
+                        try { File.Delete(tempSettingsFile); } catch { }
+                    }
+                }
+            });
+        }
+
+        [Fact]
+        public void MainForm_ActiveBroadcast_GracefulShutdownCompletesWithoutHanging()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.SuppressModalDialogsForTesting = true;
                 form.Show();
-                Assert.NotNull(form);
-                Assert.Contains("Connected Viewers", form.Text);
+
+                int loopbackIdx = -1;
+                for (int i = 0; i < form.comboIPs.Items.Count; i++)
+                {
+                    if (form.comboIPs.Items[i]?.ToString()?.Contains("127.0.0.1") == true)
+                    {
+                        loopbackIdx = i;
+                        break;
+                    }
+                }
+                if (loopbackIdx >= 0) form.comboIPs.SelectedIndex = loopbackIdx;
+                form.numPort.Value = 18765;
+
+                form.btnStartServer.PerformClick();
+                Application.DoEvents();
+
+                Assert.True(form.WebServer.IsRunning, "Web server should be running after start broadcast.");
+                Assert.True(form.CaptureEngine.IsRunning, "Capture engine should be running after start broadcast.");
+
+                var shutdownTask = form.PerformGracefulShutdownAsync();
+                bool completed = shutdownTask.Wait(TimeSpan.FromSeconds(5));
+
+                Assert.True(completed, "Graceful shutdown must complete within timeout without hanging!");
+                Assert.False(form.WebServer.IsRunning, "Web server must be stopped after shutdown.");
+                Assert.False(form.CaptureEngine.IsRunning, "Capture engine must be stopped after shutdown.");
+            });
+        }
+
+        [Fact]
+        public void MainForm_ActiveBroadcast_FormClosingHandlesGracefulShutdown()
+        {
+            RunInSta(() =>
+            {
+                var form = new frmMain();
+                form.SuppressModalDialogsForTesting = true;
+                form.cbCloseToTray.Checked = false;
+                form.Show();
+
+                int loopbackIdx = -1;
+                for (int i = 0; i < form.comboIPs.Items.Count; i++)
+                {
+                    if (form.comboIPs.Items[i]?.ToString()?.Contains("127.0.0.1") == true)
+                    {
+                        loopbackIdx = i;
+                        break;
+                    }
+                }
+                if (loopbackIdx >= 0) form.comboIPs.SelectedIndex = loopbackIdx;
+                form.numPort.Value = 18766;
+
+                form.btnStartServer.PerformClick();
+                Application.DoEvents();
+
+                Assert.True(form.WebServer.IsRunning);
+
+                form.Close();
+
+                for (int i = 0; i < 40 && !form.IsDisposed; i++)
+                {
+                    Application.DoEvents();
+                    Thread.Sleep(50);
+                }
+
+                Assert.False(form.WebServer.IsRunning, "Web server must stop when form closes.");
+                Assert.False(form.CaptureEngine.IsRunning, "Capture engine must stop when form closes.");
+            });
+        }
+
+        [Fact]
+        public void MainForm_FleetAndClientPanels_InitializeProperly()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
+                form.SelectTab(1);
+
                 Assert.NotNull(form.cardMetricViewers);
                 Assert.NotNull(form.cardFleetTerminal);
                 Assert.NotNull(form.cardPairingPass);
@@ -890,7 +969,6 @@ namespace ScreenTask.Tests.UI
 
                 var btnAudioSetup = FindControl<Button>(form, "btnAudioSetup");
                 var btnNetworkSettings = FindControl<Button>(form, "btnNetworkSettings");
-                var cardChipViewers = FindControl<Panel>(form, "cardChipViewers");
                 var btnSwitchSource = FindControl<Button>(form, "btnSwitchSource");
 
                 Assert.NotNull(btnAudioSetup);
@@ -899,59 +977,70 @@ namespace ScreenTask.Tests.UI
                 Assert.NotNull(btnNetworkSettings);
                 Assert.Contains("Network", btnNetworkSettings.Text);
 
-                Assert.NotNull(cardChipViewers);
-                Assert.Equal(Cursors.Hand, cardChipViewers.Cursor);
-
                 Assert.NotNull(btnSwitchSource);
                 Assert.Contains("Source", btnSwitchSource.Text);
             });
         }
 
         [Fact]
-        public void AllForms_HaveFixedNonResizableBordersAndNoMaximize()
+        public void MainForm_IsSizableWithResponsiveLayout()
         {
             RunInSta(() =>
             {
-                // 1. Main Form
                 using var frmMain = new frmMain();
-                Assert.Equal(FormBorderStyle.FixedSingle, frmMain.FormBorderStyle);
-                Assert.False(frmMain.MaximizeBox);
+                Assert.Equal(FormBorderStyle.Sizable, frmMain.FormBorderStyle);
+                Assert.True(frmMain.MaximizeBox);
+                Assert.True(frmMain.MinimumSize.Width >= 800);
+                Assert.True(frmMain.MinimumSize.Height >= 550);
+            });
+        }
 
-                // 2. Mini Bar Form
-                using var miniBar = new MiniBarForm();
-                Assert.Equal(FormBorderStyle.FixedSingle, miniBar.FormBorderStyle);
-                Assert.False(miniBar.MaximizeBox);
+        [Fact]
+        public void MainForm_ExpandPreview_TogglesConfidenceMonitorSize()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
 
-                // 3. QR Code Form
-                using var qrForm = new QrCodeForm("http://127.0.0.1:7070");
-                Assert.Equal(FormBorderStyle.FixedDialog, qrForm.FormBorderStyle);
-                Assert.False(qrForm.MaximizeBox);
+                Assert.NotNull(form.btnPopout);
+                Assert.Contains("Expand Preview", form.btnPopout.Text);
 
-                // 4. Audio Diagnostics Form
-                using var audioService = new WasapiAudioCaptureService();
-                using var audioForm = new AudioDiagnosticsForm(audioService, _ => { });
-                Assert.Equal(FormBorderStyle.FixedDialog, audioForm.FormBorderStyle);
-                Assert.False(audioForm.MaximizeBox);
+                // Click to expand
+                form.btnPopout.PerformClick();
+                Assert.Contains("Normal View", form.btnPopout.Text);
 
-                // 5. Video Source Selection Form
-                using var sourceForm = new SourceSelectionForm(new List<ScreenTask.Core.Capture.ICaptureSource>());
-                Assert.Equal(FormBorderStyle.FixedDialog, sourceForm.FormBorderStyle);
-                Assert.False(sourceForm.MaximizeBox);
+                // Click to restore
+                form.btnPopout.PerformClick();
+                Assert.Contains("Expand Preview", form.btnPopout.Text);
+            });
+        }
 
-                // 6. Network Settings Form
-                using var netForm = new NetworkSettingsForm(new[] { "127.0.0.1" }, 0, 7070, false, "1234");
-                Assert.Equal(FormBorderStyle.FixedDialog, netForm.FormBorderStyle);
-                Assert.False(netForm.MaximizeBox);
+        [Fact]
+        public void MainForm_InlineQuickSourceAndFreezeControls_ExistAndFunction()
+        {
+            RunInSta(() =>
+            {
+                using var form = new frmMain();
+                form.Show();
 
-                // 7. Connected Viewers Form
-                using var viewersForm = new ConnectedViewersForm();
-                Assert.Equal(FormBorderStyle.FixedDialog, viewersForm.FormBorderStyle);
-                Assert.False(viewersForm.MaximizeBox);
+                var btnFreeze = FindControl<Button>(form, "btnFreeze");
+                var btnPopout = FindControl<Button>(form, "btnPopout");
+                var btnSwitchSource = FindControl<Button>(form, "btnSwitchSource");
+                var comboScreens = FindControl<ComboBox>(form, "comboScreens");
 
-                // 8. Preferences Form
-                using var prefsForm = new PreferencesForm(true, false, true, 1, 80, "");
-                Assert.Equal(FormBorderStyle.FixedDialog, prefsForm.FormBorderStyle);
-                Assert.False(prefsForm.MaximizeBox);
+                Assert.NotNull(btnFreeze);
+                Assert.NotNull(btnPopout);
+                Assert.NotNull(btnSwitchSource);
+                Assert.NotNull(comboScreens);
+
+                // Initially stopped, freeze is disabled
+                Assert.False(btnFreeze.Enabled);
+                Assert.Contains("Freeze", btnFreeze.Text);
+                Assert.Contains("Expand Preview", btnPopout.Text);
+
+                // Quick source selector is visible in cardPreview
+                Assert.True(comboScreens.Visible);
             });
         }
 

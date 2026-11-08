@@ -19,6 +19,11 @@ namespace ScreenTask.Tests.Core
             Assert.False(settings.IsPrivateSession);
             Assert.True(settings.IsShowMouseEnabled);
             Assert.False(settings.IsAudioEnabled);
+            Assert.True(settings.IsCloseToTrayEnabled);
+            Assert.True(settings.IsMinimizeToTrayEnabled);
+            Assert.Equal("", settings.SelectedAudioDeviceId);
+            Assert.False(settings.IsAutoStartServerEnabled);
+            Assert.False(settings.IsStartMinimizedEnabled);
         }
 
         [Fact]
@@ -34,7 +39,11 @@ namespace ScreenTask.Tests.Core
                 PinCode = "secret123",
                 IsShowMouseEnabled = false,
                 IsAudioEnabled = true,
-                SelectedScreenIndex = 1
+                SelectedScreenIndex = 1,
+                IsCloseToTrayEnabled = false,
+                SelectedAudioDeviceId = "audio-dev-loopback-01",
+                IsAutoStartServerEnabled = true,
+                IsStartMinimizedEnabled = true
             };
 
             var serializer = new XmlSerializer(typeof(AppSettings));
@@ -54,6 +63,11 @@ namespace ScreenTask.Tests.Core
             Assert.Equal(original.IsShowMouseEnabled, deserialized.IsShowMouseEnabled);
             Assert.Equal(original.IsAudioEnabled, deserialized.IsAudioEnabled);
             Assert.Equal(original.SelectedScreenIndex, deserialized.SelectedScreenIndex);
+            Assert.False(deserialized.IsCloseToTrayEnabled);
+            Assert.False(deserialized.IsMinimizeToTrayEnabled);
+            Assert.Equal(original.SelectedAudioDeviceId, deserialized.SelectedAudioDeviceId);
+            Assert.True(deserialized.IsAutoStartServerEnabled);
+            Assert.True(deserialized.IsStartMinimizedEnabled);
         }
 
         [Fact]
@@ -65,6 +79,46 @@ namespace ScreenTask.Tests.Core
 
             settings.ScreenshotsSpeed = 33; // 33ms -> 30 FPS
             Assert.Equal(30, settings.TargetFps);
+        }
+
+        [Fact]
+        public void XmlSerialization_BackwardCompatibility_PreservesDefaultsWhenElementsMissing()
+        {
+            string oldXml = """
+                <?xml version="1.0" encoding="utf-8"?>
+                <AppSettings>
+                  <IP>192.168.1.100</IP>
+                  <Port>7070</Port>
+                  <TargetFps>30</TargetFps>
+                  <ImageQuality>80</ImageQuality>
+                </AppSettings>
+                """;
+
+            var serializer = new XmlSerializer(typeof(AppSettings));
+            using var reader = new StringReader(oldXml);
+            var deserialized = (AppSettings)serializer.Deserialize(reader)!;
+
+            Assert.NotNull(deserialized);
+            Assert.Equal("192.168.1.100", deserialized.IP);
+            Assert.True(deserialized.IsCloseToTrayEnabled);
+            Assert.True(deserialized.IsMinimizeToTrayEnabled);
+            Assert.Equal("", deserialized.SelectedAudioDeviceId);
+        }
+
+        [Fact]
+        public void MinimizeToTrayAlias_SynchronizesWithCloseToTray()
+        {
+            var settings = new AppSettings();
+            Assert.True(settings.IsCloseToTrayEnabled);
+            Assert.True(settings.IsMinimizeToTrayEnabled);
+
+            settings.IsMinimizeToTrayEnabled = false;
+            Assert.False(settings.IsCloseToTrayEnabled);
+            Assert.False(settings.IsMinimizeToTrayEnabled);
+
+            settings.IsCloseToTrayEnabled = true;
+            Assert.True(settings.IsCloseToTrayEnabled);
+            Assert.True(settings.IsMinimizeToTrayEnabled);
         }
     }
 }

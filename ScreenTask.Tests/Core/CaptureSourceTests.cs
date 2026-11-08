@@ -44,5 +44,18 @@ namespace ScreenTask.Tests.Core
                 Assert.NotEqual("ScreenTask", win.ProcessName);
             }
         }
+
+        [Fact]
+        public void ScreenCaptureEngine_FreezeToggle_UpdatesStateCorrectly()
+        {
+            using var broadcaster = new ScreenTask.Core.Streaming.StreamBroadcaster(80);
+            using var engine = new ScreenCaptureEngine(broadcaster);
+
+            Assert.False(engine.IsFrozen);
+            engine.IsFrozen = true;
+            Assert.True(engine.IsFrozen);
+            engine.IsFrozen = false;
+            Assert.False(engine.IsFrozen);
+        }
     }
 }

@@ -17,11 +17,9 @@ supporting iOS Safari, Android Chrome, and desktop browsers.
     * `Capture/` - Capture abstraction, Win32 GDI interop, and capture timer engine.
     * `Network/` - Network adapter enumeration, firewall rule helpers, and QR code generation.
     * `Streaming/` - In-memory JPEG encoding, frame-dropping protection, WebSocket broadcaster, and `ViewerSession` fleet telemetry.
-  * `UI/` - Windows Forms views, controls, and dialogs.
-    * `Views/` - Decoupled `UserControl` views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`, `PreferencesView`).
-    * `Controls/` - Custom composite UserControls (`MonitorPreviewControl`, `SourceCardControl`).
-    * `MiniBarForm.cs` - Dedicated floating compact toolbar form.
-    * Dialogs (`QrCodeForm`, `AudioDiagnosticsForm`).
+  * `UI/` - Windows Forms single-window host UI and custom components.
+    * `MonitorPreview.cs` - Native confidence monitor panel with live overlay indicators.
+    * `SourceCard.cs` - Visual source selection card for displays and application windows.
   * `WebServer/` - Embedded ASP.NET Core server, REST endpoints, and static web viewer assets.
 * `ScreenTask.Tests/` - Automated xUnit test suite containing unit, integration, and UI tests.
   * `Core/` - Unit tests for settings, capture clipping, adapters, QR codes, and audio.
@@ -112,8 +110,7 @@ dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contain
 ```mermaid
 flowchart TD
     subgraph Host["Host PC (ScreenTask.exe)"]
-        UI["frmMain (WinForms Host UI)"] -->|Hosts| VIEWS["UserControl Views (Broadcast, Viewers, Capture, Network, Prefs)"]
-        UI <-->|Toggle| MINI["MiniBarForm (Floating Compact Bar)"]
+        UI["frmMain (Single-Window Console UI)"] -->|Embedded Panels| VIEWS["Views (Broadcast, Clients, Sources, Network, Prefs)"]
         VIEWS -->|Configure| ENGINE["ScreenCaptureEngine"]
         VIEWS -->|Configure| AUDIO["WasapiAudioCaptureService"]
         ENGINE -->|Frames| BROADCASTER["StreamBroadcaster"]
@@ -132,10 +129,11 @@ flowchart TD
 ```
 
 ### Component Breakdown & Data Flow
-1. **UserControl Views & MiniBarForm**: UI is broken down into 5 independent WinForms `UserControl`
-   views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`,
-   `PreferencesView`) plus a standalone `MiniBarForm` floating toolbar. This guarantees complete Visual
-   Studio Designer support with zero panel occlusion or designer Z-order fighting.
+1. **Single-Window Console UI (`frmMain`)**: UI is unified into a single Windows Forms
+   console with a side navigation bar and 5 integrated views (`Broadcast`, `Viewers & Fleet`,
+   `Video Sources`, `Network & PIN`, `Preferences & Audio`). All child forms have been retired
+   so that session monitoring, pairing QR codes, source selection, network settings, and audio
+   diagnostics are accessed natively without opening external windows or dialogs.
 2. **ScreenCaptureEngine**: Driven by an asynchronous high-resolution timer loop. Captures frames
    from `ICaptureSource` (`ScreenCaptureSource` or `WindowCaptureSource`) using GDI32 BitBlt or
    PrintWindow, conditionally draws the hardware mouse cursor, and pushes bitmaps to broadcaster.

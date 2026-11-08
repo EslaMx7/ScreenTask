@@ -27,6 +27,27 @@ namespace ScreenTask.Core.Capture
         public WasapiAudioCaptureService AudioService => _audioService;
         public event Action<Bitmap>? PreviewFrameAvailable;
         private long _lastPreviewTicks;
+        private long _lastFrozenBroadcastTicks;
+        private Bitmap? _lastFrameForFreeze;
+        private readonly object _freezeLock = new object();
+        private volatile bool _isFrozen;
+
+        public bool IsFrozen
+        {
+            get => _isFrozen;
+            set
+            {
+                _isFrozen = value;
+                if (!value)
+                {
+                    lock (_freezeLock)
+                    {
+                        _lastFrameForFreeze?.Dispose();
+                        _lastFrameForFreeze = null;
+                    }
+                }
+            }
+        }
 
         public ScreenCaptureEngine(StreamBroadcaster broadcaster)
         {
@@ -110,6 +131,12 @@ namespace ScreenTask.Core.Capture
             if (!IsRunning) return;
 
             IsRunning = false;
+            _isFrozen = false;
+            lock (_freezeLock)
+            {
+                _lastFrameForFreeze?.Dispose();
+                _lastFrameForFreeze = null;
+            }
             _cts?.Cancel();
             _audioService.Stop();
 
@@ -142,17 +169,53 @@ namespace ScreenTask.Core.Capture
 
                 try
                 {
-                    using var frame = CurrentSource.CaptureFrame(CaptureMouse);
-                    if (frame != null)
+                    Bitmap? frameToBroadcast = null;
+                    bool shouldDispose = false;
+
+                    if (_isFrozen)
+                    {
+                        long now = Stopwatch.GetTimestamp();
+                        lock (_freezeLock)
+                        {
+                            if (_lastFrameForFreeze != null && Stopwatch.GetElapsedTime(_lastFrozenBroadcastTicks, now).TotalMilliseconds >= 1500)
+                            {
+                                _lastFrozenBroadcastTicks = now;
+                                frameToBroadcast = _lastFrameForFreeze;
+                                shouldDispose = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var frame = CurrentSource.CaptureFrame(CaptureMouse);
+                        if (frame != null)
+                        {
+                            frameToBroadcast = frame;
+                            shouldDispose = true;
+
+                            lock (_freezeLock)
+                            {
+                                _lastFrameForFreeze?.Dispose();
+                                _lastFrameForFreeze = (Bitmap)frame.Clone();
+                            }
+                        }
+                    }
+
+                    if (frameToBroadcast != null)
                     {
                         long now = Stopwatch.GetTimestamp();
                         if (PreviewFrameAvailable != null && Stopwatch.GetElapsedTime(_lastPreviewTicks, now).TotalMilliseconds >= 160)
                         {
                             _lastPreviewTicks = now;
-                            try { PreviewFrameAvailable(frame); } catch { }
+                            try { PreviewFrameAvailable(frameToBroadcast); } catch { }
                         }
 
-                        await _broadcaster.BroadcastBitmapAsync(frame);
+                        await _broadcaster.BroadcastBitmapAsync(frameToBroadcast);
+
+                        if (shouldDispose)
+                        {
+                            frameToBroadcast.Dispose();
+                        }
                     }
                 }
                 catch (Exception)
@@ -181,8 +244,16 @@ namespace ScreenTask.Core.Capture
         public void Dispose()
         {
             _ = StopAsync();
-            _audioService.Dispose();
+            Task.Run(() =>
+            {
+                try { _audioService.Dispose(); } catch { }
+            });
             CurrentSource?.Dispose();
+            lock (_freezeLock)
+            {
+                _lastFrameForFreeze?.Dispose();
+                _lastFrameForFreeze = null;
+            }
         }
     }
 }

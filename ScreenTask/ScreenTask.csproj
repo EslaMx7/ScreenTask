@@ -12,7 +12,7 @@
     <StartupObject>ScreenTask.Program</StartupObject>
     <Version>2.0.0</Version>
     <AssemblyTitle>ScreenTask 2.0</AssemblyTitle>
-    <Description>ScreenTask - Free Open Source Offline &amp; LAN Screen Sharing</Description>
+    <Description>ScreenTask - Free Open Source Offline and Local Network Screen Sharing</Description>
     <Authors>Eslam Hamouda</Authors>
     <Copyright>Copyright © 2014-2026 Eslam Hamouda</Copyright>
     <LangVersion>13.0</LangVersion>

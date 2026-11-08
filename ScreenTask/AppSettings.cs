@@ -1,4 +1,5 @@
 using System;
+using System.Xml.Serialization;
 
 namespace ScreenTask
 {
@@ -18,7 +19,16 @@ namespace ScreenTask
         public long SelectedWindowHandle { get; set; } = 0;
         public bool IsAutoStartServerEnabled { get; set; } = false;
         public bool IsStartMinimizedEnabled { get; set; } = false;
+        public bool IsCloseToTrayEnabled { get; set; } = true;
+        public string SelectedAudioDeviceId { get; set; } = "";
         public bool DarkMode { get; set; } = true;
+
+        [XmlIgnore]
+        public bool IsMinimizeToTrayEnabled
+        {
+            get => IsCloseToTrayEnabled;
+            set => IsCloseToTrayEnabled = value;
+        }
 
         // Legacy compatibility properties
         public int ScreenshotsSpeed
