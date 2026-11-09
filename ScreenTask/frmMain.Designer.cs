@@ -1828,7 +1828,7 @@ namespace ScreenTask
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1460, 933);
+            ClientSize = new Size(1460, 960);
             Controls.Add(tabControlMain);
             Controls.Add(statusStripMain);
             Controls.Add(menuStripMain);
@@ -1836,7 +1836,7 @@ namespace ScreenTask
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStripMain;
             Margin = new Padding(4, 5, 4, 5);
-            MinimumSize = new Size(1240, 829);
+            MinimumSize = new Size(1240, 860);
             Name = "frmMain";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "ScreenTask 2.0";
