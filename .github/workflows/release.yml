@@ -54,7 +54,7 @@ jobs:
             -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false `
             -o publish/fxdependent
 
-          Compress-Archive -Path "publish/fxdependent/ScreenTask.exe", "README.md", "LICENSE" `
+          Compress-Archive -Path "publish/fxdependent/ScreenTask.exe", "README.md" `
             -DestinationPath "dist/ScreenTask-$tag-win-x64-portable.zip" -Force
 
           # 3. Generate SHA-256 Checksums
