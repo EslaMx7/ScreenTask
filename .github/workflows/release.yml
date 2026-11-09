@@ -59,10 +59,11 @@ jobs:
 
           # 3. Generate SHA-256 Checksums
           Push-Location dist
-          Get-ChildItem -File | ForEach-Object {
+          $lines = @(Get-ChildItem -File -Exclude "SHA256SUMS.txt" | ForEach-Object {
             $hash = (Get-FileHash $_.Name -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($_.Name)"
-          } | Out-File -FilePath "SHA256SUMS.txt" -Encoding utf8
+          })
+          $lines | Out-File -FilePath "SHA256SUMS.txt" -Encoding utf8
           Get-Content "SHA256SUMS.txt"
           Pop-Location
 
