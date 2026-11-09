@@ -22,14 +22,15 @@ namespace ScreenTask.Tests.UI
             RunInSta(() =>
             {
                 using var form = new frmMain();
-                form.Show();
 
                 Assert.NotNull(form);
                 Assert.Contains("ScreenTask 2.0", form.Text);
-                Assert.True(form.ClientSize.Width >= 750);
-                Assert.True(form.ClientSize.Height >= 550);
-                Assert.True(form.MinimumSize.Width >= 700);
-                Assert.True(form.MinimumSize.Height >= 500);
+                Assert.True(form.ClientSize.Width >= 750, $"Expected ClientSize.Width >= 750, got {form.ClientSize.Width}");
+                Assert.True(form.ClientSize.Height >= 550, $"Expected ClientSize.Height >= 550, got {form.ClientSize.Height}");
+                Assert.True(form.MinimumSize.Width >= 700, $"Expected MinimumSize.Width >= 700, got {form.MinimumSize.Width}");
+                Assert.True(form.MinimumSize.Height >= 500, $"Expected MinimumSize.Height >= 500, got {form.MinimumSize.Height}");
+
+                form.Show();
 
                 // Audio must default to muted / opt-in for presenter
                 Assert.False(form.cbAudio.Checked);
