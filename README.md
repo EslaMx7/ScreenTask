@@ -1,8 +1,12 @@
 # ScreenTask 2.0 🖥️⚡
 
 [![Website](https://img.shields.io/badge/Website-screentask.eslamx.com-4f46e5?style=flat-square)](https://screentask.eslamx.com/)
+[![Build & Test](https://img.shields.io/github/actions/workflow/status/EslaMx7/ScreenTask/ci.yml?branch=master&style=flat-square&label=CI%20Build)](https://github.com/EslaMx7/ScreenTask/actions/workflows/ci.yml)
+[![Latest Release](https://img.shields.io/github/v/release/EslaMx7/ScreenTask?style=flat-square&color=10b981)](https://github.com/EslaMx7/ScreenTask/releases/latest)
+[![Total Downloads](https://img.shields.io/github/downloads/EslaMx7/ScreenTask/total?style=flat-square&color=0ea5e9&label=Total%20Downloads)](https://github.com/EslaMx7/ScreenTask/releases)
+[![Latest Release Downloads](https://img.shields.io/github/downloads/EslaMx7/ScreenTask/latest/total?style=flat-square&color=6366f1&label=Latest%20Release%20Downloads)](https://github.com/EslaMx7/ScreenTask/releases/latest)
 [![GitHub Stars](https://img.shields.io/github/stars/EslaMx7/ScreenTask?style=flat-square&color=yellow)](https://github.com/EslaMx7/ScreenTask/stargazers)
-[![Built with .NET](https://img.shields.io/badge/.NET-10.0%20%2F%209.0-512bd4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
+[![Built with .NET](https://img.shields.io/badge/.NET-9.0-512bd4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.html)
 
 **Free, open-source, and portable screen & audio sharing over local Wi-Fi, Ethernet LAN, or mobile hotspot without internet.** 
@@ -21,8 +25,8 @@ ScreenTask 2.0 is a ground-up modernization of the original 2015 utility:
 * 🔊 **System Audio Sharing**: Stream live PC system audio (WASAPI Loopback) synchronized with the video—watch movies, presentations, and games with full sound.
 * 🪟 **Window & Application Sharing**: Share individual open applications (e.g. Visual Studio Code, PowerPoint, browser tabs) instead of exposing your entire desktop.
 * 📱 **Instant QR Code Pairing**: Desktop app generates a crisp vector QR code—point your phone camera at your PC screen to immediately start viewing.
-* 👥 **Connected Viewers & Fleet Management**: Real-time LAN concurrency tracker with capacity gauge, device & browser identification, live RTT ping measurement, active view mode detection (Pinch Zoom, Fullscreen), individual viewer audio mute, disconnect/kick controls, and on-screen broadcast announcements.
-* 🧩 **Modular Component Architecture**: Decoupled WinForms `UserControl` views (`BroadcastView`, `ConnectedViewersView`, `CaptureSettingsView`, `NetworkSettingsView`, `PreferencesView`) with full Visual Studio Designer support.
+* 👥 **Connected Viewers & Fleet Management**: Real-time LAN viewer list with device & browser identification, live RTT ping measurement, active view mode detection (Pinch Zoom, Fullscreen), individual viewer audio mute, disconnect/kick controls, and on-screen broadcast announcements.
+* 🪟 **Clean Native Windows 11/10 UI**: Compact 3-tab native WinForms utility (`Broadcast`, `Connected Viewers`, `Settings & Logs`) using standard `TabControl`, `GroupBox`, and `TableLayoutPanel` containers in the clean native Windows Light theme, opt-in audio streaming (muted by default), and an on-demand visual thumbnail source picker dialog.
 * 💾 **Zero-Disk Architecture**: Video frames and audio chunks are processed entirely in-memory (`ArrayPool<byte>`); zero files are written to SSD/HDD.
 * 🔒 **Lock Screen & Sleep Resilience**: Handles Windows lock screen (`Win + L`) and desktop session switching gracefully without freezing or terminating.
 * 🎨 **Next-Gen Web Viewer**: Redesigned with the Slate & Dynamic Indigo theme from [screentask.eslamx.com](https://screentask.eslamx.com/), featuring:
@@ -81,12 +85,21 @@ cd ScreenTask
 # Build solution
 dotnet build ScreenTask/ScreenTask.csproj
 
-# Publish standalone single-file binary
-dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
+# Publish standalone single-file binary (with embedded web viewer assets)
+dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
 The published executable will be available at:
 `ScreenTask/bin/Release/net9.0-windows10.0.19041.0/win-x64/publish/ScreenTask.exe`
+
+---
+
+## 💬 Feedback, Bug Reports & Feature Requests
+
+Have an idea for ScreenTask 2.0 or encountered an issue?
+* **In-App**: Click **Report Bug / Request Feature** in the top menu bar (or **Help → Report a Bug...**) to generate a pre-filled template with system & session diagnostics.
+* **GitHub Issues (Recommended)**: [Open an Issue on GitHub](https://github.com/EslaMx7/ScreenTask/issues)
+* **Email Support**: Send feedback or private diagnostic logs to [support@eslamx.com](mailto:support@eslamx.com)
 
 ---
 

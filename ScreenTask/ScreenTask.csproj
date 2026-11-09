@@ -30,9 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="WebServer\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="WebServer\**" />
     <Content Include="file_icon.ico" />
     <Content Include="screenicon.ico" />
   </ItemGroup>

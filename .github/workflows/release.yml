@@ -1,0 +1,85 @@
+name: Publish GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, Verify & Publish Release (.NET 9.0)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Verify JavaScript syntax (Web Viewer)
+        run: node -c ScreenTask/WebServer/viewer.js
+
+      - name: Build & Run Automated Test Suite
+        run: |
+          dotnet build -c Release --no-restore
+          dotnet test -c Release --no-build --verbosity normal
+
+      - name: Package Standalone & Framework-Dependent Binaries
+        shell: pwsh
+        run: |
+          # Note: Keep major release tags 2-5 chars (e.g., "v2.0") so legacy v1.2 clients
+          # matching \"tag_name\":\"(.{2,5})\", detect the update on startup.
+          $tag = if ($env:GITHUB_REF_NAME -like "v*") { $env:GITHUB_REF_NAME } else { "v2.0" }
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+
+          # 1. Standalone Self-Contained Single-File EXE (Zero .NET runtime install required)
+          dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None -p:DebugSymbols=false `
+            -o publish/standalone
+
+          Copy-Item "publish/standalone/ScreenTask.exe" "dist/ScreenTask-$tag-win-x64-standalone.exe"
+
+          # 2. Lightweight Framework-Dependent Single-File ZIP (Requires .NET 9 Desktop Runtime)
+          dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained false `
+            -p:PublishSingleFile=true -p:DebugType=None -p:DebugSymbols=false `
+            -o publish/fxdependent
+
+          Compress-Archive -Path "publish/fxdependent/ScreenTask.exe", "README.md", "LICENSE" `
+            -DestinationPath "dist/ScreenTask-$tag-win-x64-portable.zip" -Force
+
+          # 3. Generate SHA-256 Checksums
+          Push-Location dist
+          Get-ChildItem -File | ForEach-Object {
+            $hash = (Get-FileHash $_.Name -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          } | Out-File -FilePath "SHA256SUMS.txt" -Encoding utf8
+          Get-Content "SHA256SUMS.txt"
+          Pop-Location
+
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreenTask-Release-Packages
+          path: dist/*
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ScreenTask ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/ScreenTask-*-win-x64-standalone.exe
+            dist/ScreenTask-*-win-x64-portable.zip
+            dist/SHA256SUMS.txt

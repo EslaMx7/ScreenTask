@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 📧 Email Support (support@eslamx.com)
+    url: mailto:support@eslamx.com?subject=%5BScreenTask%202.0%5D%20Feedback%20or%20Support
+    about: Prefer email or want to share diagnostic logs privately? Send an email directly to support@eslamx.com.
+  - name: 🌐 Official ScreenTask Website
+    url: https://screentask.eslamx.com
+    about: Visit the official website for guides, documentation, and latest downloads.

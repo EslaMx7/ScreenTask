@@ -135,7 +135,7 @@ namespace ScreenTask.UI
                 Location = new Point(8, Math.Max(10, Height - 24)),
                 Padding = new Padding(4, 2, 4, 2),
                 Parent = picPreview,
-                Text = "Audio: Active"
+                Text = "Audio: Muted"
             };
 
             lblFps = new Label
@@ -175,14 +175,32 @@ namespace ScreenTask.UI
             if (IsDisposed || !IsHandleCreated) return;
             try
             {
+                var cloned = (Bitmap)bmp.Clone();
                 if (InvokeRequired)
                 {
-                    BeginInvoke(() => UpdatePreview(bmp));
+                    try
+                    {
+                        BeginInvoke(() =>
+                        {
+                            if (IsDisposed || picPreview.IsDisposed)
+                            {
+                                cloned.Dispose();
+                                return;
+                            }
+                            var oldImg = picPreview.Image;
+                            picPreview.Image = cloned;
+                            oldImg?.Dispose();
+                        });
+                    }
+                    catch
+                    {
+                        cloned.Dispose();
+                    }
                     return;
                 }
-                var oldImg = picPreview.Image;
-                picPreview.Image = (Bitmap)bmp.Clone();
-                oldImg?.Dispose();
+                var prev = picPreview.Image;
+                picPreview.Image = cloned;
+                prev?.Dispose();
             }
             catch { }
         }

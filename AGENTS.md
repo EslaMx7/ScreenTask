@@ -18,8 +18,10 @@ supporting iOS Safari, Android Chrome, and desktop browsers.
     * `Network/` - Network adapter enumeration, firewall rule helpers, and QR code generation.
     * `Streaming/` - In-memory JPEG encoding, frame-dropping protection, WebSocket broadcaster, and `ViewerSession` fleet telemetry.
   * `UI/` - Windows Forms single-window host UI and custom components.
+    * `FeedbackForm.cs` - In-app bug report and feature request dialog with auto-diagnostics, GitHub Issues integration, and email/clipboard fallback.
     * `MonitorPreview.cs` - Native confidence monitor panel with live overlay indicators.
     * `SourceCard.cs` - Visual source selection card for displays and application windows.
+    * `SourceSelectionForm.cs` - On-demand visual thumbnail picker dialog for displays and application windows.
   * `WebServer/` - Embedded ASP.NET Core server, REST endpoints, and static web viewer assets.
 * `ScreenTask.Tests/` - Automated xUnit test suite containing unit, integration, and UI tests.
   * `Core/` - Unit tests for settings, capture clipping, adapters, QR codes, and audio.
@@ -97,7 +99,7 @@ dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contain
   * WinForms event handlers use `controlName_EventName` (`btnStartServer_Click`).
 * **Web Viewer Code**:
   * Pure ES6+ JavaScript wrapped in IIFE (`viewer.js`), standard CSS3 (`viewer.css`).
-  * Zero npm/webpack build step required; assets are served directly from disk.
+  * Zero npm/webpack build step required; assets are compiled into the executable as `<EmbeddedResource>` and served directly from memory.
   * Always verify syntax with `node -c ScreenTask/WebServer/viewer.js` after edits.
 * **Commit Message Format**: Follow Conventional Commits:
   * Format: `<type>(<scope>): <short description>`
@@ -129,11 +131,11 @@ flowchart TD
 ```
 
 ### Component Breakdown & Data Flow
-1. **Single-Window Console UI (`frmMain`)**: UI is unified into a single Windows Forms
-   console with a side navigation bar and 5 integrated views (`Broadcast`, `Viewers & Fleet`,
-   `Video Sources`, `Network & PIN`, `Preferences & Audio`). All child forms have been retired
-   so that session monitoring, pairing QR codes, source selection, network settings, and audio
-   diagnostics are accessed natively without opening external windows or dialogs.
+1. **Compact 3-Tab Native UI (`frmMain`)**: Unified into a native Windows Forms `TabControl`
+   with 3 organized tabs (`Broadcast`, `Connected Viewers`, `Settings & Logs`) built using native
+   `GroupBox` and `TableLayoutPanel` containers, classic Windows Light theme styling, opt-in
+   audio streaming (muted by default), inline QR code pairing on the main Broadcast tab, and an
+   on-demand visual source picker dialog (`SourceSelectionForm`).
 2. **ScreenCaptureEngine**: Driven by an asynchronous high-resolution timer loop. Captures frames
    from `ICaptureSource` (`ScreenCaptureSource` or `WindowCaptureSource`) using GDI32 BitBlt or
    PrintWindow, conditionally draws the hardware mouse cursor, and pushes bitmaps to broadcaster.
@@ -165,12 +167,12 @@ flowchart TD
    * Tests PIN authorization enforcement, invalid attempts, and dynamic client disconnection.
    * Automatically validates `viewer.js` syntax via `node -c -` through standard input.
 3. **UI Tests** (`ScreenTask.Tests/UI/`):
-   * Runs forms (`frmMain`, `QrCodeForm`, `AudioDiagnosticsForm`) inside STA threads.
+   * Runs forms (`frmMain`, `SourceSelectionForm`, `FeedbackForm`) inside STA threads.
    * Validates control layouts, refresh buttons, and deadlock-free disposal.
 4. **Local Execution**:
    * Run `dotnet test` from repository root.
 5. **CI Execution**:
-   > TODO: Add GitHub Actions workflow (`.github/workflows/ci.yml`) targeting `windows-latest`.
+   * Automated GitHub Actions workflow (`.github/workflows/ci.yml`) targeting `windows-latest`.
 
 ## Security & Compliance
 
@@ -202,10 +204,10 @@ flowchart TD
 * **UI Threading**:
   * Never call blocking audio operations (`Dispose()`, `Join()`, `Stop()`) synchronously on the
     Windows Forms UI thread. Perform audio cleanup on background tasks or asynchronous paths.
-* **Web Client Synchronization**:
-  * When editing `ScreenTask/WebServer/viewer.js` or `viewer.css` while the application is
-    running, also sync changes to `ScreenTask/bin/Debug/.../WebServer/` so the live process serves
-    the updated assets immediately.
+* **Web Client Assets**:
+  * Static web viewer assets in `ScreenTask/WebServer/` (`index.html`, `viewer.css`, `viewer.js`,
+    `favicon.svg`, `buymeacoffee.png`) are embedded into the assembly as `<EmbeddedResource>` and
+    served from memory by `EmbeddedWebServer`. Rebuild the project after editing web assets.
 
 ## Extensibility Hooks
 

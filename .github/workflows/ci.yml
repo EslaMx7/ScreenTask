@@ -1,0 +1,46 @@
+name: Build, Test & Package
+
+on:
+  push:
+    branches: [ master, main, "v2-*" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ master, main, "v2-*" ]
+
+jobs:
+  build-and-test:
+    name: Windows Build & Test (.NET 9.0)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.0 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Verify JavaScript syntax (Web Viewer)
+        run: node -c ScreenTask/WebServer/viewer.js
+
+      - name: Build Release (Zero Warnings/Errors)
+        run: dotnet build -c Release --no-restore
+
+      - name: Run Automated Test Suite (Unit, Integration, UI)
+        run: dotnet test -c Release --no-build --verbosity normal
+
+      - name: Publish Standalone Single-File Executable (win-x64)
+        run: |
+          dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/win-x64
+
+      - name: Upload ScreenTask Portable Binary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ScreenTask-v2.0-win-x64
+          path: publish/win-x64/ScreenTask.exe
+          if-no-files-found: error

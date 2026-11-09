@@ -21,7 +21,7 @@ namespace ScreenTask
         public bool IsStartMinimizedEnabled { get; set; } = false;
         public bool IsCloseToTrayEnabled { get; set; } = true;
         public string SelectedAudioDeviceId { get; set; } = "";
-        public bool DarkMode { get; set; } = true;
+        public bool DarkMode { get; set; } = false;
 
         [XmlIgnore]
         public bool IsMinimizeToTrayEnabled

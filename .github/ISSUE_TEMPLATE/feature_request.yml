@@ -1,0 +1,35 @@
+name: Feature Request
+description: Suggest an idea, enhancement, or new feature for ScreenTask
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make **ScreenTask** better? Share it below!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What problem or workflow would this feature solve?
+      placeholder: E.g., I want to share my screen in a classroom where...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this feature to work?
+      placeholder: Describe how the feature or UI should behave...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any mockups, examples, or extra notes about your setup.
+    validations:
+      required: false

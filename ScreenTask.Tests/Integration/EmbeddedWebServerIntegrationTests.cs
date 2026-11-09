@@ -337,5 +337,20 @@ namespace ScreenTask.Tests.Integration
 
             await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "Done", CancellationToken.None);
         }
+
+        [Fact]
+        public async Task StaticAssets_FaviconSvgAndEmbeddedResources_ArePresent()
+        {
+            var response = await _http.GetAsync($"http://127.0.0.1:{_testPort}/favicon.svg");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("image/svg+xml", response.Content.Headers.ContentType?.ToString() ?? "");
+
+            // Verify WebServer assets are also embedded in the assembly for single-file portability
+            var assembly = typeof(EmbeddedWebServer).Assembly;
+            var resources = assembly.GetManifestResourceNames();
+            Assert.Contains(resources, r => r.EndsWith(".WebServer.index.html", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(resources, r => r.EndsWith(".WebServer.viewer.js", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(resources, r => r.EndsWith(".WebServer.viewer.css", StringComparison.OrdinalIgnoreCase));
+        }
     }
 }

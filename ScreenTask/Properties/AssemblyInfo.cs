@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ScreenTask")]
-[assembly: AssemblyDescription("Screen sharing made easy")]
+[assembly: AssemblyTitle("ScreenTask 2.0")]
+[assembly: AssemblyDescription("Free, Open-Source Offline and Local Network Screen & Audio Sharing")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Eslam Hamouda")]
-[assembly: AssemblyProduct("ScreenTask v1.1")]
-[assembly: AssemblyCopyright("Copyright ©  Eslam Hamouda 2014-2020")]
+[assembly: AssemblyProduct("ScreenTask 2.0")]
+[assembly: AssemblyCopyright("Copyright © Eslam Hamouda 2014-2026")]
 [assembly: AssemblyTrademark("Eslam Hamouda")]
 [assembly: AssemblyCulture("")]
 
@@ -32,6 +32,6 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("2.0.0.0")]
+[assembly: AssemblyFileVersion("2.0.0.0")]
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("ScreenTask.Tests")]

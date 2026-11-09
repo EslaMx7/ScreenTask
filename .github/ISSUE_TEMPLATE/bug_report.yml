@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a bug, crash, or unexpected behavior in ScreenTask 2.0
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve **ScreenTask 2.0**!
+        💡 **Tip:** You can auto-fill this report with system & session diagnostics directly from inside ScreenTask via **Help → Report a Bug...** (or the **Report Bug / Feedback** button on the top menu bar).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe what went wrong...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce the issue?
+      value: |
+        1. Launch ScreenTask 2.0
+        2. Select capture source / audio settings...
+        3. Click 'Start Broadcast'
+        4. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. Actual Behavior
+      description: What did you expect to happen, and what actually happened instead?
+    validations:
+      required: false
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: System & Session Diagnostics
+      description: Paste the diagnostics block from ScreenTask (Help → Report a Bug → Copy Message & Diagnostics), or fill in your environment details below.
+      render: text
+    validations:
+      required: false

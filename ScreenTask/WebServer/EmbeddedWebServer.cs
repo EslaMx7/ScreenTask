@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -106,27 +107,36 @@ namespace ScreenTask.WebServer
             }
         }
 
-        private static string? GetWebServerDirectory()
+        private static readonly ConcurrentDictionary<string, byte[]?> _embeddedAssetCache = new(StringComparer.OrdinalIgnoreCase);
+
+        private static byte[]? GetEmbeddedAssetBytes(string safeFileName)
         {
-            var candidates = new[]
+            return _embeddedAssetCache.GetOrAdd(safeFileName, static name =>
             {
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "WebServer"),
-                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "WebServer"),
-                Path.Combine(Directory.GetCurrentDirectory(), "WebServer"),
-                Path.Combine(Directory.GetCurrentDirectory(), "ScreenTask", "WebServer")
-            };
-            return candidates.FirstOrDefault(Directory.Exists);
+                var assembly = typeof(EmbeddedWebServer).Assembly;
+                string expectedSuffix = $".WebServer.{name}";
+                string? resourceName = assembly.GetManifestResourceNames()
+                    .FirstOrDefault(n => n.EndsWith(expectedSuffix, StringComparison.OrdinalIgnoreCase));
+
+                if (resourceName == null) return null;
+
+                using var stream = assembly.GetManifestResourceStream(resourceName);
+                if (stream == null) return null;
+
+                using var ms = new MemoryStream();
+                stream.CopyTo(ms);
+                return ms.ToArray();
+            });
         }
 
         private static async Task ServeFileAsync(HttpContext context, string fileName, string contentType)
         {
-            var webServerDir = GetWebServerDirectory();
-            if (webServerDir != null)
+            string safeFileName = Path.GetFileName(fileName);
+            if (!string.IsNullOrWhiteSpace(safeFileName))
             {
-                var filePath = Path.Combine(webServerDir, fileName);
-                if (File.Exists(filePath))
+                var bytes = GetEmbeddedAssetBytes(safeFileName);
+                if (bytes != null)
                 {
-                    var bytes = await File.ReadAllBytesAsync(filePath);
                     context.Response.ContentType = contentType;
                     context.Response.ContentLength = bytes.Length;
                     context.Response.Headers.CacheControl = "no-cache";
@@ -136,7 +146,7 @@ namespace ScreenTask.WebServer
             }
 
             context.Response.StatusCode = StatusCodes.Status404NotFound;
-            await context.Response.WriteAsync($"File {fileName} not found");
+            await context.Response.WriteAsync($"File {safeFileName} not found");
         }
 
         private void ConfigureRoutes(WebApplication app)
