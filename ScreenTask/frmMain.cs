@@ -70,6 +70,13 @@ namespace ScreenTask
         {
             InitializeComponent();
 
+            // Prevent pre-autoscale MaxWindowTrackSize clamping on 96-DPI displays (e.g., 1024x768 or 1366x768)
+            // from double-shrinking ClientSize when Designer coordinates are stored at 150% DPI (10x25).
+            float scaleX = CurrentAutoScaleDimensions.Width > 0 ? CurrentAutoScaleDimensions.Width / 10f : 1f;
+            float scaleY = CurrentAutoScaleDimensions.Height > 0 ? CurrentAutoScaleDimensions.Height / 25f : 1f;
+            MinimumSize = new Size((int)Math.Round(1240 * scaleX), (int)Math.Round(860 * scaleY));
+            ClientSize = new Size((int)Math.Round(1460 * scaleX), (int)Math.Round(960 * scaleY));
+
             _broadcaster = new StreamBroadcaster(80);
             _captureEngine = new ScreenCaptureEngine(_broadcaster);
             _webServer = new EmbeddedWebServer(_broadcaster, _captureEngine);
