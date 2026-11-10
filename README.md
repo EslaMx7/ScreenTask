@@ -9,11 +9,24 @@
 [![Built with .NET](https://img.shields.io/badge/.NET-9.0-512bd4?style=flat-square&logo=dotnet)](https://dotnet.microsoft.com/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=flat-square)](https://www.gnu.org/licenses/gpl-3.0.html)
 
-**Free, open-source, and portable screen & audio sharing over local Wi-Fi, Ethernet LAN, or mobile hotspot without internet.** 
+**Free, open-source, and portable 60 FPS screen & audio sharing over local Wi-Fi, Ethernet LAN, or mobile hotspot without internet.**
 
-Viewers connect instantly via any web browser on desktop, tablet, or smartphone (iOS Safari, Android Chrome)—no client software, browser extensions, or accounts needed.
+Viewers connect instantly via any web browser on desktop, tablet, or smartphone (iOS Safari, Android Chrome) with zero client software, browser extensions, or cloud accounts required.
 
-🌐 **Official Website & Guides**: [https://screentask.eslamx.com/](https://screentask.eslamx.com/)
+🌐 **Official Website**: [https://screentask.eslamx.com/](https://screentask.eslamx.com/) · 🚀 **What's New in 2.0**: [https://screentask.eslamx.com/v2](https://screentask.eslamx.com/v2) · 📦 **Legacy v1.2 Archive**: [https://screentask.eslamx.com/v1](https://screentask.eslamx.com/v1)
+
+[![ScreenTask 2.0 Desktop Application showing 16:9 Live Preview, Audio Control, and QR Code Phone Pairing](https://screentask.eslamx.com/screenshots/v2-main.png)](https://screentask.eslamx.com/)
+
+---
+
+## 📥 Direct Downloads
+
+| Edition | Target OS | Package Size | Download Link |
+| :--- | :--- | :--- | :--- |
+| **ScreenTask 2.0 Standalone Single-File `.EXE`** *(Recommended)* | Windows 10 & 11 (64-bit) | ~160 MB *(Includes .NET 9 Runtime)* | [**Download Standalone .EXE**](https://github.com/EslaMx7/ScreenTask/releases/download/v2.0/ScreenTask-v2.0-win-x64-standalone.exe) |
+| **ScreenTask 2.0 Lightweight Portable `.ZIP`** | Windows 10 & 11 (64-bit, requires .NET 9) | ~7.0 MB | [**Download Portable .ZIP**](https://github.com/EslaMx7/ScreenTask/releases/download/v2.0/ScreenTask-v2.0-win-x64-portable.zip) |
+| **SHA-256 Checksums (`SHA256SUMS.txt`)** | Verification | 210 B | [**View SHA256SUMS.txt**](https://github.com/EslaMx7/ScreenTask/releases/download/v2.0/SHA256SUMS.txt) |
+| **ScreenTask v1.2 Classic (Legacy Archive)** | Windows Vista, 7, 8, 10, 11 (32-bit & 64-bit) | 750 KB (`.exe`) / 292 KB (`.zip`) | [**Legacy v1.2 Archive**](https://screentask.eslamx.com/v1) |
 
 ---
 
@@ -21,20 +34,20 @@ Viewers connect instantly via any web browser on desktop, tablet, or smartphone 
 
 ScreenTask 2.0 is a ground-up modernization of the original 2015 utility:
 
-* 🚀 **Real-Time 30–60 FPS Streaming**: Replaced 2 FPS image polling with a high-performance, low-latency binary WebSocket streaming pipeline (<50ms LAN latency).
-* 🔊 **System Audio Sharing**: Stream live PC system audio (WASAPI Loopback) synchronized with the video—watch movies, presentations, and games with full sound.
-* 🪟 **Window & Application Sharing**: Share individual open applications (e.g. Visual Studio Code, PowerPoint, browser tabs) instead of exposing your entire desktop.
-* 📱 **Instant QR Code Pairing**: Desktop app generates a crisp vector QR code—point your phone camera at your PC screen to immediately start viewing.
-* 👥 **Connected Viewers & Fleet Management**: Real-time LAN viewer list with device & browser identification, live RTT ping measurement, active view mode detection (Pinch Zoom, Fullscreen), individual viewer audio mute, disconnect/kick controls, and on-screen broadcast announcements.
-* 🪟 **Clean Native Windows 11/10 UI**: Compact 3-tab native WinForms utility (`Broadcast`, `Connected Viewers`, `Settings & Logs`) using standard `TabControl`, `GroupBox`, and `TableLayoutPanel` containers in the clean native Windows Light theme, opt-in audio streaming (muted by default), and an on-demand visual thumbnail source picker dialog.
-* 💾 **Zero-Disk Architecture**: Video frames and audio chunks are processed entirely in-memory (`ArrayPool<byte>`); zero files are written to SSD/HDD.
-* 🔒 **Lock Screen & Sleep Resilience**: Handles Windows lock screen (`Win + L`) and desktop session switching gracefully without freezing or terminating.
-* 🎨 **Next-Gen Web Viewer**: Redesigned with the Slate & Dynamic Indigo theme from [screentask.eslamx.com](https://screentask.eslamx.com/), featuring:
-  * Fullscreen & pinch-to-zoom (up to 5x) for reading fine text on smartphones.
+* 🚀 **Real-Time 30-60 FPS Streaming**: Replaced 2 FPS image polling with a high-performance, low-latency dual-channel binary WebSocket streaming pipeline (<50ms LAN latency).
+* 🔊 **System & Microphone Audio Sharing**: Stream live PC system audio (WASAPI Loopback) or microphone input synchronized with the video so viewers can watch movies, presentations, and games with full sound.
+* 🪟 **Window & Application Sharing**: Share individual open applications (e.g. Visual Studio Code, PowerPoint, browser windows) using the visual thumbnail picker (`Pick Visually...`) instead of exposing your entire desktop.
+* 📱 **Instant QR Code Pairing**: Desktop app generates a crisp vector QR code right on the main Broadcast tab (with click-to-enlarge projector modal) so viewers can point their phone camera at the PC screen and start watching immediately.
+* 👥 **Connected Viewers & Fleet Management**: Real-time LAN viewer list with device & browser identification, live RTT ping measurement, active view mode detection (Pinch Zoom, Fullscreen), individual viewer audio mute, disconnect/kick controls, and on-screen broadcast toast announcements.
+* 🖥️ **Clean Native Windows 11/10 UI**: Compact 3-tab native WinForms console (`Broadcast`, `Connected Viewers`, `Settings & Logs`) using standard `TabControl`, `GroupBox`, and `TableLayoutPanel` containers in the clean native Windows Light theme with a live 16:9 confidence monitor and opt-in audio streaming (muted by default).
+* 💾 **Zero-Disk Architecture**: Video frames, audio chunks, and embedded web viewer assets are processed and served entirely in-memory (`ArrayPool<byte>`); zero files are written to SSD/HDD.
+* 🔒 **Lock Screen & Sleep Resilience**: Handles Windows lock screen (`Win + L`) and desktop session switching gracefully without crashing or disconnecting viewers.
+* 🎨 **Next-Gen Mobile-First Web Viewer**: Redesigned with the Slate & Dynamic Indigo theme from [screentask.eslamx.com](https://screentask.eslamx.com/), featuring:
+  * Fullscreen & mobile pinch-to-zoom (up to 5x) plus double-tap zoom for reading fine text and code on smartphones.
   * Web Audio API player with volume slider and mute controls.
-  * Live stream HUD (FPS counter, resolution, latency).
-  * Clean PIN authentication dialog.
-* ⚡ **Modern .NET & Standalone Portability**: Upgraded from legacy .NET Framework 4.8 to modern .NET with Single-File publishing.
+  * Live stream HUD (FPS counter, resolution, RTT latency).
+  * Clean 4-digit PIN authentication dialog.
+* ⚡ **Modern .NET 9 & Standalone Portability**: Upgraded from legacy .NET Framework 4.8 to modern .NET 9 with pure Single-File publishing and embedded web assets.
 
 ---
 
@@ -42,51 +55,56 @@ ScreenTask 2.0 is a ground-up modernization of the original 2015 utility:
 
 | Feature | ScreenTask 1.x (2015–2022) | ScreenTask 2.0 (2026) |
 | :--- | :--- | :--- |
-| **Streaming Protocol** | HTTP Polling (`img.src = ...?rand=`) | Binary WebSocket Stream + HTTP Fallback |
+| **Streaming Protocol** | HTTP Polling (`img.src = ...?rand=`) | **Dual-Channel Binary WebSockets** |
 | **Frame Rate** | ~2–5 FPS (slideshow) | **30–60 FPS (fluid real-time)** |
 | **Latency** | 500ms – 2000ms | **Sub-50ms** |
-| **Audio Streaming** | ❌ No | **✅ Yes (WASAPI System Audio)** |
+| **Audio Streaming** | ❌ No | **✅ Yes (WASAPI System & Mic Audio)** |
 | **Capture Sources** | Full monitors only | **Full monitors + Individual app windows** |
+| **Viewer Management** | ❌ None (blind broadcast) | **✅ Live viewer list, RTT ping, mute/kick & toast alerts** |
 | **Disk I/O** | Constantly writes `ScreenTask.jpg` to disk | **Zero disk writes (100% in RAM)** |
 | **Mobile Pairing** | Manual IP & port typing | **Instant QR Code Camera Scan** |
-| **Mobile Gestures** | Fixed viewport | **Pinch-to-zoom & two-finger pan** |
-| **Host Runtime** | Legacy .NET Framework 4.8 | **Modern .NET 10 / 9 Standalone Single-File** |
+| **Mobile Gestures** | Fixed viewport | **Pinch-to-zoom (5x) & two-finger pan** |
+| **Host Runtime** | Legacy .NET Framework 4.5 / 4.8 | **Modern .NET 9 Standalone Single-File** |
 
 ---
 
 ## 🚀 Getting Started
 
 ### 1. Host (Sharing your screen)
-1. Download the latest `ScreenTask.exe` from [Releases](https://github.com/EslaMx7/ScreenTask/releases) or [screentask.eslamx.com](https://screentask.eslamx.com/).
-2. Launch `ScreenTask.exe` (no installation required).
-3. Select your network adapter (Wi-Fi, Hotspot, or Ethernet).
-4. Choose your source (Monitor or specific Application Window).
-5. Toggle **Stream PC Audio** if you want to include system sound.
-6. Click **Start Server**.
+1. Download the latest `ScreenTask-v2.0-win-x64-standalone.exe` from [Releases](https://github.com/EslaMx7/ScreenTask/releases/tag/v2.0) or [screentask.eslamx.com](https://screentask.eslamx.com/download).
+2. Launch the executable (zero installation or external `WebServer` folder required).
+3. Select your **Network Interface & Port** (Wi-Fi, Mobile Hotspot, or Ethernet).
+4. Choose your capture source under **Share** (full Display or click **Pick Visually...** to choose a specific application window).
+5. Check **Stream Audio** (or click **Unmute Audio**) if you want to broadcast PC system sound or microphone audio.
+6. Click **▶ START BROADCAST**.
 
 ### 2. Viewers (Watching the stream)
-* **On Mobile**: Scan the QR code shown on the ScreenTask window using your camera app.
-* **On Desktop/Laptop**: Open any modern web browser and navigate to the displayed URL (e.g. `http://192.168.1.100:7070`).
+* **On Mobile / Tablet**: Scan the QR code shown in the bottom-right corner of the ScreenTask window using your phone camera.
+* **On Desktop / Laptop / Smart TV**: Open any modern web browser and navigate to the displayed **Stream Web Address** (e.g. `http://192.168.1.100:7070`).
 
 ---
 
-## 🛠️ Building from Source
+## 🛠️ Building & Testing from Source
 
 ### Prerequisites
 * Windows 10 (version 1809+) or Windows 11
-* [.NET 9.0 or .NET 10.0 SDK](https://dotnet.microsoft.com/download)
+* [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 
-### Build Command
+### Build, Test & Publish Commands
 ```powershell
 # Clone repository
 git clone https://github.com/EslaMx7/ScreenTask.git
 cd ScreenTask
 
 # Build solution
-dotnet build ScreenTask/ScreenTask.csproj
+dotnet build -c Release
+
+# Run automated unit, integration, and STA UI tests
+dotnet test -c Release
 
 # Publish standalone single-file binary (with embedded web viewer assets)
-dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true `
+  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
 ```
 
 The published executable will be available at:
@@ -107,8 +125,9 @@ Have an idea for ScreenTask 2.0 or encountered an issue?
 
 Explore step-by-step tutorials on the official website:
 * [How to Share PC Screen Over Wi-Fi Without Internet (Mobile Hotspot)](https://screentask.eslamx.com/guides/share-pc-screen-wifi-hotspot-without-internet)
+* [How to Stream PC Screen to Phone or Tablet Browser](https://screentask.eslamx.com/guides/stream-pc-screen-to-phone-tablet-browser)
+* [Windows 11 ScreenTask Setup & Firewall Guide](https://screentask.eslamx.com/guides/windows-11-setup-and-firewall)
 * [Troubleshooting ScreenTask: Fixing Port Conflicts & Firewall](https://screentask.eslamx.com/guides/screentask-troubleshooting-connection-ip-port)
-* [How to Stream PC Screen to Phone Browser](https://screentask.eslamx.com/guides/stream-pc-screen-to-phone-tablet-browser)
 
 ---
 

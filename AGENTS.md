@@ -81,9 +81,13 @@ dotnet run --project ScreenTask/ScreenTask.csproj
 
 ### Publish & Deploy
 ```powershell
-# Publish standalone single-file executable for Windows x64
+# Publish standalone single-file executable for Windows x64 (self-contained .NET 9)
 dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained true `
   -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
+
+# Publish lightweight framework-dependent portable build for Windows x64
+dotnet publish ScreenTask/ScreenTask.csproj -c Release -r win-x64 --self-contained false `
+  -p:PublishSingleFile=true
 ```
 
 ## Code Style & Conventions
@@ -171,8 +175,9 @@ flowchart TD
    * Validates control layouts, refresh buttons, and deadlock-free disposal.
 4. **Local Execution**:
    * Run `dotnet test` from repository root.
-5. **CI Execution**:
-   * Automated GitHub Actions workflow (`.github/workflows/ci.yml`) targeting `windows-latest`.
+5. **CI & Release Execution**:
+   * Automated CI workflow (`.github/workflows/ci.yml`) targeting `windows-latest` on pushes and pull requests to `master`.
+   * Automated GitHub Release workflow (`.github/workflows/release.yml`) triggered on `v*` tags (`v2.0`), publishing `ScreenTask-<tag>-win-x64-standalone.exe`, `ScreenTask-<tag>-win-x64-portable.zip`, and `SHA256SUMS.txt`.
 
 ## Security & Compliance
 
@@ -228,6 +233,8 @@ flowchart TD
 ## Further Reading
 
 * [README.md](README.md) - End-user setup guide, feature overview, and version comparison.
-* [Official Project Website](https://screentask.eslamx.com/) - User tutorials and releases.
+* [Official Project Website](https://screentask.eslamx.com/) - Landing page, user tutorials, and downloads.
+* [ScreenTask 2.0 Release Hub](https://screentask.eslamx.com/v2) - Feature deep-dive and v1.x vs v2.0 comparison.
+* [Legacy v1.2 Classic Archive](https://screentask.eslamx.com/v1) - Preserved downloads for Windows Vista/7/8 and 32-bit systems.
 * > TODO: Create `docs/ARCH.md` with binary WebSocket frame header specifications.
 * > TODO: Create `docs/CONTRIBUTING.md` with guidelines for pull requests and code review.
